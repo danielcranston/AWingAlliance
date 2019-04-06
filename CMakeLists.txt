@@ -2,6 +2,10 @@ project(AWingAlliance)
 cmake_minimum_required(VERSION 3.1)
 set(CMAKE_CXX_STANDARD 11)
 
+# find_path : finds header files
+# find_library : finds libraries
+# find_package : finds some predefined file that does a bunch of the two above
+
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
 

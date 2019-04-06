@@ -8,7 +8,9 @@ bool bDownArrow = false;
 bool bLeftArrow = false;
 bool bRightArrow = false;
 
-extern Actor aActor;
+extern Actor aAWing;;
+extern Actor aCoordAxis;
+extern Actor aCam;
 
 
 // glut KeyboardFunc related
@@ -74,8 +76,12 @@ void ProcessKeyboardInput()
 	if (SpecialIsDown(GLUT_KEY_LEFT))	turnChange =  0.025;
 	if (SpecialIsDown(GLUT_KEY_RIGHT))	turnChange = -0.025;
 
-	aActor.Update(speedChange, turnChange);
+	if (KeyIsDown(' ')) aAWing.SetPosition(glm::vec3(0.0));
 
-	if (KeyIsDown(' ')) aActor.SetPosition(glm::vec3(0.0));
+	aAWing.Update(speedChange, turnChange);
 
+	#if DRAW_OTHERS
+	aCam.Update(speedChange, turnChange);
+	aCoordAxis.Update(speedChange, turnChange);
+	#endif
 }
