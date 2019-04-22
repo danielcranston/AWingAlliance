@@ -24,7 +24,7 @@ sudo apt-get install libglew-dev
 sudo apt-get install libglm-dev
 ```
 
-Cloning the repository and building the project:
+Cloning the repository, building the project and running the executable:
 
 ```
 git clone https://github.com/danielcranston/AWingAlliance
@@ -33,6 +33,8 @@ mkdir build
 cd build
 cmake ..
 make
+cd ..
+./awing
 ```
 
 ## Authors
