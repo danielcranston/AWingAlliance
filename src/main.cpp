@@ -45,12 +45,12 @@ void init()
 	SCREEN_W = 1200;
 	SCREEN_H = 900;
 
-	mAWing1 = LoadModelPlus("../Models/awing1.obj");
-	mAWing2 = LoadModelPlus("../Models/awing2.obj");
-	mArrow = LoadModelPlus("../Models/unit_vector.obj");
-	mCam1 = LoadModelPlus("../Models/camera_front.obj");
-	mCam2 = LoadModelPlus("../Models/camera_back.obj");
-	mCam3 = LoadModelPlus("../Models/camera_lens.obj");
+	mAWing1 = LoadModelPlus("Models/awing1.obj");
+	mAWing2 = LoadModelPlus("Models/awing2.obj");
+	mArrow = LoadModelPlus("Models/unit_vector.obj");
+	mCam1 = LoadModelPlus("Models/camera_front.obj");
+	mCam2 = LoadModelPlus("Models/camera_back.obj");
+	mCam3 = LoadModelPlus("Models/camera_lens.obj");
 
 	// Already taken care of by LoadModelPlus!
 	// glBindBuffer(GL_ARRAY_BUFFER, mAWing1->vb);
@@ -61,14 +61,14 @@ void init()
 	// glBindBuffer(GL_ARRAY_BUFFER, mAWing2->vb);
 	// glBufferData(GL_ARRAY_BUFFER, mAWing2->numVertices*3*sizeof(GLfloat), mAWing2->vertexArray, GL_STATIC_DRAW);
 
-	LoadTGATextureSimple("../Textures/A-Wing_Diff.tga", &texAWing);
-	LoadTGATextureSimple("../Textures/camera_front.tga", &texCam1);
-	LoadTGATextureSimple("../Textures/camera_back.tga", &texCam2);
-	LoadTGATextureSimple("../Textures/camera_side.tga", &texCam3);
+	LoadTGATextureSimple("Textures/A-Wing_Diff.tga", &texAWing);
+	LoadTGATextureSimple("Textures/camera_front.tga", &texCam1);
+	LoadTGATextureSimple("Textures/camera_back.tga", &texCam2);
+	LoadTGATextureSimple("Textures/camera_side.tga", &texCam3);
 
 
 
-	program = loadShaders("../Shaders/object.vert", "../Shaders/object.frag");
+	program = loadShaders("Shaders/object.vert", "Shaders/object.frag");
 	glUseProgram(program);
 
 	// Vertex Buffer
@@ -87,7 +87,7 @@ void init()
 	glBindTexture(GL_TEXTURE_2D, texAWing);
 
 	/* Color program */
-	colorprogram = loadShaders("../Shaders/object.vert", "../Shaders/color.frag");
+	colorprogram = loadShaders("Shaders/object.vert", "Shaders/color.frag");
 	glUseProgram(colorprogram);
 	glEnableVertexAttribArray(glGetAttribLocation(colorprogram, "inPosition"));
 	glVertexAttribPointer(glGetAttribLocation(colorprogram, "inPosition"), 3, GL_FLOAT, GL_FALSE, 0, 0);
@@ -97,7 +97,7 @@ void init()
 
 
 	// Create Actors
-	aAWing = Actor(	{10.0, 0.0, 0.0},		// Position
+	aAWing = Actor(	{0.0, 0.0, 0.0},		// Position
 					{1.0, 0.0, 0.0},		// Facing direction
 					{mAWing1, mAWing2},		// Model parts
 					{EYE, EYE},				// Relative orientation
