@@ -1,20 +1,23 @@
-#version 150
+#version 450
 
-in vec3 inPosition;
-in vec3 inNormal;
-in vec2 inTexCoord;
+layout (location = 0) in vec3 position;
+layout (location = 1) in vec3 normal;
+layout (location = 2) in vec3 color;
+layout (location = 3) in vec2 texcoord;
 
-out vec2 X_TexCoord;
+out vec3 x_normal;
+out vec3 x_color;
+smooth out vec2 x_texcoord;
 
 uniform mat4 mvp;
 
 
-
-
 void main(void)
 {
-	gl_Position = mvp * vec4(inPosition, 1.0);
+	gl_Position = mvp * vec4(position, 1.0);
 
-
-	X_TexCoord = inTexCoord;
+	x_normal = normal;
+	x_color = vec3(1.0);
+	x_texcoord = texcoord;
 }
+

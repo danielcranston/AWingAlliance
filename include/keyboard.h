@@ -1,15 +1,17 @@
 #pragma once
+#include <bitset>
+
+#include <keyboard_constants.h>
 
 #include <GL/glew.h>
 #include <GL/freeglut.h>
-
 
 
 // Use these
 char KeyIsDown(unsigned char c); // For ASCII keyboard characters
 char SpecialIsDown(int key);     // For Non-ASCII (arrows etc)
 
-void ProcessKeyboardInput();
+void ProcessKeyboardInput(std::bitset<8>& flags);
 
 // Internal
 void onKeyDown(unsigned char key, int x, int y);

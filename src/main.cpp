@@ -2,25 +2,28 @@
 #include <math.h>
 #include <algorithm>
 #include <array>
+#include <memory>
+#include <bitset>
+#include <map>
 
 /* External Dependencies*/
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-// #define GLM_ENABLE_EXPERIMENTAL
-// #include <glm/gtx/string_cast.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/hash.hpp>
+#include <glm/gtx/string_cast.hpp>
+
 #include <GL/glew.h>
 #include <GL/freeglut.h>
 
-/* Ragnenalm Dependencies */
-extern "C" {
-#include "loadobj.h"
-#include "LoadTGA.h"
-#include "GL_utilities.h"
-}
 
 #include <actor.h>
 #include <keyboard.h>
+#include <shaders.h>
+#include <objloader.h>
+#include <terrain.h>
+#include <skybox.h>
 
 
 #define EYE glm::mat4(1.0f)
@@ -29,108 +32,84 @@ extern "C" {
 #define ROTX(deg) glm::rotate(EYE, glm::radians(deg), glm::vec3(1.0, 0.0, 0.0))
 #define ROTY(deg) glm::rotate(EYE, glm::radians(deg), glm::vec3(0.0, 1.0, 0.0))
 #define ROTZ(deg) glm::rotate(EYE, glm::radians(deg), glm::vec3(0.0, 0.0, 1.0))
+#define TRANS(x, y, z) glm::translate(EYE, glm::vec3(x, y, z))
 #define NOCOLOR {0.0,0.0,0.0}
-
-GLuint texAWing, texCam1, texCam2, texCam3;
-GLuint program, colorprogram;
-Model *mAWing1, *mAWing2, *mArrow, *mCam1, *mCam2, *mCam3, *mStand;
-Actor aAWing, aCoordAxis, aCam;
-glm::mat4 projCamMatrix, camMatrix, projMatrix;
-glm::mat4 rot1;
+#define UP glm::vec3(0.0, 1.0, 0.0)
 
 uint SCREEN_W, SCREEN_H;
+uint timeNow, timeOfLastUpdate;
+std::bitset<8> keyboardInfo = 0;
+
+GLuint program, skyProgram;
+glm::mat4 projCamMatrix, camMatrix, projMatrix;
+
+Skybox skybox;
+
+std::map<std::string, Model> Models;
+std::map<std::string, Actor> Actors;
+
+Actor aAWing, aHangar, aSky, aTiles, aTie, aBomber, aInterceptor;
+Terrain terrain;
+
 
 void init()
 {
+	std::cout <<  "init" << '\n';
+
 	SCREEN_W = 1200;
 	SCREEN_H = 900;
+	timeNow = 0;
+	timeOfLastUpdate = 0;
 
-	mAWing1 = LoadModelPlus("Models/awing1.obj");
-	mAWing2 = LoadModelPlus("Models/awing2.obj");
-	mArrow = LoadModelPlus("Models/unit_vector.obj");
-	mCam1 = LoadModelPlus("Models/camera_front.obj");
-	mCam2 = LoadModelPlus("Models/camera_back.obj");
-	mCam3 = LoadModelPlus("Models/camera_lens.obj");
-
-	// Already taken care of by LoadModelPlus!
-	// glBindBuffer(GL_ARRAY_BUFFER, mAWing1->vb);
-	// glBufferData(GL_ARRAY_BUFFER, mAWing1->numVertices*3*sizeof(GLfloat), mAWing1->vertexArray, GL_STATIC_DRAW);
-	// glBindBuffer(GL_ARRAY_BUFFER, mAWing1->tb);
-	// glBufferData(GL_ARRAY_BUFFER, mAWing1->numVertices*2*sizeof(GLfloat), mAWing1->texCoordArray, GL_STATIC_DRAW);
-
-	// glBindBuffer(GL_ARRAY_BUFFER, mAWing2->vb);
-	// glBufferData(GL_ARRAY_BUFFER, mAWing2->numVertices*3*sizeof(GLfloat), mAWing2->vertexArray, GL_STATIC_DRAW);
-
-	LoadTGATextureSimple("Textures/A-Wing_Diff.tga", &texAWing);
-	LoadTGATextureSimple("Textures/camera_front.tga", &texCam1);
-	LoadTGATextureSimple("Textures/camera_back.tga", &texCam2);
-	LoadTGATextureSimple("Textures/camera_side.tga", &texCam3);
-
-
-
-	program = loadShaders("Shaders/object.vert", "Shaders/object.frag");
+	// SHADER STUFF
+	program = compileShaders("Shaders/object.vert", "Shaders/object.frag");
 	glUseProgram(program);
-
-	// Vertex Buffer
-	glEnableVertexAttribArray(glGetAttribLocation(program, "inPosition"));
-	glVertexAttribPointer(glGetAttribLocation(program, "inPosition"), 3, GL_FLOAT, GL_FALSE, 0, 0);
-
-	// TexCoord Buffer
-	glEnableVertexAttribArray(glGetAttribLocation(program, "inTexCoord"));
-	glVertexAttribPointer(glGetAttribLocation(program, "inTexCoord"), 2, GL_FLOAT, GL_FALSE, 0, 0);
-	
-	//Texture Loading and Uploading to GPU
-
-	// Texture Binding
 	glUniform1i(glGetUniformLocation(program, "tex"), 0);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texAWing);
+	
+	skyProgram = compileShaders("Shaders/sky.vert", "Shaders/sky.frag");
+	glUseProgram(skyProgram);
+	glUniform1i(glGetUniformLocation(skyProgram, "tex"), 0);
 
-	/* Color program */
-	colorprogram = loadShaders("Shaders/object.vert", "Shaders/color.frag");
-	glUseProgram(colorprogram);
-	glEnableVertexAttribArray(glGetAttribLocation(colorprogram, "inPosition"));
-	glVertexAttribPointer(glGetAttribLocation(colorprogram, "inPosition"), 3, GL_FLOAT, GL_FALSE, 0, 0);
+	// MODEL STUFF
+	std::vector<std::string> model_names = {"cube", "awing", "tie", "tie_bomber", "tie_interceptor", "hangar"};
+	loadModels(Models, model_names);
 
-	glEnableVertexAttribArray(glGetAttribLocation(colorprogram, "color"));
-	glVertexAttribPointer(glGetAttribLocation(colorprogram, "color"), 3, GL_FLOAT, GL_FALSE, 0, 0);
-
-
-	// Create Actors
-	aAWing = Actor(	{0.0, 0.0, 0.0},		// Position
-					{1.0, 0.0, 0.0},		// Facing direction
-					{mAWing1, mAWing2},		// Model parts
-					{EYE, EYE},				// Relative orientation
-					{program, colorprogram},// Shaders to use to draw them
-					{texAWing, 0},			// Textures to draw them with
-					{NOCOLOR, {0.7,0.0,0.0}}// Colors to draw them with
+	// ACTOR STUFF
+	aAWing = Actor(	{16.0, 128.0, 14.0}, //{22.1, -53.0, 69.2},	// Position
+					{0.0, 0.0, -1.0},	// Facing direction
+					{&Models["awing"]}, //&Models["tie_bomber"], &Models["tie_fixed"], &Models["tie_interceptor"]},	// Model parts
+					{EYE}// TRANS(10.0, 0.0, 0.0), TRANS(-10.0, 0.0, 0.0), TRANS(0.0, 0.0, 10.0)},				// Relative orientation
 				);
 
-	aCam = Actor(	{0.0, 0.0, 0.0},
-					{1.0, 0.0, 1.0},
-					{mCam1, mCam2, mCam3},
-					{EYE, EYE, EYE},
-					{program, program, program},
-					{texCam1, texCam2, texCam3},
-					{NOCOLOR, NOCOLOR, NOCOLOR}
+	aTie = Actor(	{0.0, 64.0, -32.0},
+					{0.0, 0.0, -1.0},
+					{&Models["tie"]},
+					{EYE}
 				);
 
-	aCoordAxis = Actor(	{0.0, 0.0, 0.0},
-					{1.0, 0.0, 1.0},
-					{mArrow, mArrow, mArrow},
-					{	SCALE(0.70) * ROTY(-90.0f),
-						SCALE(0.70) * ROTX(90.0f),
-						SCALE(0.75)},
-					{colorprogram, colorprogram, colorprogram},
-					{0, 0, 0},
-					{{1.0,0.0,0.0}, {0.0,1.0,0.0}, {0.0,0.0,1.0}}
+	aBomber = Actor({16.0, 64.0, -32.0},
+					{0.0, 0.0, -1.0},
+					{&Models["tie_bomber"]},
+					{EYE}
+				);
+
+	aInterceptor = Actor({-16.0, 64.0, -32.0},
+					{0.0, 0.0, -1.0},
+					{&Models["tie_interceptor"]},
+					{EYE}
+				);
+
+	aHangar = Actor({0.0, 128.0, 0.0},	// Position
+					{0.0, 0.0, -1.0},	// Facing direction
+					{&Models["hangar"]},	// Model parts
+					{EYE}				// Relative orientation
 				);
 
 
-
-	camMatrix = glm::lookAt(glm::vec3(0.0, 10.0, 20.0), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
+	skybox = Skybox(&Models["cube"], "lightblue");
+	terrain = Terrain(32, 32, 32, 16); // x, z, y, blocksize
+	// terrain.saveBMP("test.bmp");
 }
-
 
 void onIdle()
 {
@@ -141,44 +120,81 @@ void onIdle()
 	// 			glm::rotate(glm::mat4(1.0f), 3*angle, glm::vec3(0, 0, 1)) *
 	// 			glm::translate(glm::mat4(1.0f), glm::vec3(0.0, 0.0, -1.5));
 
-	ProcessKeyboardInput();
-
 	glutPostRedisplay();
 }
 
 void onDisplay()
 {
-	glClearColor(1.0, 1.0, 1.0, 0.0);
+	glClearColor(0.8, 0.8, 0.8, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 
-	#if DRAW_OTHERS
-	aCam.Draw(projCamMatrix);
-	aCoordAxis.Draw(projCamMatrix);
-	#else
+	timeNow = glutGet(GLUT_ELAPSED_TIME);
+	if(timeNow - timeOfLastUpdate > 5)
+	{
+		ProcessKeyboardInput(keyboardInfo);
+		float dt = (timeNow - timeOfLastUpdate) / 1000.0;
+
+
+		// if(keyboardInfo.test(Q_IS_DOWN)) std::cout << glm::to_string(aAWing.pos) << '\n';
+		if(keyboardInfo.test(Q_IS_DOWN)) terrain.GetHeight(aAWing.pos.x, aAWing.pos.z);
+		// std::cout << "Keyboard: " << keyboardInfo << '\n';
+	
+
+		aAWing.Update(keyboardInfo, dt);
+	
+		// camMatrix = glm::lookAt(glm::vec3(-0.0, 50, -50 -(timeNow / 1000.0)), aAWing.pos, glm::vec3(0.0, 1.0, 0.0));
+		camMatrix = glm::lookAt(aAWing.pos - (20.0f * aAWing.dir) + 5.0f * UP, aAWing.pos, glm::vec3(0.0, 1.0, 0.0));
+
+		timeOfLastUpdate = timeNow;
+	}
+
+
+	// Draw Actors
+	glUseProgram(skyProgram);
+	skybox.Draw(projMatrix, camMatrix);
+	glClear(GL_DEPTH_BUFFER_BIT);
+
+	CheckErrors("draw sky");
+
+
+	projCamMatrix = projMatrix * camMatrix;
+	glUseProgram(program);
 	aAWing.Draw(projCamMatrix);
-	#endif
+	aHangar.Draw(projCamMatrix);
+	aTiles.Draw(projCamMatrix);
+	aTie.Draw(projCamMatrix);
+	aBomber.Draw(projCamMatrix);
+	aInterceptor.Draw(projCamMatrix);
+	CheckErrors("draw actors");
+	
+	terrain.Draw(projCamMatrix);
+	CheckErrors("draw terrain");
+	
 
 	glutSwapBuffers();
+
 }
 
 void onReshape(int width, int height)
 {
+	std::cout <<  "onReshape" << '\n';
 	SCREEN_W = width;
 	SCREEN_H = height;
 	glViewport(0, 0, SCREEN_W, SCREEN_H);
 
 	projMatrix = glm::perspective(45.0f, 1.0f*SCREEN_W/SCREEN_H, 0.1f, 400.0f);
-	projCamMatrix = projMatrix * camMatrix;
 }
 
 int main(int argc, char *argv[])
 {
 	glutInit(&argc, argv);
 	glutInitContextVersion(3,2);
-	glutInitDisplayMode(GLUT_RGBA|GLUT_ALPHA|GLUT_DOUBLE|GLUT_DEPTH);
+	glutInitDisplayMode(GLUT_RGBA|GLUT_ALPHA|GLUT_DEPTH); // GLUT_DOUBLE
 	glutInitWindowSize(1200, 900);
 	glutCreateWindow("awing");
 
+	// glewExperimental = GL_TRUE; 
+	
 	GLenum glew_status = glewInit();
 	if (glew_status != GLEW_OK) {
 		fprintf(stderr, "Error: %s\n", glewGetErrorString(glew_status));
@@ -203,6 +219,7 @@ int main(int argc, char *argv[])
     glEnable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
+    // glEnable(GL_PRIMITIVE_RESTART);
 	glutMainLoop();
 
 	return 0;

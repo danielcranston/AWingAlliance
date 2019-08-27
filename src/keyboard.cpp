@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include <actor.h>
+#include <keyboard.h>
 
 char keyStates[256];
 bool bUpArrow = false;
@@ -8,9 +8,7 @@ bool bDownArrow = false;
 bool bLeftArrow = false;
 bool bRightArrow = false;
 
-extern Actor aAWing;;
-extern Actor aCoordAxis;
-extern Actor aCam;
+// extern Actor aAWing;
 
 
 // glut KeyboardFunc related
@@ -59,29 +57,26 @@ char SpecialIsDown(int key)
 	case GLUT_KEY_LEFT  : return bLeftArrow;
 	case GLUT_KEY_RIGHT : return bRightArrow;
 	}
+	return 0;
 }
 
 
 
-void ProcessKeyboardInput()
+void ProcessKeyboardInput(std::bitset<8>& flags)
 {
 	// if ( 'e' == GLUT_KEY_UP ){ std::cout << "They are defined as one and the same..." << '\n'; }
-	
+	flags.reset();
+
 	float speedChange = 0;
 	float turnChange = 0;
 
-	if ( KeyIsDown('w') ) speedChange =  0.025;
-	if ( KeyIsDown('s') ) speedChange =  -0.025;
+	if ( KeyIsDown('w') ) { speedChange =  0.025; flags.set(W_IS_DOWN); }
+	if ( KeyIsDown('s') ) { speedChange =  -0.025; flags.set(S_IS_DOWN); }
+	if ( KeyIsDown('q') ) { speedChange =  -0.025; flags.set(Q_IS_DOWN); }
 
-	if (SpecialIsDown(GLUT_KEY_LEFT))	turnChange =  0.025;
-	if (SpecialIsDown(GLUT_KEY_RIGHT))	turnChange = -0.025;
-
-	if (KeyIsDown(' ')) aAWing.SetPosition(glm::vec3(0.0));
-
-	aAWing.Update(speedChange, turnChange);
-
-	#if DRAW_OTHERS
-	aCam.Update(speedChange, turnChange);
-	aCoordAxis.Update(speedChange, turnChange);
-	#endif
+	if (SpecialIsDown(GLUT_KEY_LEFT))	{ turnChange =  0.025; flags.set(LEFTARROW_IS_DOWN); }
+	if (SpecialIsDown(GLUT_KEY_RIGHT))	{ turnChange = -0.025; flags.set(RIGHTARROW_IS_DOWN); }
+	if (SpecialIsDown(GLUT_KEY_UP))		flags.set(UPARROW_IS_DOWN);
+	if (SpecialIsDown(GLUT_KEY_DOWN))	flags.set(DOWNARROW_IS_DOWN);
+	if ((KeyIsDown(' ')))				flags.set(SPACEBAR_IS_DOWN);
 }
