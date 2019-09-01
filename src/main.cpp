@@ -40,7 +40,7 @@ uint SCREEN_W, SCREEN_H;
 uint timeNow, timeOfLastUpdate;
 std::bitset<8> keyboardInfo = 0;
 
-GLuint program, skyProgram;
+GLuint program, terrainProgram, skyProgram;
 glm::mat4 projCamMatrix, camMatrix, projMatrix;
 
 Skybox skybox;
@@ -66,6 +66,8 @@ void init()
 	glUseProgram(program);
 	glUniform1i(glGetUniformLocation(program, "tex"), 0);
 	
+	terrainProgram = compileShaders("Shaders/terrain.vert", "Shaders/terrain.frag");
+
 	skyProgram = compileShaders("Shaders/sky.vert", "Shaders/sky.frag");
 	glUseProgram(skyProgram);
 	glUniform1i(glGetUniformLocation(skyProgram, "tex"), 0);
@@ -73,41 +75,40 @@ void init()
 	// MODEL STUFF
 	std::vector<std::string> model_names = {"cube", "awing", "tie", "tie_bomber", "tie_interceptor", "hangar"};
 	loadModels(Models, model_names);
-
 	// ACTOR STUFF
-	aAWing = Actor(	{16.0, 128.0, 14.0}, //{22.1, -53.0, 69.2},	// Position
-					{0.0, 0.0, -1.0},	// Facing direction
+	aAWing = Actor(	{0.0, 64.0, 0.0}, //{16.0, 128.0, 14.0}, //{22.1, -53.0, 69.2},	// Position
+					{0.0, 0.0, 1.0},	// Facing direction
 					{&Models["awing"]}, //&Models["tie_bomber"], &Models["tie_fixed"], &Models["tie_interceptor"]},	// Model parts
 					{EYE}// TRANS(10.0, 0.0, 0.0), TRANS(-10.0, 0.0, 0.0), TRANS(0.0, 0.0, 10.0)},				// Relative orientation
 				);
 
-	aTie = Actor(	{0.0, 64.0, -32.0},
+	aTie = Actor(	{0.0, 96.0, -32.0},
 					{0.0, 0.0, -1.0},
 					{&Models["tie"]},
 					{EYE}
 				);
 
-	aBomber = Actor({16.0, 64.0, -32.0},
+	aBomber = Actor({16.0, 96.0, -32.0},
 					{0.0, 0.0, -1.0},
 					{&Models["tie_bomber"]},
 					{EYE}
 				);
 
-	aInterceptor = Actor({-16.0, 64.0, -32.0},
+	aInterceptor = Actor({-16.0, 96.0, -32.0},
 					{0.0, 0.0, -1.0},
 					{&Models["tie_interceptor"]},
 					{EYE}
 				);
 
-	aHangar = Actor({0.0, 128.0, 0.0},	// Position
+	aHangar = Actor({0.0, 192.0, 0.0},	// Position
 					{0.0, 0.0, -1.0},	// Facing direction
 					{&Models["hangar"]},	// Model parts
 					{EYE}				// Relative orientation
 				);
 
 
-	skybox = Skybox(&Models["cube"], "lightblue");
-	terrain = Terrain(32, 32, 32, 16); // x, z, y, blocksize
+	skybox = Skybox(&Models["cube"], "lightblue/512");
+	terrain = Terrain(32, 32, 96, 16, terrainProgram); // x, z, maxHeight, blocksize
 	// terrain.saveBMP("test.bmp");
 }
 
@@ -142,22 +143,23 @@ void onDisplay()
 
 		aAWing.Update(keyboardInfo, dt);
 	
-		// camMatrix = glm::lookAt(glm::vec3(-0.0, 50, -50 -(timeNow / 1000.0)), aAWing.pos, glm::vec3(0.0, 1.0, 0.0));
+		// camMatrix = glm::lookAt(glm::vec3(-0.0, 96.0, 0.0 -(timeNow / 1000.0)), aAWing.pos, glm::vec3(0.0, 1.0, 0.0));
 		camMatrix = glm::lookAt(aAWing.pos - (20.0f * aAWing.dir) + 5.0f * UP, aAWing.pos, glm::vec3(0.0, 1.0, 0.0));
 
 		timeOfLastUpdate = timeNow;
 	}
 
-
-	// Draw Actors
 	glUseProgram(skyProgram);
 	skybox.Draw(projMatrix, camMatrix);
 	glClear(GL_DEPTH_BUFFER_BIT);
-
 	CheckErrors("draw sky");
-
-
+	
 	projCamMatrix = projMatrix * camMatrix;
+
+	glUseProgram(terrainProgram);
+	terrain.Draw(projCamMatrix);
+	CheckErrors("draw terrain");
+
 	glUseProgram(program);
 	aAWing.Draw(projCamMatrix);
 	aHangar.Draw(projCamMatrix);
@@ -166,10 +168,6 @@ void onDisplay()
 	aBomber.Draw(projCamMatrix);
 	aInterceptor.Draw(projCamMatrix);
 	CheckErrors("draw actors");
-	
-	terrain.Draw(projCamMatrix);
-	CheckErrors("draw terrain");
-	
 
 	glutSwapBuffers();
 
