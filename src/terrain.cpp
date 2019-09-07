@@ -143,7 +143,7 @@ float Terrain::HeightAt(int x, int z)
 {
 	x = (x + xSize) % xSize; // ensure wraparound
 	z = (z + zSize) % zSize;
-	return heightmap[(z+1) * (xSize+1) + x];
+	return yMax * heightmap[z * (xSize+1) + x];
 }
 
 void Terrain::PushToGPU()
@@ -210,46 +210,40 @@ void Terrain::Draw(glm::mat4 camprojMat)
 	// glDisable(GL_PRIMITIVE_RESTART);
 }
 
-float Terrain::GetHeight(float x, float z)
+std::pair<float, glm::vec3> Terrain::GetHeight(float x, float z)
 {
 	float idx_x = (x/blockScale + xSize/2.0);
 	float idx_z = (z/blockScale + zSize/2.0);
-	std::cout << "idx_x=" << idx_x << '\n';
-	std::cout << "idx_z=" << idx_z << '\n';
 
 	int x0 = std::floor(idx_x);
-	int x1 = x0 + 1;
 	int z0 = std::floor(idx_z);
-	int z1 = z0 + 1;
-
-	float v1, v2, v3;
-	if(idx_x - x0 > idx_z - z0)
-	{
-		v1 = heightmap[z0 * xSize + x0];
-		v2 = heightmap[z0 * xSize + x1];
-		v3 = heightmap[z1 * xSize + x0];
-	}
-	else
-	{
-		v1 = heightmap[z0 * xSize + x0];
-		v2 = heightmap[z1 * xSize + x1];
-		v3 = heightmap[z1 * xSize + x1];	
-	}
-
-	float dir1 = v1 - v2;
-	float dir2 = v1 - v3;
+	float h0 = HeightAt(x0, z0);
 
 	float interp_x = idx_x - x0; // [0 1]
 	float interp_z = idx_z - z0; // [0 1]
 
-
-	std::cout << "interp_x=" << interp_x << '\n';
-
-	float surf = v1 + dir1 * interp_z + dir2 * interp_x;
-
-	std::cout << "surf=" << surf << '\n';
+	glm::vec3 v_x, v_z, v_temp;
+	v_temp = glm::vec3(blockScale, HeightAt(x0+1, z0+1) - h0, blockScale);
 	
+	if(interp_x < interp_z)
+	{
+		v_z = glm::vec3(0.0, HeightAt(x0, z0+1) - h0, blockScale);
+		v_x = v_temp - v_z;
+	}
+	else
+	{
+		v_x = glm::vec3(blockScale, HeightAt(x0+1, z0) - h0, 0.0);
+		v_z = v_temp - v_x;
+
+	}
+	
+	float height = (h0 + interp_x * v_x + interp_z * v_z).y;
+	glm::vec3 normal = glm::normalize(glm::cross(v_z, v_x));
+
+	return std::make_pair(height, normal);
 }
+
+
 
 # pragma pack (push, 1)
 struct BMPHeader

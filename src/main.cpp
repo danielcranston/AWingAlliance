@@ -76,8 +76,8 @@ void init()
 	std::vector<std::string> model_names = {"cube", "awing", "tie", "tie_bomber", "tie_interceptor", "hangar"};
 	loadModels(Models, model_names);
 	// ACTOR STUFF
-	aAWing = Actor(	{0.0, 64.0, 0.0}, //{16.0, 128.0, 14.0}, //{22.1, -53.0, 69.2},	// Position
-					{0.0, 0.0, 1.0},	// Facing direction
+	aAWing = Actor(	{0.0, 128.0, 0.0}, //{16.0, 128.0, 14.0}, //{22.1, -53.0, 69.2},	// Position
+					{0.0, 0.0, -1.0},	// Facing direction
 					{&Models["awing"]}, //&Models["tie_bomber"], &Models["tie_fixed"], &Models["tie_interceptor"]},	// Model parts
 					{EYE}// TRANS(10.0, 0.0, 0.0), TRANS(-10.0, 0.0, 0.0), TRANS(0.0, 0.0, 10.0)},				// Relative orientation
 				);
@@ -135,15 +135,18 @@ void onDisplay()
 		ProcessKeyboardInput(keyboardInfo);
 		float dt = (timeNow - timeOfLastUpdate) / 1000.0;
 
-
 		// if(keyboardInfo.test(Q_IS_DOWN)) std::cout << glm::to_string(aAWing.pos) << '\n';
-		if(keyboardInfo.test(Q_IS_DOWN)) terrain.GetHeight(aAWing.pos.x, aAWing.pos.z);
 		// std::cout << "Keyboard: " << keyboardInfo << '\n';
 	
-
 		aAWing.Update(keyboardInfo, dt);
-	
-		// camMatrix = glm::lookAt(glm::vec3(-0.0, 96.0, 0.0 -(timeNow / 1000.0)), aAWing.pos, glm::vec3(0.0, 1.0, 0.0));
+
+		aTie.pos.z = -32 - (timeNow / 100.0);
+		std::pair<float, glm::vec3> aa = terrain.GetHeight(aTie.pos.x, aTie.pos.z);
+		aTie.pos.y = aa.first;
+		glm::vec3 right = glm::cross(glm::vec3(aTie.dir.x, 0.0, aTie.dir.z), UP);
+		aTie.dir = glm::normalize(glm::cross(aa.second, right));
+
+		// camMatrix = glm::lookAt(glm::vec3(-0.0, 96.0, 8 + (timeNow / 1000.0)), aAWing.pos, glm::vec3(0.0, 1.0, 0.0));
 		camMatrix = glm::lookAt(aAWing.pos - (20.0f * aAWing.dir) + 5.0f * UP, aAWing.pos, glm::vec3(0.0, 1.0, 0.0));
 
 		timeOfLastUpdate = timeNow;

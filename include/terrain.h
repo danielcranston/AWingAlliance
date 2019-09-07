@@ -24,7 +24,7 @@ class Terrain
 		void Generate();
 		void PushToGPU();
 		void Draw(glm::mat4 camprojMat);
-		float GetHeight(float x, float z);
+		std::pair<float, glm::vec3> GetHeight(float x, float z);
 		float HeightAt(int x, int z);
 
 		bool saveBMP(const std::string& path);
