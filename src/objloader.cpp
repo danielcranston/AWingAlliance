@@ -622,7 +622,7 @@ void assignTexture(unsigned int& texture_id, const std::string texture_filename)
 
 	// doesn't matter which unit is bound (glActiveTexture), we're only uploading tex to GPU...
 	// glGenTextures(1, &texture_id);
-	// glBindTexture(GL_TEXTURE_2D, texture_id);
+	glBindTexture(GL_TEXTURE_2D, texture_id);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
@@ -637,7 +637,7 @@ void assignTexture(unsigned int& texture_id, const std::string texture_filename)
 		assert(0);  // TODO
 	}
 	glGenerateMipmap(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, 0);
+	// glBindTexture(GL_TEXTURE_2D, 0);
 	stbi_image_free(image);
 }
 

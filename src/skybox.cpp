@@ -35,7 +35,7 @@ void Skybox::LoadAndSetTexture(std::string folder)
     model->drawobjects[0].texture_id = texture_id;
 }
 
-void Skybox::Draw(glm::mat4 projMatrix, glm::mat4 camMatrix)
+void Skybox::Draw(const glm::mat4 &projMatrix, const glm::mat4 &camMatrix)
 {
 	no_translation = camMatrix;
 	no_translation[3] = glm::vec4(0, 0, 0, 1);
