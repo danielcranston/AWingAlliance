@@ -4,11 +4,9 @@
 
 #include <terrain.h>
 
-extern GLuint program;
-
 Terrain::Terrain() : xSize{64}, zSize{64}, yMax{1}, blockScale{16}, numTriangles(2 * xSize * zSize) {}
 
-Terrain::Terrain(std::int32_t xsize, std::int32_t zsize, std::int32_t height, std::int32_t blockscale)
+Terrain::Terrain(std::int32_t xsize, std::int32_t zsize, std::int32_t height, std::int32_t blockscale, GLuint program)
 	: xSize{xsize}
 	, zSize{zsize}
 	, yMax{height}
@@ -17,17 +15,41 @@ Terrain::Terrain(std::int32_t xsize, std::int32_t zsize, std::int32_t height, st
 	// , vboVertices{0}
 	// , vboIndices{0}
 	, numTriangles(2 * xSize * zSize)
+	, program{program}
 	// , heightmap((xSize+1)*(zSize+1)) // reserves space
 	{		
-	    glGenTextures(1, &texture_id);
-	    glBindTexture(GL_TEXTURE_2D, texture_id);
-	    assignTexture(texture_id, "Textures/grass.jpg");
+		glUseProgram(program);
+		std::vector<std::string> texture_names = {
+			"Textures/grass.jpg",
+			"Textures/grass_grass_0099_02_tiled_s.jpg",
+			"Textures/ground_stone_ground_0002_02_tiled_s.jpg",
+			"Textures/rock_stones_0027_02_tiled_s.jpg"
+		};
+		texture_ids.reserve(4);
+		for(int i = 0; i < 4; i++)
+		{
+		    glGenTextures(1, &texture_ids[i]);
+		    assignTexture(texture_ids[i], texture_names[i]);
+		}
+		std::vector<std::string> texture_nrs = {"tex0", "tex1", "tex2", "tex2"};
+		for(int i = 0; i < 4; i++)
+		{
+			glActiveTexture(GL_TEXTURE0 + i);
+			glBindTexture(GL_TEXTURE_2D, texture_ids[i]);
+			glUniform1i(glGetUniformLocation(program, texture_nrs[i].c_str()), i);
+		}
+		glUniform1i(glGetUniformLocation(program, "tex0"), 0); // Texture unit 0
+		glUniform1i(glGetUniformLocation(program, "tex1"), 1); // Texture unit 1
+		glUniform1i(glGetUniformLocation(program, "tex2"), 2); // Texture unit 2
+		glUniform1i(glGetUniformLocation(program, "tex3"), 3); // Texture unit 3
+		glUniform1f(glGetUniformLocation(program, "maxHeight"), yMax); // to normalize height to [0, 1] in shader
+ 		glActiveTexture(GL_TEXTURE0);
 
-	    GenerateHeightMap();
+	    Generate();
 	    PushToGPU();
 	}
 
-void Terrain::GenerateHeightMap()
+void Terrain::Generate()
 {
 	double frequency = 2; //std::clamp(frequency, 0.1, 64.0);
 	int octaves = 4; // std::clamp(octaves, 1, 16);
@@ -39,6 +61,7 @@ void Terrain::GenerateHeightMap()
 	float Min = std::numeric_limits<float>::max();
 	float Max = 0;
 
+	// Heightmap
 	for (int z = 0; z < zSize+1; ++z)
 	{
 		for (int x = 0; x < xSize+1; ++x)
@@ -54,6 +77,7 @@ void Terrain::GenerateHeightMap()
 	for (int i = 0; i < heightmap.size(); ++i)
 		heightmap[i] = (heightmap[i] - Min) / (Max - Min); 
 
+	// Indices
 	for (int z = 0; z < zSize; ++z)
 	{
 		for (int x = 0; x < xSize; ++x)
@@ -67,6 +91,44 @@ void Terrain::GenerateHeightMap()
 			indices.push_back((z+1)*(xSize+1) + x+1);
 		}
 	}
+
+	// Normalmap
+	for (int z = 0; z < zSize+1; ++z)
+	{
+		for (int x = 0; x < xSize+1; x++)
+		{
+			glm::vec3 normal = glm::vec3(0.0, 0.0, 0.0);
+
+			float o = HeightAt(x, z);
+
+			// normalized height difference between current and adjacent vertices
+			float n = (HeightAt(x, z+1) - o) * blockScale;
+			float s = (HeightAt(x, z-1) - o) * blockScale;
+			float e = (HeightAt(x+1, z) - o) * blockScale;
+			float w = (HeightAt(x-1, z) - o) * blockScale;
+			
+			float ne = (HeightAt(x+1, z+1) - o) * blockScale;
+			float se = (HeightAt(x+1, z-1) - o) * blockScale;
+			float nw = (HeightAt(x-1, z+1) - o) * blockScale;
+			float sw = (HeightAt(x-1, z-1) - o) * blockScale;
+			// std::cout << n << " " << s << " " << e << " " << w << std::endl;
+			glm::vec3 normal1 = glm::cross(glm::vec3(0.0, n, 1.0), glm::vec3(1.0, ne, 1.0));
+			glm::vec3 normal2 = glm::cross(glm::vec3(1.0, ne, 1.0), glm::vec3(1.0, e, 0.0));
+
+			glm::vec3 normal3 = glm::cross(glm::vec3(1.0, e, 0.0), glm::vec3(0.0, s, -1.0));
+
+			glm::vec3 normal4 = glm::cross(glm::vec3(0.0, s, -1.0), glm::vec3(-1.0, sw, -1.0));
+			glm::vec3 normal5 = glm::cross(glm::vec3(-1.0, se, -1.0), glm::vec3(-1.0, w, 0.0));
+
+			glm::vec3 normal6 = glm::cross(glm::vec3(-1.0, w, 0.0), glm::vec3(0.0, n, 1.0));
+
+			normal = glm::normalize( (normal1 + normal2 + normal3 + normal4 + normal5 + normal6));
+			assert(normal.y > 0 && normal.y < 1);
+			
+			normalmap.push_back(normal);
+		}
+	}
+
 }
 
 void CheckErrors2(std::string desc) {
@@ -75,6 +137,13 @@ void CheckErrors2(std::string desc) {
 		fprintf(stderr, "OpenGL error in \"%s\": %d (%d)\n", desc.c_str(), e, e);
 		exit(20);
 	}
+}
+
+float Terrain::HeightAt(int x, int z)
+{
+	x = (x + xSize) % xSize; // ensure wraparound
+	z = (z + zSize) % zSize;
+	return yMax * heightmap[z * (xSize+1) + x];
 }
 
 void Terrain::PushToGPU()
@@ -87,8 +156,14 @@ void Terrain::PushToGPU()
 		{
 			// Vertex Position
 			buffer.push_back(blockScale * (-(xSize/2.0) + x));
-			buffer.push_back(yMax * (heightmap[z*(xSize+1) + x])); // CHECK
+			buffer.push_back(yMax * (heightmap[z*(xSize+1) + x]));
 			buffer.push_back(blockScale * (-(zSize/2.0) + z));
+
+			// Vertex Normal
+			glm::vec3 normal = normalmap[z*(xSize+1) + x];
+			buffer.push_back(normal.x);
+			buffer.push_back(normal.y);
+			buffer.push_back(normal.z);
 
 			// Vertex Tex Coord
 			buffer.push_back(x * 1.0);
@@ -96,7 +171,7 @@ void Terrain::PushToGPU()
 		}
 	}
 
-	unsigned int stride = (3 + 2) * sizeof(float);
+	unsigned int stride = (3 + 3 + 2) * sizeof(float);
 
 	glGenVertexArrays(1, &vao);
 	glGenBuffers(1, &vboVertices);
@@ -112,21 +187,21 @@ void Terrain::PushToGPU()
 	CheckErrors2("vbo indices");
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices.at(0), GL_STATIC_DRAW);
 	CheckErrors2("vbo indices2");
-	std::cout << "  done" << '\n';
-
 
 	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
 	glEnableVertexAttribArray(3);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, (const void*)0);
-	glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, stride, (const void*)(sizeof(float)*3));
+	glVertexAttribPointer(1	, 3, GL_FLOAT, GL_FALSE, stride, (const void*)(sizeof(float)*3));
+	glVertexAttribPointer(3	, 2, GL_FLOAT, GL_FALSE, stride, (const void*)(sizeof(float)*6));
 }
 
 void Terrain::Draw(glm::mat4 camprojMat)
 {
 	glUniformMatrix4fv(glGetUniformLocation(program, "mvp"), 1, GL_FALSE, glm::value_ptr(camprojMat));
-	glBindTexture(GL_TEXTURE_2D, texture_id);
 
 	glBindVertexArray(vao);
+	glBindTexture(GL_TEXTURE_2D, texture_ids[0]);
 	// glEnable(GL_PRIMITIVE_RESTART);
 	
 	// glDrawElements(GL_LINE_STRIP, 3 * numTriangles, GL_UNSIGNED_INT, (const void*)0);
@@ -135,37 +210,40 @@ void Terrain::Draw(glm::mat4 camprojMat)
 	// glDisable(GL_PRIMITIVE_RESTART);
 }
 
-float Terrain::GetHeight(float x, float z)
+std::pair<float, glm::vec3> Terrain::GetHeight(float x, float z)
 {
 	float idx_x = (x/blockScale + xSize/2.0);
 	float idx_z = (z/blockScale + zSize/2.0);
-	std::cout << "idx_x=" << idx_x << '\n';
-	std::cout << "idx_z=" << idx_z << '\n';
 
 	int x0 = std::floor(idx_x);
-	int x1 = x0 + 1;
 	int z0 = std::floor(idx_z);
-	int z1 = z0 + 1;
+	float h0 = HeightAt(x0, z0);
 
-	float v1, v2, v3;
-	if(idx_x - x0 > idx_z - z0)
+	float interp_x = idx_x - x0; // [0 1]
+	float interp_z = idx_z - z0; // [0 1]
+
+	glm::vec3 v_x, v_z, v_temp;
+	v_temp = glm::vec3(blockScale, HeightAt(x0+1, z0+1) - h0, blockScale);
+	
+	if(interp_x < interp_z)
 	{
-		v1 = heightmap[z0 * xSize + x0];
-		v2 = heightmap[z0 * xSize + x1];
-		v3 = heightmap[z1 * xSize + x0];
+		v_z = glm::vec3(0.0, HeightAt(x0, z0+1) - h0, blockScale);
+		v_x = v_temp - v_z;
 	}
 	else
 	{
-		v1 = heightmap[z0 * xSize + x0];
-		v2 = heightmap[z1 * xSize + x1];
-		v3 = heightmap[z1 * xSize + x1];	
+		v_x = glm::vec3(blockScale, HeightAt(x0+1, z0) - h0, 0.0);
+		v_z = v_temp - v_x;
+
 	}
-
-	float dir1 = v1 - v2;
-	float dir2 = v1 - v3;
-
 	
+	float height = (h0 + interp_x * v_x + interp_z * v_z).y;
+	glm::vec3 normal = glm::normalize(glm::cross(v_z, v_x));
+
+	return std::make_pair(height, normal);
 }
+
+
 
 # pragma pack (push, 1)
 struct BMPHeader
