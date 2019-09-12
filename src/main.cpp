@@ -24,6 +24,7 @@
 #include <objloader.h>
 #include <terrain.h>
 #include <skybox.h>
+#include <fbo.h>
 
 
 #define EYE glm::mat4(1.0f)
@@ -40,15 +41,16 @@ uint SCREEN_W, SCREEN_H;
 uint timeNow, timeOfLastUpdate;
 std::bitset<8> keyboardInfo = 0;
 
-GLuint program, terrainProgram, skyProgram;
+GLuint program, terrainProgram, skyProgram, fboProgram;
 glm::mat4 projCamMatrix, camMatrix, projMatrix;
 
 Skybox skybox;
+FBO fbo;
 
 std::map<std::string, Model> Models;
 std::map<std::string, Actor> Actors;
 
-Actor aAWing, aHangar, aSky, aTiles, aTie, aBomber, aInterceptor;
+Actor aAWing, aHangar, aSky, aTie, aBomber, aInterceptor;
 Terrain terrain;
 
 
@@ -72,11 +74,17 @@ void init()
 	glUseProgram(skyProgram);
 	glUniform1i(glGetUniformLocation(skyProgram, "tex"), 0);
 
+	fboProgram = compileShaders("Shaders/fbo.vert", "Shaders/fbo.frag");
+	glUseProgram(fboProgram);
+	glUniform1i(glGetUniformLocation(fboProgram, "screenTexture"), 0);
+	glUniform2f(glGetUniformLocation(fboProgram, "scale"), 0.5, 0.5);
+	glUniform2f(glGetUniformLocation(fboProgram, "offset"), 0.5, 0.5);
+	CheckErrors("setup programs");
 	// MODEL STUFF
 	std::vector<std::string> model_names = {"cube", "awing", "tie", "tie_bomber", "tie_interceptor", "hangar"};
 	loadModels(Models, model_names);
 	// ACTOR STUFF
-	aAWing = Actor(	{0.0, 128.0, 0.0}, //{16.0, 128.0, 14.0}, //{22.1, -53.0, 69.2},	// Position
+	aAWing = Actor(	{0.0, 112.0, 0.0}, //{16.0, 128.0, 14.0}, //{22.1, -53.0, 69.2},	// Position
 					{0.0, 0.0, -1.0},	// Facing direction
 					{&Models["awing"]}, //&Models["tie_bomber"], &Models["tie_fixed"], &Models["tie_interceptor"]},	// Model parts
 					{EYE}// TRANS(10.0, 0.0, 0.0), TRANS(-10.0, 0.0, 0.0), TRANS(0.0, 0.0, 10.0)},				// Relative orientation
@@ -88,7 +96,7 @@ void init()
 					{EYE}
 				);
 
-	aBomber = Actor({16.0, 96.0, -32.0},
+	aBomber = Actor({-64.0, 112.0, -64.0},
 					{0.0, 0.0, -1.0},
 					{&Models["tie_bomber"]},
 					{EYE}
@@ -110,6 +118,10 @@ void init()
 	skybox = Skybox(&Models["cube"], "lightblue/512");
 	terrain = Terrain(32, 32, 96, 16, terrainProgram); // x, z, maxHeight, blocksize
 	// terrain.saveBMP("test.bmp");
+
+	fbo.Init(SCREEN_W, SCREEN_H);
+	fbo.SetupQuad();
+	CheckErrors("setup fbo");
 }
 
 void onIdle()
@@ -152,11 +164,52 @@ void onDisplay()
 		timeOfLastUpdate = timeNow;
 	}
 
+
+	// Draw to FBO
+	camMatrix = glm::lookAt(glm::vec3(-0.0, 96.0, 8 + (timeNow / 1000.0)), aAWing.pos, glm::vec3(0.0, 1.0, 0.0));
+	glBindFramebuffer(GL_FRAMEBUFFER, fbo.id);
+	glViewport(0, 0, fbo.width, fbo.height);
+	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	glUseProgram(skyProgram);
+	skybox.Draw(projMatrix, camMatrix);
+	glClear(GL_DEPTH_BUFFER_BIT);
+	CheckErrors("draw sky2");
+
+	projCamMatrix = projMatrix * camMatrix;
+
+	glUseProgram(terrainProgram);
+	terrain.Draw(projCamMatrix);
+	CheckErrors("draw terrain2");
+
+	glUseProgram(program);
+	aAWing.Draw(projCamMatrix);
+	aHangar.Draw(projCamMatrix);
+	aTie.Draw(projCamMatrix);
+	aBomber.Draw(projCamMatrix);
+	aInterceptor.Draw(projCamMatrix);
+	CheckErrors("draw actors2");
+
+	// Draw to screen
+	camMatrix = glm::lookAt(aAWing.pos - (20.0f * aAWing.dir) + 5.0f * UP, aAWing.pos, glm::vec3(0.0, 1.0, 0.0));
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glClearColor(0.8, 0.8, 0.8, 1.0);
+	glViewport(0, 0, SCREEN_W, SCREEN_H);
+
 	glUseProgram(skyProgram);
 	skybox.Draw(projMatrix, camMatrix);
 	glClear(GL_DEPTH_BUFFER_BIT);
 	CheckErrors("draw sky");
 	
+	glUseProgram(fboProgram);
+	glBindVertexArray(fbo.vao);
+	glDisable(GL_CULL_FACE);
+	glBindTexture(GL_TEXTURE_2D, fbo.texid);
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+	glEnable(GL_CULL_FACE);
+	CheckErrors("draw quad");
+
 	projCamMatrix = projMatrix * camMatrix;
 
 	glUseProgram(terrainProgram);
@@ -166,7 +219,6 @@ void onDisplay()
 	glUseProgram(program);
 	aAWing.Draw(projCamMatrix);
 	aHangar.Draw(projCamMatrix);
-	aTiles.Draw(projCamMatrix);
 	aTie.Draw(projCamMatrix);
 	aBomber.Draw(projCamMatrix);
 	aInterceptor.Draw(projCamMatrix);
