@@ -25,6 +25,7 @@
 #include <terrain.h>
 #include <skybox.h>
 #include <fbo.h>
+#include <spline.h>
 
 
 #define EYE glm::mat4(1.0f)
@@ -38,7 +39,7 @@
 #define UP glm::vec3(0.0, 1.0, 0.0)
 
 uint SCREEN_W, SCREEN_H;
-uint timeNow, timeOfLastUpdate;
+uint timeNow, timeOfLastUpdate, timeOfLastSplineChange;
 std::bitset<8> keyboardInfo = 0;
 
 GLuint program, terrainProgram, skyProgram, fboProgram;
@@ -46,6 +47,7 @@ glm::mat4 projCamMatrix, camMatrix, projMatrix;
 
 Skybox skybox;
 FBO fbo;
+Spline s({0.0, 112.0, 0.0}, {-64.0, 160.0, -64.0}, {0.0, 0.0, -128.0}, {-128.0, 0.0, 0.0});
 
 std::map<std::string, Model> Models;
 std::map<std::string, Actor> Actors;
@@ -62,6 +64,7 @@ void init()
 	SCREEN_H = 900;
 	timeNow = 0;
 	timeOfLastUpdate = 0;
+	timeOfLastSplineChange = 0;
 
 	// SHADER STUFF
 	program = compileShaders("Shaders/object.vert", "Shaders/object.frag");
@@ -136,6 +139,14 @@ void onIdle()
 	glutPostRedisplay();
 }
 
+glm::vec3 randomVec3(float xMax, float yMax, float zMax)
+{
+	float x = 2 * xMax * (std::rand() / (1.0 * RAND_MAX)) - xMax;
+	float y = 2 * yMax * (std::rand() / (1.0 * RAND_MAX)) - yMax;
+	float z = 2 * zMax * (std::rand() / (1.0 * RAND_MAX)) - zMax;
+	return glm::vec3(x, y, z);
+}
+
 void onDisplay()
 {
 	glClearColor(0.8, 0.8, 0.8, 1.0);
@@ -157,6 +168,28 @@ void onDisplay()
 		aTie.pos.y = aa.first;
 		glm::vec3 right = glm::cross(glm::vec3(aTie.dir.x, 0.0, aTie.dir.z), UP);
 		aTie.dir = glm::normalize(glm::cross(aa.second, right));
+
+		if(timeNow - timeOfLastSplineChange > 5000)
+		{
+			std::cout << "Hej" << '\n';
+			glm::vec3 randDir = glm::normalize(randomVec3(64, 32, 64));
+			glm::vec3 randPos = randomVec3(256.0, 64, 256);
+			randPos.y = randPos.y + 112;
+			s = Spline(aInterceptor.pos, randPos, 1280.0f * aInterceptor.dir, 1280.0f * randDir);
+			aBomber.pos = randPos;
+			aBomber.dir = randDir;
+			timeOfLastSplineChange = timeNow;
+
+		}
+
+		float u = (timeNow - timeOfLastSplineChange) / 5000.0;
+
+		std::pair<glm::vec3, glm::vec3> interp = s(u);
+		// glm::vec3 dir = glm::normalize(s(u + 0.01) - pos);
+		std::cout << u << " - " << glm::to_string(interp.first) << '\n';
+		aInterceptor.pos = interp.first;
+		aInterceptor.dir = glm::normalize(interp.second);
+
 
 		// camMatrix = glm::lookAt(glm::vec3(-0.0, 96.0, 8 + (timeNow / 1000.0)), aAWing.pos, glm::vec3(0.0, 1.0, 0.0));
 		camMatrix = glm::lookAt(aAWing.pos - (20.0f * aAWing.dir) + 5.0f * UP, aAWing.pos, glm::vec3(0.0, 1.0, 0.0));
@@ -235,7 +268,7 @@ void onReshape(int width, int height)
 	SCREEN_H = height;
 	glViewport(0, 0, SCREEN_W, SCREEN_H);
 
-	projMatrix = glm::perspective(45.0f, 1.0f*SCREEN_W/SCREEN_H, 0.1f, 400.0f);
+	projMatrix = glm::perspective(45.0f, 1.0f*SCREEN_W/SCREEN_H, 0.1f, 8192.0f);
 }
 
 int main(int argc, char *argv[])
