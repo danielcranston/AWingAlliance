@@ -3,6 +3,7 @@
 #include <bitset>
 
 #include <actor.h>
+#include <map>
 #include <helpfunctions.h>
 #include <keyboard_constants.h>
 
@@ -12,6 +13,7 @@
 
 extern GLuint skyProgram;
 extern GLuint program;
+extern std::map<std::string, Model> Models;
 
 Actor::Actor() { }
 
@@ -68,6 +70,15 @@ void Actor::Draw(glm::mat4 camprojMat)
 			// if(p.program == skyProgram) {glBindTexture(GL_TEXTURE_CUBE_MAP, o.texture_id);} //glBindTexture(GL_TEXTURE_2D, 0); 
 			glBindTexture(GL_TEXTURE_2D, o.texture_id);
 			glDrawArrays(GL_TRIANGLES, 0, 3 * o.numTriangles);
+
+		}
+		// Draw parts bounding box
+		if(true)
+		{
+			glm::mat4 mvp2 = mvp * p.model->boundingbox.pose;
+			glUniformMatrix4fv(glGetUniformLocation(program, "mvp"), 1, GL_FALSE, glm::value_ptr(mvp2));
+			glBindVertexArray(Models["cube"].drawobjects[0].vao);
+			glDrawArrays(GL_LINE_STRIP, 0, 3 * 12);
 		}
 	}
 }

@@ -586,6 +586,20 @@ bool LoadObjAndConvert(float bmin[3], float bmax[3],
 	return true;
 }
 
+std::vector<glm::vec3> get3DCorners(float bmin[3], float bmax[3])
+{
+	std::vector<glm::vec3> bounding_box;
+	std::vector<float> xbounds = {bmin[0], bmax[0]};
+	std::vector<float> ybounds = {bmin[1], bmax[1]};
+	std::vector<float> zbounds = {bmin[2], bmax[2]};
+	for(int i = 0; i < 2; i++)
+		for(int j = 0; j < 2; j++)
+			for(int k = 0; k < 2; k++)
+				bounding_box.push_back(glm::vec3(xbounds[i], ybounds[j], zbounds[k]));
+
+	return std::move(bounding_box);
+}
+
 void loadModels(std::map<std::string, Model>& Models, std::vector<std::string> model_names)
 {
 	float bmin[3], bmax[3];
@@ -599,7 +613,11 @@ void loadModels(std::map<std::string, Model>& Models, std::vector<std::string> m
 		{
 	    	std::cerr << "Unable to load .OBJ file" << std::endl;
 		}
-		Model m = Model(model_name, drawobjects);
+
+		// std::vector<glm::vec3> corners = get3DCorners(bmin, bmax);
+
+
+		Model m = Model(model_name, drawobjects, bmin, bmax);
 
 		Models[m.name] = m;
 	}

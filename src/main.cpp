@@ -2,6 +2,7 @@
 #include <math.h>
 #include <algorithm>
 #include <array>
+#include <vector>
 #include <memory>
 #include <bitset>
 #include <map>
@@ -47,7 +48,7 @@ glm::mat4 projCamMatrix, camMatrix, projMatrix;
 
 Skybox skybox;
 FBO fbo;
-Spline s({0.0, 112.0, 0.0}, {-64.0, 160.0, -64.0}, {0.0, 0.0, -128.0}, {-128.0, 0.0, 0.0});
+Spline s;
 
 std::map<std::string, Model> Models;
 std::map<std::string, Actor> Actors;
@@ -125,6 +126,9 @@ void init()
 	fbo.Init(SCREEN_W, SCREEN_H);
 	fbo.SetupQuad();
 	CheckErrors("setup fbo");
+
+	s = Spline(aInterceptor.pos, glm::vec3(-64, 112, -64), 1280.0f * aInterceptor.dir, 1280.0f * glm::vec3(0.0, 0.0, -1.0));
+	s.UploadPoints();
 }
 
 void onIdle()
@@ -171,7 +175,6 @@ void onDisplay()
 
 		if(timeNow - timeOfLastSplineChange > 5000)
 		{
-			std::cout << "Hej" << '\n';
 			glm::vec3 randDir = glm::normalize(randomVec3(64, 32, 64));
 			glm::vec3 randPos = randomVec3(256.0, 64, 256);
 			randPos.y = randPos.y + 112;
@@ -185,8 +188,6 @@ void onDisplay()
 		float u = (timeNow - timeOfLastSplineChange) / 5000.0;
 
 		std::pair<glm::vec3, glm::vec3> interp = s(u);
-		// glm::vec3 dir = glm::normalize(s(u + 0.01) - pos);
-		std::cout << u << " - " << glm::to_string(interp.first) << '\n';
 		aInterceptor.pos = interp.first;
 		aInterceptor.dir = glm::normalize(interp.second);
 
@@ -255,7 +256,9 @@ void onDisplay()
 	aTie.Draw(projCamMatrix);
 	aBomber.Draw(projCamMatrix);
 	aInterceptor.Draw(projCamMatrix);
+	s.Draw(projCamMatrix);
 	CheckErrors("draw actors");
+
 
 	glutSwapBuffers();
 
@@ -305,6 +308,7 @@ int main(int argc, char *argv[])
     glEnable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
+    glEnable(GL_PROGRAM_POINT_SIZE);
     // glEnable(GL_PRIMITIVE_RESTART);
 	glutMainLoop();
 

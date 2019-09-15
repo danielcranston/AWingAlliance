@@ -5,34 +5,9 @@
 #include <string>
 #include <memory>
 #include <map>
+#include <model.h>
 
 #include <GL/glew.h>
-
-
-
-typedef struct {
-	unsigned int vbo, vao;
-	int numTriangles;
-	unsigned int texture_id;
-	
-	size_t material_id;
-	std::string texture_name;
-} DrawObject;
-
-
-struct Model
-{
-	std::string name;
-	std::vector<DrawObject> drawobjects;
-
-	Model() {};
-	Model(std::string name, std::vector<DrawObject> dos) : name{name}, drawobjects{dos}	{}
-
-    bool operator==(const Model& m) const
-    { 
-        return name == m.name;
-    } 
-};
 
 bool LoadObjAndConvert(float bmin[3], float bmax[3],
                               std::vector<DrawObject>* drawObjects,

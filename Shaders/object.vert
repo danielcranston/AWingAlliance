@@ -15,6 +15,7 @@ uniform mat4 mvp;
 void main(void)
 {
 	gl_Position = mvp * vec4(position, 1.0);
+	gl_PointSize = 10.0; // only relevant when drawing points
 
 	x_normal = normal;
 	x_color = vec3(1.0);
