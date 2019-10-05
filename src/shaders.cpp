@@ -1,6 +1,7 @@
 #include <string.h>
 #include <array>
 #include <vector>
+#include <iostream>
 
 #include <GL/glew.h>
 #include <GL/freeglut.h>
@@ -47,6 +48,79 @@ void printShaderInfoLog(GLuint obj, const char *fn)
 		fprintf(stderr, "%s\n",infoLog);
 		free(infoLog);
 	}
+}
+
+GLuint compileComputeShader(std::string computeSource)
+{
+	// Create an empty vertex shader handle
+	GLuint computeShader = glCreateShader(GL_COMPUTE_SHADER);
+
+	// Send the compute shader source code to GL
+	// Note that std::string's .c_str is NULL character terminated.
+	char *src;
+	src = readFile(computeSource.c_str()); // does a malloc, but we free below
+	glShaderSource(computeShader, 1, &src, NULL);
+	free(src);
+
+	// Compile the compute shader
+	glCompileShader(computeShader);
+
+	GLint isCompiled = 0;
+	glGetShaderiv(computeShader, GL_COMPILE_STATUS, &isCompiled);
+	if(isCompiled == GL_FALSE)
+	{
+		GLint maxLength = 0;
+		glGetShaderiv(computeShader, GL_INFO_LOG_LENGTH, &maxLength);
+
+		// The maxLength includes the NULL character
+		std::vector<GLchar> infoLog(maxLength);
+		glGetShaderInfoLog(computeShader, maxLength, &maxLength, &infoLog[0]);
+
+		free(src);
+		printShaderInfoLog(computeShader, computeSource.c_str());
+
+		// We don't need the shader anymore.
+		glDeleteShader(computeShader);
+
+		// Use the infoLog as you see fit.
+		throw std::runtime_error("Unable to compile compute shader.");
+	}
+
+	GLuint program = glCreateProgram();
+
+	// Attach our shaders to our program
+	glAttachShader(program, computeShader);
+
+	// Link our program
+	glLinkProgram(program);
+
+	// Note the different functions here: glGetProgram* instead of glGetShader*.
+	GLint isLinked = 0;
+	glGetProgramiv(program, GL_LINK_STATUS, (int *)&isLinked);
+	if (isLinked == GL_FALSE)
+	{
+		GLint maxLength = 0;
+		glGetProgramiv(program, GL_INFO_LOG_LENGTH, &maxLength);
+
+		// The maxLength includes the NULL character
+		std::vector<GLchar> infoLog(maxLength);
+		glGetProgramInfoLog(program, maxLength, &maxLength, &infoLog[0]);
+
+		// We don't need the program anymore.
+		glDeleteProgram(program);
+		// Don't leak shaders either.
+		glDeleteShader(computeShader);
+
+		// Use the infoLog as you see fit.
+
+		throw std::runtime_error("Unable to link compute shader program.");
+	}
+
+	// Always detach shaders after a successful link.
+	glDetachShader(program, computeShader);
+
+	std::cout << "Compute Shader Compiled and Linked Successfully." << '\n';
+	return program;
 }
 
 // From https://www.khronos.org/opengl/wiki/Shader_Compilation
