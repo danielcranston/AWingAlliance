@@ -6,6 +6,7 @@
 #include <map>
 #include <helpfunctions.h>
 #include <keyboard_constants.h>
+#include <spline.h>
 
 // 	#define GLM_ENABLE_EXPERIMENTAL
 // 	#include <glm/gtx/string_cast.hpp>
@@ -22,7 +23,10 @@ Actor::Actor(	glm::vec3 p,
 				std::vector<Model*>	mdls,
 				std::vector<glm::mat4> poses
 				)
-	: pos{p}, dir{glm::normalize(d)} // Initializer list just because
+	: pos{p}
+	, dir{glm::normalize(d)}
+	, bDrawBBox(false)
+	, bDrawSpline(false)
 {
 	throttle = 0.0;
 	turnThrottle = 0.0;
@@ -33,12 +37,28 @@ Actor::Actor(	glm::vec3 p,
 	throttleChangeRate = 0.001;
 	turnThrottleChangeRate = 0.001;
 
+	s = Spline(p, dir, 0.0, 5.0);
+
 	for (int i = 0; i < mdls.size(); ++i)
 	{
 		parts.push_back({ 	mdls[i], // Build each part
 							poses[i],
 						});
 	}
+}
+
+void Actor::Update_Roaming(float t)
+{
+	if(t - s.start_time > s.duration)
+	{
+		s.UpdateRandom(pos,	dir);
+		s.UploadPoints();
+	}
+
+	float u = (t - s.start_time) / s.duration; // [0, 1]
+	std::pair<glm::vec3, glm::vec3> interp = s(u);
+	pos = interp.first;
+	dir = glm::normalize(interp.second);
 }
 
 void Actor::Draw(glm::mat4 camprojMat)
@@ -73,12 +93,17 @@ void Actor::Draw(glm::mat4 camprojMat)
 
 		}
 		// Draw parts bounding box
-		if(true)
+		if(bDrawBBox)
 		{
 			glm::mat4 mvp2 = mvp * p.model->boundingbox.pose;
 			glUniformMatrix4fv(glGetUniformLocation(program, "mvp"), 1, GL_FALSE, glm::value_ptr(mvp2));
 			glBindVertexArray(Models["cube"].drawobjects[0].vao);
 			glDrawArrays(GL_LINE_STRIP, 0, 3 * 12);
+		}
+
+		if(bDrawSpline)
+		{
+			s.Draw(camprojMat);
 		}
 	}
 }

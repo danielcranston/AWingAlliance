@@ -111,6 +111,7 @@ void init()
 					{&Models["tie_interceptor"]},
 					{EYE}
 				);
+	aInterceptor.bDrawSpline = true;
 
 	aHangar = Actor({0.0, 192.0, 0.0},	// Position
 					{0.0, 0.0, -1.0},	// Facing direction
@@ -126,9 +127,6 @@ void init()
 	fbo.Init(SCREEN_W, SCREEN_H);
 	fbo.SetupQuad();
 	CheckErrors("setup fbo");
-
-	s = Spline(aInterceptor.pos, glm::vec3(-64, 112, -64), 1280.0f * aInterceptor.dir, 1280.0f * glm::vec3(0.0, 0.0, -1.0));
-	s.UploadPoints();
 }
 
 void onIdle()
@@ -173,27 +171,26 @@ void onDisplay()
 		glm::vec3 right = glm::cross(glm::vec3(aTie.dir.x, 0.0, aTie.dir.z), UP);
 		aTie.dir = glm::normalize(glm::cross(aa.second, right));
 
-		if(timeNow - timeOfLastSplineChange > 5000)
-		{
-			glm::vec3 randDir = glm::normalize(randomVec3(64, 32, 64));
-			glm::vec3 randPos = randomVec3(256.0, 64, 256);
-			randPos.y = randPos.y + 112;
-			s = Spline(aInterceptor.pos, randPos, 1280.0f * aInterceptor.dir, 1280.0f * randDir);
-			aBomber.pos = randPos;
-			aBomber.dir = randDir;
-			timeOfLastSplineChange = timeNow;
+		aInterceptor.Update_Roaming(timeNow / 1000.0f);
+		// if(timeNow - timeOfLastSplineChange > 5000)
+		// {
+		// 	glm::vec3 randDir = glm::normalize(randomVec3(64, 32, 64));
+		// 	glm::vec3 randPos = randomVec3(256.0, 64, 256);
+		// 	randPos.y = randPos.y + 112;
+		// 	s = Spline(aInterceptor.pos, randPos, 1280.0f * aInterceptor.dir, 1280.0f * randDir);
+		// 	timeOfLastSplineChange = timeNow;
 
-		}
+		// }
 
-		float u = (timeNow - timeOfLastSplineChange) / 5000.0;
+		// float u = (timeNow - timeOfLastSplineChange) / 5000.0;
 
-		std::pair<glm::vec3, glm::vec3> interp = s(u);
-		aInterceptor.pos = interp.first;
-		aInterceptor.dir = glm::normalize(interp.second);
+		// std::pair<glm::vec3, glm::vec3> interp = s(u);
+		// aInterceptor.pos = interp.first;
+		// aInterceptor.dir = glm::normalize(interp.second);
 
 
 		// camMatrix = glm::lookAt(glm::vec3(-0.0, 96.0, 8 + (timeNow / 1000.0)), aAWing.pos, glm::vec3(0.0, 1.0, 0.0));
-		camMatrix = glm::lookAt(aAWing.pos - (20.0f * aAWing.dir) + 5.0f * UP, aAWing.pos, glm::vec3(0.0, 1.0, 0.0));
+		// camMatrix = glm::lookAt(aInterceptor.pos - (20.0f * aInterceptor.dir) + 5.0f * UP, aInterceptor.pos, glm::vec3(0.0, 1.0, 0.0));
 
 		timeOfLastUpdate = timeNow;
 	}
@@ -256,7 +253,6 @@ void onDisplay()
 	aTie.Draw(projCamMatrix);
 	aBomber.Draw(projCamMatrix);
 	aInterceptor.Draw(projCamMatrix);
-	s.Draw(projCamMatrix);
 	CheckErrors("draw actors");
 
 

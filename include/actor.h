@@ -11,6 +11,7 @@
 #include <glm/gtc/constants.hpp>
 
 #include <objloader.h>
+#include <spline.h>
 
 class Actor 
 {
@@ -27,6 +28,7 @@ class Actor
 		
 		void Update(float speedChange, float turnChange);
 		void Update(const std::bitset<8>& keyboardInfo, float dt);
+		void Update_Roaming(float t);
 
 		void SetPosition(glm::vec3 pos);
 		void PrintStatus();
@@ -43,6 +45,8 @@ class Actor
 			glm::mat4 pose; // pose relative to actor
 		};
 
+		Spline s;
+		bool bDrawBBox, bDrawSpline;
 		glm::vec3 pos;		// positional vector
 		glm::vec3 dir;		// directional viewing vector (norm 1)
 		std::vector<Part> parts;
