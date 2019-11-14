@@ -1,1 +1,1 @@
-(cd build ; make) && ./awing
+(cd build ; make awing) && ./awing
