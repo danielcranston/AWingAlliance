@@ -45,5 +45,5 @@ void main(void)
 
 	vec4 height_color = (1-blend_height) * mytex1 + blend_height * mytex3;
 	
-	out_Color =  (1-blend_tilt) * height_color  + blend_tilt * mytex2;
+	out_Color = height_color; // (1-blend_height) * height_color  + blend_height * mytex2;
 }

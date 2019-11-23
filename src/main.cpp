@@ -22,11 +22,15 @@
 #include <actor.h>
 #include <keyboard.h>
 #include <shaders.h>
-#include <objloader.h>
+// #include <objloader.h>
 #include <terrain.h>
 #include <skybox.h>
 #include <fbo.h>
 #include <spline.h>
+#include <parser.h>
+#include <loaders.h>
+#include <utils.h>
+
 
 
 #define EYE glm::mat4(1.0f)
@@ -50,11 +54,20 @@ Skybox skybox;
 FBO fbo;
 
 std::map<std::string, Model> Models;
+std::map<std::string, uint> Textures;
 std::map<std::string, Actor> Actors;
+
+ScenarioParser parser;
 
 Actor aAWing, aHangar, aSky, aTie, aBomber, aInterceptor;
 Terrain terrain;
 
+void ListTextures()
+{
+	std::cout << "Loaded Textures: (texID : name)" << std::endl;
+	for(auto const& texture : Textures)
+		std::cout << "  " << texture.second << " : " << texture.first << std::endl;
+}
 
 void init()
 {
@@ -88,10 +101,20 @@ void init()
 	glUniform1i(glGetUniformLocation(computeProgram, "input_image"), 0);
 	glUniform1i(glGetUniformLocation(computeProgram, "output_image"), 1);
 
-	CheckErrors("setup programs");
-	// MODEL STUFF
-	std::vector<std::string> model_names = {"cube", "awing", "tie", "tie_bomber", "tie_interceptor", "hangar"};
-	loadModels(Models, model_names);
+	utils::CheckErrors("setup programs");
+	glUseProgram(program);
+	glActiveTexture(GL_TEXTURE0);
+
+	// PARSE SCENARIO
+	parser = ScenarioParser("scenario1.json");
+	parser.Parse();
+	bool ret = loaders::load_models(&Models, &Textures, parser.required_models);
+
+	// LOAD ASSETS
+	terrain = loaders::load_terrain(&Textures, parser.terrain, terrainProgram);
+	skybox = loaders::load_skybox(&Models, &Textures, parser.skybox, skyProgram);
+	ListTextures();
+
 	// ACTOR STUFF
 	aAWing = Actor(	{0.0, 112.0, 0.0}, //{16.0, 128.0, 14.0}, //{22.1, -53.0, 69.2},	// Position
 					{0.0, 0.0, -1.0},	// Facing direction
@@ -124,16 +147,12 @@ void init()
 					{EYE}				// Relative orientation
 				);
 
-
-	skybox = Skybox(&Models["cube"], "lightblue/512");
-	terrain = Terrain(32, 32, 96, 16, terrainProgram); // x, z, maxHeight, blocksize
-	// terrain.saveBMP("test.bmp");
-
 	fbo.Init(800, 600);
 	fbo.SetupQuad();
-	int nGroupsX = std::ceil(fbo.width / 32.0);
-	int nGroupsY = std::ceil(fbo.height / 32.0);
-	CheckErrors("setup fbo");
+	utils::CheckErrors("setup fbo");
+	glActiveTexture(GL_TEXTURE0);
+	utils::CheckErrors("setup fbo2");
+	std::cout << "Finished Init" << '\n';
 }
 
 void onIdle()
@@ -194,7 +213,7 @@ void onDisplay()
 
 	// Draw to FBO
 	// camMatrix = glm::lookAt(glm::vec3(-0.0, 96.0, 8 + (timeNow / 1000.0)), aAWing.pos, glm::vec3(0.0, 1.0, 0.0));
-	camMatrix = glm::lookAt(aInterceptor.pos - (20.0f * aInterceptor.dir) + 5.0f * UP, aInterceptor.pos, glm::vec3(0.0, 1.0, 0.0));
+	camMatrix = glm::lookAt(aTie.pos - (20.0f * aTie.dir) + 5.0f * UP, aTie.pos, glm::vec3(0.0, 1.0, 0.0));
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo.id);
 	glBindTexture(GL_TEXTURE_2D, fbo.texid1);
 	glViewport(0, 0, fbo.width, fbo.height);
@@ -204,13 +223,13 @@ void onDisplay()
 	glUseProgram(skyProgram);
 	skybox.Draw(projMatrix, camMatrix);
 	glClear(GL_DEPTH_BUFFER_BIT);
-	CheckErrors("draw sky2");
+	utils::CheckErrors("draw sky2");
 
 	projCamMatrix = projMatrix * camMatrix;
 
 	glUseProgram(terrainProgram);
 	terrain.Draw(projCamMatrix);
-	CheckErrors("draw terrain2");
+	utils::CheckErrors("draw terrain2");
 
 	glUseProgram(program);
 	aAWing.Draw(projCamMatrix);
@@ -218,7 +237,7 @@ void onDisplay()
 	aTie.Draw(projCamMatrix);
 	aBomber.Draw(projCamMatrix);
 	aInterceptor.Draw(projCamMatrix);
-	CheckErrors("draw actors2");
+	utils::CheckErrors("draw actors2");
 
 	// Use FBO image as input to compute shader
 	DummyCompute();
@@ -232,7 +251,7 @@ void onDisplay()
 	glUseProgram(skyProgram);
 	skybox.Draw(projMatrix, camMatrix);
 	glClear(GL_DEPTH_BUFFER_BIT);
-	CheckErrors("draw sky");
+	utils::CheckErrors("draw sky");
 	
 	glUseProgram(fboProgram);
 	glBindVertexArray(fbo.vao);
@@ -240,13 +259,13 @@ void onDisplay()
 	glBindTexture(GL_TEXTURE_2D, fbo.texid2);
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 	glEnable(GL_CULL_FACE);
-	CheckErrors("draw quad");
+	utils::CheckErrors("draw quad");
 
 	projCamMatrix = projMatrix * camMatrix;
 
 	glUseProgram(terrainProgram);
 	terrain.Draw(projCamMatrix);
-	CheckErrors("draw terrain");
+	utils::CheckErrors("draw terrain");
 
 	glUseProgram(program);
 	aAWing.Draw(projCamMatrix);
@@ -254,7 +273,7 @@ void onDisplay()
 	aTie.Draw(projCamMatrix);
 	aBomber.Draw(projCamMatrix);
 	aInterceptor.Draw(projCamMatrix);
-	CheckErrors("draw actors");
+	utils::CheckErrors("draw actors");
 
 
 	glutSwapBuffers();

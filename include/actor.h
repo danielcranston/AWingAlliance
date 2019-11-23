@@ -10,7 +10,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/constants.hpp>
 
-#include <objloader.h>
+#include <model.h>
 #include <spline.h>
 
 class Actor 
