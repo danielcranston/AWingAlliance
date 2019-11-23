@@ -8,8 +8,6 @@
 #include <map>
 #include <model.h>
 
-#include <GL/glew.h>
-
 typedef struct {
 	unsigned int vbo, vao;
 	int numTriangles;

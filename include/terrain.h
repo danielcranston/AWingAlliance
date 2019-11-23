@@ -1,11 +1,12 @@
+#pragma once
+
 #include <vector>
 
-#include <GL/glew.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include <objloader.h>
 #include <PerlinNoise.hpp>
+#include <parser.h>
 
 class Terrain
 {
@@ -20,7 +21,7 @@ class Terrain
 		int numTriangles;
 
 		Terrain();
-		Terrain(std::int32_t xsize, std::int32_t ysize, std::int32_t height, std::int32_t blocksize, GLuint program);
+		Terrain(const ScenarioParser::TerrainEntry &terrainentry, std::map<std::string, uint> *textures, uint program);
 		void Generate();
 		void PushToGPU();
 		void Draw(glm::mat4 camprojMat);

@@ -1,0 +1,81 @@
+{
+    "game":
+    {
+        "TBD": "NotImplementedYet"
+    },
+    "actors":
+    {
+        "awing1":
+        {
+            "type": "awing",
+            "pos": [0.0, 112.0, 0.0],
+            "dir": [0.0, 0.0, -1.0]
+        },
+        "tie1":
+        {
+            "type": "tie",
+            "pos": [0.0, 96.0, -32.0],
+            "dir": [0.0, 0.0, -1.0]
+        },
+        "tie2":
+        {
+            "type": "tie",
+            "pos": [-16.0, 96.0, -32.0],
+            "dir": [0.0, 0.0, -1.0]
+        },
+        "interceptor1":
+        {
+            "type": "tie_interceptor",
+            "pos": [-32.0, 96.0, -32.0],
+            "dir": [0.0, 0.0, -1.0]
+        },
+        "bomber1":
+        {
+            "type": "tie_bomber",
+            "pos": [-64.0, 112.0, -64.0],
+            "dir": [0.0, 0.0, -1.0]
+        },
+        "hangar1":
+        {
+            "type": "hangar",
+            "pos": [0.0, 192.0, 0.0],
+            "dir": [0.0, 0.0, -1.0]
+        }
+    },
+    "terrain":
+    {
+        "x": 64,
+        "z": 32,
+        "maxHeight": 128,
+        "blockSize": 8,
+        "seed": 0,
+        "heightmap": "",
+        "textures": [
+            "grass.jpg",
+            "grass_grass_0099_02_tiled_s.jpg",
+            "ground_stone_ground_0002_02_tiled_s.jpg",
+            "rock_stones_0027_02_tiled_s.jpg"
+        ]
+    },
+    "skybox": "skybox/lightblue/512",
+    "player": "awing1",
+    "squadrons":
+    {
+        "blue":
+        {
+            "actor": "awing",
+            "pos": [0.0, 112.0, 0.0],
+            "dir": [0.0, 0.0, -1.0],
+            "members": 5,
+            "team": "alliance"
+        },
+        "black":
+        {
+            "actor": "tie",
+            "pos": [-112.0, 112.0, 0.0],
+            "dir": [0.0, 0.0, -1.0],
+            "members": 5,
+            "team": "empire"
+        }
+    }
+}

@@ -2,52 +2,40 @@
 # include <fstream>
 # include <sstream>
 
+#include <GL/glew.h>
+
 #include <terrain.h>
 
 Terrain::Terrain() : xSize{64}, zSize{64}, yMax{1}, blockScale{16}, numTriangles(2 * xSize * zSize) {}
 
-Terrain::Terrain(std::int32_t xsize, std::int32_t zsize, std::int32_t height, std::int32_t blockscale, GLuint program)
-	: xSize{xsize}
-	, zSize{zsize}
-	, yMax{height}
-	, blockScale{blockscale}
-	// , vao{0}
-	// , vboVertices{0}
-	// , vboIndices{0}
+Terrain::Terrain(const ScenarioParser::TerrainEntry &terrainentry, std::map<std::string, uint> *textures, uint program)
+	: xSize{terrainentry.x}
+	, zSize{terrainentry.z}
+	, yMax{terrainentry.maxHeight}
+	, blockScale{terrainentry.blockSize}
 	, numTriangles(2 * xSize * zSize)
 	, program{program}
-	// , heightmap((xSize+1)*(zSize+1)) // reserves space
-	{		
-		glUseProgram(program);
-		std::vector<std::string> texture_names = {
-			"Textures/grass.jpg",
-			"Textures/grass_grass_0099_02_tiled_s.jpg",
-			"Textures/ground_stone_ground_0002_02_tiled_s.jpg",
-			"Textures/rock_stones_0027_02_tiled_s.jpg"
-		};
-		texture_ids.reserve(4);
-		for(int i = 0; i < 4; i++)
-		{
-		    glGenTextures(1, &texture_ids[i]);
-		    assignTexture(texture_ids[i], texture_names[i]);
-		}
-		std::vector<std::string> texture_nrs = {"tex0", "tex1", "tex2", "tex2"};
-		for(int i = 0; i < 4; i++)
-		{
-			glActiveTexture(GL_TEXTURE0 + i);
-			glBindTexture(GL_TEXTURE_2D, texture_ids[i]);
-			glUniform1i(glGetUniformLocation(program, texture_nrs[i].c_str()), i);
-		}
-		glUniform1i(glGetUniformLocation(program, "tex0"), 0); // Texture unit 0
-		glUniform1i(glGetUniformLocation(program, "tex1"), 1); // Texture unit 1
-		glUniform1i(glGetUniformLocation(program, "tex2"), 2); // Texture unit 2
-		glUniform1i(glGetUniformLocation(program, "tex3"), 3); // Texture unit 3
-		glUniform1f(glGetUniformLocation(program, "maxHeight"), yMax); // to normalize height to [0, 1] in shader
- 		glActiveTexture(GL_TEXTURE0);
-
-	    Generate();
-	    PushToGPU();
+{
+	glUseProgram(program);
+	texture_ids.reserve(4);
+	for(int i = 0; i < 4; i++)
+	{
+		std::string tex_name = terrainentry.textures[i];
+	    texture_ids[i] = textures->find(tex_name)->second;
+		glActiveTexture(GL_TEXTURE0 + i);
+		glBindTexture(GL_TEXTURE_2D, texture_ids[i]);
 	}
+
+	glUniform1i(glGetUniformLocation(program, "tex0"), 0); // Texture unit 0
+	glUniform1i(glGetUniformLocation(program, "tex1"), 1); // Texture unit 1
+	glUniform1i(glGetUniformLocation(program, "tex2"), 2); // Texture unit 2
+	glUniform1i(glGetUniformLocation(program, "tex3"), 3); // Texture unit 3
+	glUniform1f(glGetUniformLocation(program, "maxHeight"), yMax); // to normalize height to [0, 1] in shader
+	glActiveTexture(GL_TEXTURE0);
+
+    Generate();
+    PushToGPU();
+}
 
 void Terrain::Generate()
 {
@@ -131,14 +119,6 @@ void Terrain::Generate()
 
 }
 
-void CheckErrors2(std::string desc) {
-	GLenum e = glGetError();
-	if (e != GL_NO_ERROR) {
-		fprintf(stderr, "OpenGL error in \"%s\": %d (%d)\n", desc.c_str(), e, e);
-		exit(20);
-	}
-}
-
 float Terrain::HeightAt(int x, int z)
 {
 	x = (x + xSize) % xSize; // ensure wraparound
@@ -172,7 +152,6 @@ void Terrain::PushToGPU()
 	}
 
 	unsigned int stride = (3 + 3 + 2) * sizeof(float);
-
 	glGenVertexArrays(1, &vao);
 	glGenBuffers(1, &vboVertices);
 	glGenBuffers(1, &vboIndices);
@@ -181,12 +160,9 @@ void Terrain::PushToGPU()
 
 	glBindBuffer(GL_ARRAY_BUFFER, vboVertices);
 	glBufferData(GL_ARRAY_BUFFER, buffer.size() * sizeof(float), &buffer.at(0), GL_STATIC_DRAW);
-	CheckErrors2("vbo vertices");
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboIndices);
-	CheckErrors2("vbo indices");
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices.at(0), GL_STATIC_DRAW);
-	CheckErrors2("vbo indices2");
 
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
