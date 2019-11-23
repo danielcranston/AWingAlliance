@@ -17,11 +17,7 @@ This guide assumes you are on a Linux system using the apt package manager
 Installing dependencies:
 
 ```
-sudo apt-get install build-essential
-sudo apt-get install cmake
-sudo apt-get install freeglut3-dev
-sudo apt-get install libglew-dev
-sudo apt-get install libglm-dev
+sudo apt-get install build-essential cmake freeglut3-dev libglew-dev libglm-dev
 ```
 
 Cloning the repository, building the project and running the executable:
@@ -30,18 +26,14 @@ Cloning the repository, building the project and running the executable:
 git clone https://github.com/danielcranston/AWingAlliance
 cd AWingAlliance
 mkdir build
-cd build
-cmake ..
-make
-cd ..
-./awing
+./run.sh
 ```
-
-## Authors
-
-* **Daniel Cranston** - *Initial work* - [https://github.com/danielcranston](https://github.com/danielcranston)
 
 ## Acknowledgments
 
-Code for loading shaders and importing .obj and.tga files come from [https://computer-graphics.se/](https://computer-graphics.se/).
+The following header-only libraries are used:
 
+* https://github.com/syoyo/tinyobjloader for loading models.
+* https://github.com/nothings/stb for loading textures.
+* https://github.com/Reputeless/PerlinNoise for generating random terrain.
+* https://github.com/nlohmann/json for parsing scenario config files.
