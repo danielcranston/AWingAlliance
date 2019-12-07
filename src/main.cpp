@@ -22,7 +22,6 @@
 #include <actor.h>
 #include <keyboard.h>
 #include <shaders.h>
-// #include <objloader.h>
 #include <terrain.h>
 #include <skybox.h>
 #include <fbo.h>
@@ -56,10 +55,10 @@ FBO fbo;
 std::map<std::string, Model> Models;
 std::map<std::string, uint> Textures;
 std::map<std::string, Actor> Actors;
+std::string player_name;
 
 ScenarioParser parser;
 
-Actor aAWing, aHangar, aSky, aTie, aBomber, aInterceptor;
 Terrain terrain;
 
 void ListTextures()
@@ -108,44 +107,16 @@ void init()
 	// PARSE SCENARIO
 	parser = ScenarioParser("scenario1.json");
 	parser.Parse();
-	bool ret = loaders::load_models(&Models, &Textures, parser.required_models);
 
 	// LOAD ASSETS
+	bool ret = loaders::load_models(&Models, &Textures, parser.required_models);
 	terrain = loaders::load_terrain(&Textures, parser.terrain, terrainProgram);
 	skybox = loaders::load_skybox(&Models, &Textures, parser.skybox, skyProgram);
 	ListTextures();
 
 	// ACTOR STUFF
-	aAWing = Actor(	{0.0, 112.0, 0.0}, //{16.0, 128.0, 14.0}, //{22.1, -53.0, 69.2},	// Position
-					{0.0, 0.0, -1.0},	// Facing direction
-					{&Models["awing"]}, //&Models["tie_bomber"], &Models["tie_fixed"], &Models["tie_interceptor"]},	// Model parts
-					{EYE}// TRANS(10.0, 0.0, 0.0), TRANS(-10.0, 0.0, 0.0), TRANS(0.0, 0.0, 10.0)},				// Relative orientation
-				);
-
-	aTie = Actor(	{0.0, 96.0, -32.0},
-					{0.0, 0.0, -1.0},
-					{&Models["tie"]},
-					{EYE}
-				);
-
-	aBomber = Actor({-64.0, 112.0, -64.0},
-					{0.0, 0.0, -1.0},
-					{&Models["tie_bomber"]},
-					{EYE}
-				);
-
-	aInterceptor = Actor({-16.0, 96.0, -32.0},
-					{0.0, 0.0, -1.0},
-					{&Models["tie_interceptor"]},
-					{EYE}
-				);
-	aInterceptor.bDrawSpline = true;
-
-	aHangar = Actor({0.0, 192.0, 0.0},	// Position
-					{0.0, 0.0, -1.0},	// Facing direction
-					{&Models["hangar"]},	// Model parts
-					{EYE}				// Relative orientation
-				);
+	ret = loaders::load_actors(&Actors, parser.actors, Models);
+	player_name = parser.player;
 
 	fbo.Init(800, 600);
 	fbo.SetupQuad();
@@ -194,72 +165,25 @@ void onDisplay()
 
 		// if(keyboardInfo.test(Q_IS_DOWN)) std::cout << glm::to_string(aAWing.pos) << '\n';
 		// std::cout << "Keyboard: " << keyboardInfo << '\n';
-	
-		aAWing.Update(keyboardInfo, dt);
-
-		aTie.pos.z = -32 - (timeNow / 100.0);
-		std::pair<float, glm::vec3> aa = terrain.GetHeight(aTie.pos.x, aTie.pos.z);
-		aTie.pos.y = aa.first;
-		glm::vec3 right = glm::cross(glm::vec3(aTie.dir.x, 0.0, aTie.dir.z), UP);
-		aTie.dir = glm::normalize(glm::cross(aa.second, right));
-
-		aInterceptor.Update_Roaming(timeNow / 1000.0f);
-		// camMatrix = glm::lookAt(glm::vec3(-0.0, 96.0, 8 + (timeNow / 1000.0)), aAWing.pos, glm::vec3(0.0, 1.0, 0.0));
-		// camMatrix = glm::lookAt(aInterceptor.pos - (20.0f * aInterceptor.dir) + 5.0f * UP, aInterceptor.pos, glm::vec3(0.0, 1.0, 0.0));
-
+		for(auto& actor : Actors)
+		{
+			if(actor.first == player_name)
+			{
+				actor.second.Update(keyboardInfo, dt);
+			}
+			else if(actor.first != "hangar1")
+			{
+				actor.second.Update_Roaming(timeNow / 1000.0f);
+			}
+		}
 		timeOfLastUpdate = timeNow;
 	}
 
-
-	// Draw to FBO
-	// camMatrix = glm::lookAt(glm::vec3(-0.0, 96.0, 8 + (timeNow / 1000.0)), aAWing.pos, glm::vec3(0.0, 1.0, 0.0));
-	camMatrix = glm::lookAt(aTie.pos - (20.0f * aTie.dir) + 5.0f * UP, aTie.pos, glm::vec3(0.0, 1.0, 0.0));
-	glBindFramebuffer(GL_FRAMEBUFFER, fbo.id);
-	glBindTexture(GL_TEXTURE_2D, fbo.texid1);
-	glViewport(0, 0, fbo.width, fbo.height);
-	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
-
-	glUseProgram(skyProgram);
-	skybox.Draw(projMatrix, camMatrix);
-	glClear(GL_DEPTH_BUFFER_BIT);
-	utils::CheckErrors("draw sky2");
-
-	projCamMatrix = projMatrix * camMatrix;
-
-	glUseProgram(terrainProgram);
-	terrain.Draw(projCamMatrix);
-	utils::CheckErrors("draw terrain2");
-
-	glUseProgram(program);
-	aAWing.Draw(projCamMatrix);
-	aHangar.Draw(projCamMatrix);
-	aTie.Draw(projCamMatrix);
-	aBomber.Draw(projCamMatrix);
-	aInterceptor.Draw(projCamMatrix);
-	utils::CheckErrors("draw actors2");
-
-	// Use FBO image as input to compute shader
-	DummyCompute();
-
-	// Draw to screen
-	camMatrix = glm::lookAt(aAWing.pos - (20.0f * aAWing.dir) + 5.0f * UP, aAWing.pos, glm::vec3(0.0, 1.0, 0.0));
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glClearColor(0.8, 0.8, 0.8, 1.0);
-	glViewport(0, 0, SCREEN_W, SCREEN_H);
-
+	camMatrix = glm::lookAt(Actors[player_name].pos - (20.0f * Actors[player_name].dir) + 5.0f * UP, Actors[player_name].pos, glm::vec3(0.0, 1.0, 0.0));
 	glUseProgram(skyProgram);
 	skybox.Draw(projMatrix, camMatrix);
 	glClear(GL_DEPTH_BUFFER_BIT);
 	utils::CheckErrors("draw sky");
-	
-	glUseProgram(fboProgram);
-	glBindVertexArray(fbo.vao);
-	glDisable(GL_CULL_FACE);
-	glBindTexture(GL_TEXTURE_2D, fbo.texid2);
-	glDrawArrays(GL_TRIANGLES, 0, 6);
-	glEnable(GL_CULL_FACE);
-	utils::CheckErrors("draw quad");
 
 	projCamMatrix = projMatrix * camMatrix;
 
@@ -268,13 +192,11 @@ void onDisplay()
 	utils::CheckErrors("draw terrain");
 
 	glUseProgram(program);
-	aAWing.Draw(projCamMatrix);
-	aHangar.Draw(projCamMatrix);
-	aTie.Draw(projCamMatrix);
-	aBomber.Draw(projCamMatrix);
-	aInterceptor.Draw(projCamMatrix);
+	for(auto& actor : Actors)
+	{
+		actor.second.Draw(projCamMatrix);
+	}
 	utils::CheckErrors("draw actors");
-
 
 	glutSwapBuffers();
 
@@ -312,7 +234,6 @@ int main(int argc, char *argv[])
 
 	init();
 	
-
 	glutSetKeyRepeat(GLUT_KEY_REPEAT_OFF);
     glutReshapeFunc(onReshape);
 	glutIdleFunc(onIdle);

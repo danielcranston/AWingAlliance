@@ -14,19 +14,19 @@
         "tie1":
         {
             "type": "tie",
-            "pos": [0.0, 96.0, -32.0],
+            "pos": [0.0, 112.0, -32.0],
             "dir": [0.0, 0.0, -1.0]
         },
         "tie2":
         {
             "type": "tie",
-            "pos": [-16.0, 96.0, -32.0],
+            "pos": [-16.0, 112.0, -32.0],
             "dir": [0.0, 0.0, -1.0]
         },
         "interceptor1":
         {
             "type": "tie_interceptor",
-            "pos": [-32.0, 96.0, -32.0],
+            "pos": [-32.0, 128.0, -32.0],
             "dir": [0.0, 0.0, -1.0]
         },
         "bomber1":
@@ -38,7 +38,7 @@
         "hangar1":
         {
             "type": "hangar",
-            "pos": [0.0, 192.0, 0.0],
+            "pos": [0.0, 256.0, 0.0],
             "dir": [0.0, 0.0, -1.0]
         }
     },
@@ -58,7 +58,7 @@
         ]
     },
     "skybox": "skybox/lightblue/512",
-    "player": "awing1",
+    "player": "interceptor1",
     "squadrons":
     {
         "blue":
