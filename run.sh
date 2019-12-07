@@ -1,1 +1,1 @@
-(cd build ; make awing) && ./awing
+(cd build ; cmake .. ; make awing) && ./awing
