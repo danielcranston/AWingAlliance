@@ -43,6 +43,14 @@ void Actor::Draw(glm::mat4 camprojMat)
 		glUniformMatrix4fv(glGetUniformLocation(program, "mvp"), 1, GL_FALSE, glm::value_ptr(mvp2));
 		for(DrawObject o: p.model->drawobjects)
 		{
+			if(o.texture_name == "")
+			{
+				glUniform1i(glGetUniformLocation(program, "bUseColor"), 1);
+			}
+			else
+			{
+				glUniform1i(glGetUniformLocation(program, "bUseColor"), 0);
+			}
 			glBindVertexArray(o.vao);
 			glBindTexture(GL_TEXTURE_2D, o.texture_id);
 			glDrawArrays(GL_TRIANGLES, 0, 3 * o.numTriangles);

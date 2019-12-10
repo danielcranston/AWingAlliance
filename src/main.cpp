@@ -82,6 +82,7 @@ void init()
 	program = compileShaders("Shaders/object.vert", "Shaders/object.frag");
 	glUseProgram(program);
 	glUniform1i(glGetUniformLocation(program, "tex"), 0);
+	glUniform1i(glGetUniformLocation(program, "bUseColor"), 0);
 	
 	terrainProgram = compileShaders("Shaders/terrain.vert", "Shaders/terrain.frag");
 
