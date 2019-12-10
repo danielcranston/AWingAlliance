@@ -11,7 +11,6 @@
 #include <glm/gtc/constants.hpp>
 
 #include <model.h>
-#include <spline.h>
 
 class Actor 
 {
@@ -19,49 +18,26 @@ class Actor
 		Actor();
 		Actor(	glm::vec3 p,
 				glm::vec3 d,
-				std::vector<Model*>	mdls,
-				std::vector<glm::mat4> poses
+				std::vector<std::pair<Model*, glm::mat4>> part_vector
 				);
-		
 
 		virtual void Draw(glm::mat4 camprojMat); // evaluates at runtime
-		
-		void Update(float speedChange, float turnChange);
-		void Update(const std::bitset<8>& keyboardInfo, float dt);
-		void Update_Roaming(float t);
-
 		void SetPosition(glm::vec3 pos);
-		void PrintStatus();
+		void SetDirection(glm::vec3 dir);
+		void SetOrientation(glm::vec3 pos, glm::vec3 dir);
 		
-		// std::string name;
-		// bool operator==(const Model& m) const
-		// { 
-		// 	return name == m.name;
-		// } 
-
 		struct Part
 		{
+			Part(Model* m, glm::mat4 p) : model(m), pose(p) {}
 			Model* model;	// model to draw
 			glm::mat4 pose; // pose relative to actor
 		};
 
-		Spline s;
-		bool bDrawBBox, bDrawSpline;
 		glm::vec3 pos;		// positional vector
 		glm::vec3 dir;		// directional viewing vector (norm 1)
 		std::vector<Part> parts;
 	protected:
 		glm::mat4 mdlMatrix;
-
-
-		float throttle; 		// normalized -1 to 1
-		float turnThrottle; 	// normalized -1 to 1
-		
-		float throttleChangeRate;
-		float turnThrottleChangeRate;
-		
-		float maxSpeed;
-		float maxTurnSpeed;
 
 		void DrawPart(DrawObject &o, glm::mat4 mvp);
 };

@@ -214,10 +214,10 @@ namespace loaders
     {
         for(auto &actorentry : actor_entries)
         {
+            // Check type of actor and create appropriate derived class
             Actor a = Actor(actorentry.second.pos,
                             actorentry.second.dir,
-                            {&models[actorentry.second.type]},
-                            {glm::mat4(1.0f)}
+                            {std::make_pair(&models[actorentry.second.type], glm::mat4(1.0f))}
             );
             actors->insert(std::make_pair(actorentry.first, a));
         }

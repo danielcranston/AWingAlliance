@@ -157,6 +157,7 @@ void onDisplay()
 	glClearColor(0.8, 0.8, 0.8, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 
+	/*
 	timeNow = glutGet(GLUT_ELAPSED_TIME);
 	if(timeNow - timeOfLastUpdate > 5)
 	{
@@ -178,6 +179,7 @@ void onDisplay()
 		}
 		timeOfLastUpdate = timeNow;
 	}
+	*/
 
 	camMatrix = glm::lookAt(Actors[player_name].pos - (20.0f * Actors[player_name].dir) + 5.0f * UP, Actors[player_name].pos, glm::vec3(0.0, 1.0, 0.0));
 	glUseProgram(skyProgram);

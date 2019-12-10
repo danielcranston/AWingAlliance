@@ -5,7 +5,6 @@
 #include <vector>
 #include <string>
 #include <memory>
-#include <map>
 #include <model.h>
 
 typedef struct {
@@ -19,7 +18,6 @@ typedef struct {
 
 struct BoundingBox
 {
-	std::vector<glm::vec3> array;
 	unsigned int vao, vbo;
 	float xscale, yscale, zscale;
 	glm::mat4 pose;
@@ -27,10 +25,10 @@ struct BoundingBox
 	BoundingBox() {}
 	BoundingBox(float bmin[3], float bmax[3])
 	{
-		float scale_x = (bmax[0] - bmin[0]) / 2.0;
-		float scale_y = (bmax[1] - bmin[1]) / 2.0;
-		float scale_z = (bmax[2] - bmin[2]) / 2.0;
-		glm::vec3 scale = glm::vec3(scale_x, scale_y, scale_z);
+		xscale = (bmax[0] - bmin[0]) / 2.0;
+		yscale = (bmax[1] - bmin[1]) / 2.0;
+		zscale = (bmax[2] - bmin[2]) / 2.0;
+		glm::vec3 scale = glm::vec3(xscale, yscale, zscale);
 
 		float offset_x = ((bmax[0] + bmin[0]) / 2.0);
 		float offset_y = ((bmax[1] + bmin[1]) / 2.0);
@@ -58,5 +56,5 @@ struct Model
     bool operator==(const Model& m) const
     { 
         return name == m.name;
-    } 
+    }
 };
