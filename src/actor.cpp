@@ -45,6 +45,7 @@ void Actor::Draw(glm::mat4 camprojMat)
 		{
 			if(o.texture_name == "")
 			{
+				glUniform3f(glGetUniformLocation(program, "uniform_color"), 0.7f, 0.0f, 0.0f);
 				glUniform1i(glGetUniformLocation(program, "bUseColor"), 1);
 			}
 			else
