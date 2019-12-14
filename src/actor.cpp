@@ -11,11 +11,13 @@
 
 extern GLuint program;
 
+namespace actor
+{
 Actor::Actor() { }
 
-Actor::Actor(	glm::vec3 p,
-				glm::vec3 d,
-				std::vector<std::pair<Model*, glm::mat4>> part_vector
+Actor::Actor(	glm::vec3& p,
+				glm::vec3& d,
+				const std::vector<std::pair<Model*, glm::mat4>>& part_vector
 				)
 	: pos{p}
 	, dir{glm::normalize(d)}
@@ -63,3 +65,5 @@ void Actor::SetPosition(glm::vec3 p)
 {
 	pos = p;
 }
+
+} // namespace actor

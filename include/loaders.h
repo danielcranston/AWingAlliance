@@ -11,6 +11,7 @@
 
 #include <model.h>
 #include <actor.h>
+#include <fighter.h>
 #include <terrain.h>
 #include <skybox.h>
 #include <parser.h>
@@ -24,6 +25,6 @@ namespace loaders{
 	bool load_model(std::map<std::string, Model> *models, std::map<std::string, uint> *textures, const std::string &model_name);
 	Terrain load_terrain(std::map<std::string, uint> *textures, const ScenarioParser::TerrainEntry &terrainentry, uint program);
 	Skybox load_skybox(std::map<std::string, Model> *models, std::map<std::string, uint> *textures, const std::string &textures_folder, uint program);
-	bool load_actors(std::map<std::string, Actor> *actors, std::map<std::string, ScenarioParser::ActorEntry> &actor_entries, std::map<std::string, Model> &models);
+	bool load_actors(std::map<std::string, std::unique_ptr<actor::Actor>> *actors, std::map<std::string, ScenarioParser::ActorEntry> &actor_entries, std::map<std::string, Model> &models);
 
 } // namespace loaders

@@ -54,7 +54,7 @@ FBO fbo;
 
 std::map<std::string, Model> Models;
 std::map<std::string, uint> Textures;
-std::map<std::string, Actor> Actors;
+std::map<std::string, std::unique_ptr<actor::Actor>> Actors;
 std::string player_name;
 
 ScenarioParser parser;
@@ -119,6 +119,7 @@ void init()
 	// ACTOR STUFF
 	ret = loaders::load_actors(&Actors, parser.actors, Models);
 	player_name = parser.player;
+	dynamic_cast<actor::Fighter*>(Actors["tie1"].get())->bDrawSpline = true;
 
 	fbo.Init(800, 600);
 	fbo.SetupQuad();
@@ -159,31 +160,36 @@ void onDisplay()
 	glClearColor(0.8, 0.8, 0.8, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 
-	/*
 	timeNow = glutGet(GLUT_ELAPSED_TIME);
 	if(timeNow - timeOfLastUpdate > 5)
 	{
 		ProcessKeyboardInput(keyboardInfo);
 		float dt = (timeNow - timeOfLastUpdate) / 1000.0;
 
+		dynamic_cast<actor::Fighter*>(Actors["awing1"].get())->Update(keyboardInfo, dt);
+		dynamic_cast<actor::Fighter*>(Actors["tie1"].get())->Update_Roaming(timeNow / 1000.0f);
+
 		// if(keyboardInfo.test(Q_IS_DOWN)) std::cout << glm::to_string(aAWing.pos) << '\n';
 		// std::cout << "Keyboard: " << keyboardInfo << '\n';
-		for(auto& actor : Actors)
-		{
-			if(actor.first == player_name)
-			{
-				actor.second.Update(keyboardInfo, dt);
-			}
-			else if(actor.first != "hangar1")
-			{
-				actor.second.Update_Roaming(timeNow / 1000.0f);
-			}
-		}
+		// for(auto& a : Actors)
+		// {
+		// 	actor::Fighter *ptr = dynamic_cast<actor::Fighter*>(a.second.get());
+		// 	if(ptr)
+		// 	{
+		// 		if(a.first == player_name)
+		// 		{
+		// 			ptr->Update(keyboardInfo, dt);
+		// 		}
+		// 		else if(a.first != "hangar1")
+		// 		{
+		// 			ptr->Update_Roaming(timeNow / 1000.0f);
+		// 		}
+		// 	}
+		// }
 		timeOfLastUpdate = timeNow;
 	}
-	*/
 
-	camMatrix = glm::lookAt(Actors[player_name].pos - (20.0f * Actors[player_name].dir) + 5.0f * UP, Actors[player_name].pos, glm::vec3(0.0, 1.0, 0.0));
+	camMatrix = glm::lookAt(Actors[player_name]->pos - (20.0f * Actors[player_name]->dir) + 5.0f * UP, Actors[player_name]->pos, glm::vec3(0.0, 1.0, 0.0));
 	glUseProgram(skyProgram);
 	skybox.Draw(projMatrix, camMatrix);
 	glClear(GL_DEPTH_BUFFER_BIT);
@@ -198,7 +204,7 @@ void onDisplay()
 	glUseProgram(program);
 	for(auto& actor : Actors)
 	{
-		actor.second.Draw(projCamMatrix);
+		actor.second->Draw(projCamMatrix);
 	}
 	utils::CheckErrors("draw actors");
 

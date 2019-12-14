@@ -1,6 +1,6 @@
 #include <iostream>
 #include <fstream>
-#include <json.hpp>
+#include <memory>
 
 
 #define TINYOBJLOADER_IMPLEMENTATION
@@ -210,16 +210,27 @@ namespace loaders
         return texture_id;
     }
 
-    bool load_actors(std::map<std::string, Actor> *actors, std::map<std::string, ScenarioParser::ActorEntry> &actor_entries, std::map<std::string, Model> &models)
+    bool load_actors(std::map<std::string, std::unique_ptr<actor::Actor>> *actors, std::map<std::string, ScenarioParser::ActorEntry> &actor_entries, std::map<std::string, Model> &models)
     {
         for(auto &actorentry : actor_entries)
         {
             // Check type of actor and create appropriate derived class
-            Actor a = Actor(actorentry.second.pos,
-                            actorentry.second.dir,
-                            {std::make_pair(&models[actorentry.second.type], glm::mat4(1.0f))}
-            );
-            actors->insert(std::make_pair(actorentry.first, a));
+            if(actorentry.second.type != "hangar")
+            {
+                actor::Fighter a = actor::Fighter(actorentry.second.pos,
+                                actorentry.second.dir,
+                                {std::make_pair(&models[actorentry.second.type], glm::mat4(1.0f))}
+                );
+                actors->insert(std::make_pair(actorentry.first, std::make_unique<actor::Fighter>(a)));
+            }
+            else
+            {
+                actor::Actor a = actor::Actor(actorentry.second.pos,
+                                actorentry.second.dir,
+                                {std::make_pair(&models[actorentry.second.type], glm::mat4(1.0f))}
+                );
+                actors->insert(std::make_pair(actorentry.first, std::make_unique<actor::Actor>(a)));
+            }
         }
     }
 } // namespace loaders

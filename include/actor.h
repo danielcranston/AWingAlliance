@@ -12,13 +12,15 @@
 
 #include <model.h>
 
+namespace actor
+{
 class Actor 
 {
 	public:
 		Actor();
-		Actor(	glm::vec3 p,
-				glm::vec3 d,
-				std::vector<std::pair<Model*, glm::mat4>> part_vector
+		Actor(	glm::vec3& p,
+				glm::vec3& d,
+				const std::vector<std::pair<Model*, glm::mat4>>& part_vector
 				);
 
 		virtual void Draw(glm::mat4 camprojMat); // evaluates at runtime
@@ -41,3 +43,4 @@ class Actor
 
 		void DrawPart(DrawObject &o, glm::mat4 mvp);
 };
+} // namespace actor
