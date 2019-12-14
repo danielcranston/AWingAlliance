@@ -5,6 +5,7 @@
 #include <GL/glew.h>
 
 #include <terrain.h>
+#include <PerlinNoise.hpp>
 
 Terrain::Terrain() : xSize{64}, zSize{64}, yMax{1}, blockScale{16}, numTriangles(2 * xSize * zSize) {}
 

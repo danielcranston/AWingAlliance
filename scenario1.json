@@ -45,7 +45,7 @@
     "terrain":
     {
         "x": 64,
-        "z": 32,
+        "z": 64,
         "maxHeight": 128,
         "blockSize": 8,
         "seed": 0,
