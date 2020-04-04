@@ -14,7 +14,6 @@ ScenarioParser::ScenarioParser(std::string filename)
 
 	player = "";
 	skybox = "";
-	terrain = TerrainEntry();
 }
 
 void ScenarioParser::Parse()
@@ -50,20 +49,20 @@ void ScenarioParser::Parse()
 
 	if(scenario.find("terrain") != scenario.end())
 	{
-		terrain.bUse = true;
-		terrain.x = scenario["terrain"]["x"];
-		terrain.z = scenario["terrain"]["z"];
-		terrain.maxHeight = scenario["terrain"]["maxHeight"];
-		terrain.blockSize = scenario["terrain"]["blockSize"];
-		terrain.seed = scenario["terrain"]["seed"];
-		terrain.heightmap = scenario["terrain"]["heightmap"];
+        terrain = std::make_unique<TerrainEntry>();
+		terrain->x = scenario["terrain"]["x"];
+		terrain->z = scenario["terrain"]["z"];
+		terrain->maxHeight = scenario["terrain"]["maxHeight"];
+		terrain->blockSize = scenario["terrain"]["blockSize"];
+		terrain->seed = scenario["terrain"]["seed"];
+		terrain->heightmap = scenario["terrain"]["heightmap"];
 		for(auto tex_name : scenario["terrain"]["textures"])
 		{
-			terrain.textures.push_back(tex_name);
+			terrain->textures.push_back(tex_name);
 		}
 	}
 	std::cout << "  Use terrain? ";
-	if(terrain.bUse) std::cout << "Yes\n";
+	if(terrain) std::cout << "Yes\n";
 	else std::cout << "Yes\n";
 
 	if(scenario.find("skybox") != scenario.end())

@@ -23,8 +23,8 @@ namespace loaders{
 	void loadModels(std::map<std::string, Model>& Models, std::vector<std::string> model_names);
 	bool load_models(std::map<std::string, Model> *models, std::map<std::string, uint> *textures, const std::set<std::string> &model_names);
 	bool load_model(std::map<std::string, Model> *models, std::map<std::string, uint> *textures, const std::string &model_name);
-	Terrain load_terrain(std::map<std::string, uint> *textures, const ScenarioParser::TerrainEntry &terrainentry, uint program);
-	Skybox load_skybox(std::map<std::string, Model> *models, std::map<std::string, uint> *textures, const std::string &textures_folder, uint program);
+	std::unique_ptr<Terrain> load_terrain(std::map<std::string, uint> *textures, const ScenarioParser::TerrainEntry &terrainentry, uint program);
+	std::unique_ptr<Skybox> load_skybox(std::map<std::string, Model> *models, std::map<std::string, uint> *textures, const std::string &textures_folder, uint program);
 	bool load_actors(std::map<std::string, std::unique_ptr<actor::Actor>> *actors, std::map<std::string, ScenarioParser::ActorEntry> &actor_entries, std::map<std::string, Model> &models);
 
 } // namespace loaders

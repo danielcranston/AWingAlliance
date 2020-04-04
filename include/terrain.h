@@ -18,8 +18,7 @@ class Terrain
 		std::vector<unsigned int> texture_ids;
 		int numTriangles;
 
-		Terrain();
-		Terrain(const ScenarioParser::TerrainEntry &terrainentry, std::map<std::string, uint> *textures, uint program);
+		explicit Terrain(const ScenarioParser::TerrainEntry &terrainentry, std::map<std::string, uint> *textures, uint program);
 		void Generate();
 		void PushToGPU();
 		void Draw(glm::mat4 camprojMat);

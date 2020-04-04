@@ -7,8 +7,6 @@
 #include <terrain.h>
 #include <PerlinNoise.hpp>
 
-Terrain::Terrain() : xSize{64}, zSize{64}, yMax{1}, blockScale{16}, numTriangles(2 * xSize * zSize) {}
-
 Terrain::Terrain(const ScenarioParser::TerrainEntry &terrainentry, std::map<std::string, uint> *textures, uint program)
 	: xSize{terrainentry.x}
 	, zSize{terrainentry.z}

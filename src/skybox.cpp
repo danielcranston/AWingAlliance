@@ -5,8 +5,6 @@
 #include <skybox.h>
 #include <GL/glew.h>
 
-Skybox::Skybox() {}
-
 Skybox::Skybox(Model* mdl, unsigned int tex_id, unsigned int program)
 	: no_translation(glm::mat4())
 	, texture_id(tex_id)

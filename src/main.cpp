@@ -49,7 +49,6 @@ std::bitset<8> keyboardInfo = 0;
 GLuint program, terrainProgram, skyProgram, fboProgram, computeProgram;
 glm::mat4 projCamMatrix, camMatrix, projMatrix;
 
-Skybox skybox;
 FBO fbo;
 
 std::map<std::string, Model> Models;
@@ -59,7 +58,8 @@ std::string player_name;
 
 ScenarioParser parser;
 
-Terrain terrain;
+std::unique_ptr<Skybox> skybox;
+std::unique_ptr<Terrain> terrain;
 
 void ListTextures()
 {
@@ -112,7 +112,7 @@ void init()
 
 	// LOAD ASSETS
 	bool ret = loaders::load_models(&Models, &Textures, parser.required_models);
-	terrain = loaders::load_terrain(&Textures, parser.terrain, terrainProgram);
+	terrain = loaders::load_terrain(&Textures, *parser.terrain.get(), terrainProgram);
 	skybox = loaders::load_skybox(&Models, &Textures, parser.skybox, skyProgram);
 	ListTextures();
 
@@ -181,9 +181,12 @@ void onDisplay()
 
 	camMatrix = glm::lookAt(Actors[player_name]->pos - (20.0f * Actors[player_name]->dir) + 5.0f * UP, Actors[player_name]->pos, glm::vec3(0.0, 1.0, 0.0));
 	projCamMatrix = projMatrix * camMatrix;
-	glUseProgram(skyProgram);
-	skybox.Draw(projMatrix, camMatrix);
-	utils::CheckErrors("draw sky");
+	if(skybox)
+    {
+        glUseProgram(skyProgram);
+    	skybox->Draw(projMatrix, camMatrix);
+    	utils::CheckErrors("draw sky");
+    }
 
 	glUseProgram(program);
 	for(auto& actor : Actors)
@@ -207,9 +210,12 @@ void onDisplay()
 
 	projCamMatrix = projMatrix * camMatrix;
 
-	glUseProgram(terrainProgram);
-	terrain.Draw(projCamMatrix);
-	utils::CheckErrors("draw terrain");
+    if(terrain)
+    {
+    	glUseProgram(terrainProgram);
+    	terrain->Draw(projCamMatrix);
+    	utils::CheckErrors("draw terrain");
+    }
 
 	glUseProgram(program);
 	for(auto& actor : Actors)

@@ -4,6 +4,7 @@
 #include <map>
 #include <set>
 #include <vector>
+#include <memory>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -28,8 +29,6 @@ public:
 
 	struct TerrainEntry
 	{
-		TerrainEntry() : bUse(false) {}
-		bool bUse;
 		std::int32_t x;
 		std::int32_t z;
 		std::int32_t maxHeight;
@@ -54,5 +53,5 @@ public:
 	
 	std::string player;
 	std::string skybox;
-	TerrainEntry terrain;
+	std::unique_ptr<TerrainEntry> terrain;
 };

@@ -126,7 +126,7 @@ namespace loaders
         }
     }
 
-    Terrain load_terrain(std::map<std::string, uint> *textures, const ScenarioParser::TerrainEntry &terrainentry, uint program)
+    std::unique_ptr<Terrain> load_terrain(std::map<std::string, uint> *textures, const ScenarioParser::TerrainEntry &terrainentry, uint program)
     {
         std::cout << "Loading terrain\n";
         // First load required textures into the almighty map
@@ -140,11 +140,10 @@ namespace loaders
             }
         }
 
-        Terrain t(terrainentry, textures, program);
-        return std::move(t);
+        return std::make_unique<Terrain>(terrainentry, textures, program);
     }
 
-    Skybox load_skybox(std::map<std::string, Model> *models, std::map<std::string, uint> *textures, const std::string &textures_folder, uint program)
+    std::unique_ptr<Skybox> load_skybox(std::map<std::string, Model> *models, std::map<std::string, uint> *textures, const std::string &textures_folder, uint program)
     {
         std::cout << "Loading skybox\n";
 
@@ -158,8 +157,8 @@ namespace loaders
             textures->insert(std::make_pair(textures_folder, tex_id));
         }
         uint tex_id = textures->find(textures_folder)->second;
-        Model* cube = &(*models)["cube"];
-        return std::move(Skybox(cube, tex_id, program));
+        Model* cube = &models->operator[]("cube");
+        return std::make_unique<Skybox>(cube, tex_id, program);
     }
 
     // from https://learnopengl.com/Advanced-OpenGL/Cubemaps

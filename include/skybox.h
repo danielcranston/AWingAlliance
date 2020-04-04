@@ -9,9 +9,7 @@
 class Skybox
 {
 	public: 
-		Skybox();
-		Skybox(Model* mdl, unsigned int tex_id, unsigned int program);
-		Skybox(Model* mdl, std::string folder);
+		explicit Skybox(Model* mdl, unsigned int tex_id, unsigned int program);
 		void Draw(const glm::mat4 &projMatrix, const glm::mat4 &camMatrix);
 		void LoadAndSetTexture(std::string folder);
 		glm::mat4 no_translation;
