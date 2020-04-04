@@ -16,15 +16,28 @@
 #include <skybox.h>
 #include <parser.h>
 
-namespace loaders{
-	void load_textures(std::map<std::string, uint> *textures, const std::vector<std::string> filenames);
-	unsigned int load_texture(std::string filename);
-	unsigned int load_texture_cubemap(const std::string &textures_folder);
-	void loadModels(std::map<std::string, Model>& Models, std::vector<std::string> model_names);
-	bool load_models(std::map<std::string, Model> *models, std::map<std::string, uint> *textures, const std::set<std::string> &model_names);
-	bool load_model(std::map<std::string, Model> *models, std::map<std::string, uint> *textures, const std::string &model_name);
-	std::unique_ptr<Terrain> load_terrain(std::map<std::string, uint> *textures, const ScenarioParser::TerrainEntry &terrainentry, uint program);
-	std::unique_ptr<Skybox> load_skybox(std::map<std::string, Model> *models, std::map<std::string, uint> *textures, const std::string &textures_folder, uint program);
-	bool load_actors(std::map<std::string, std::unique_ptr<actor::Actor>> *actors, std::map<std::string, ScenarioParser::ActorEntry> &actor_entries, std::map<std::string, Model> &models);
+namespace loaders
+{
+void load_textures(std::map<std::string, uint>* textures,
+                   const std::vector<std::string>& filenames);
+unsigned int load_texture(std::string filename);
+unsigned int load_texture_cubemap(const std::string& textures_folder);
+void loadModels(std::map<std::string, Model>& Models, std::vector<std::string> model_names);
+void load_models(std::map<std::string, Model>* models,
+                 std::map<std::string, uint>* textures,
+                 const std::set<std::string>& model_names);
+bool load_model(std::map<std::string, Model>* models,
+                std::map<std::string, uint>* textures,
+                const std::string& model_name);
+std::unique_ptr<Terrain> load_terrain(std::map<std::string, uint>* textures,
+                                      const ScenarioParser::TerrainEntry& terrainentry,
+                                      const uint program);
+std::unique_ptr<Skybox> load_skybox(std::map<std::string, Model>* models,
+                                    std::map<std::string, uint>* textures,
+                                    const std::string& textures_folder,
+                                    const uint program);
+bool load_actors(std::map<std::string, std::unique_ptr<actor::Actor>>* actors,
+                 std::map<std::string, ScenarioParser::ActorEntry>& actor_entries,
+                 std::map<std::string, Model>& models);
 
-} // namespace loaders
+}  // namespace loaders
