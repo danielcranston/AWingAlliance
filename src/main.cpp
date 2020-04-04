@@ -160,40 +160,50 @@ void onDisplay()
 	glClearColor(0.8, 0.8, 0.8, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 
+	ProcessKeyboardInput(keyboardInfo);
 	timeNow = glutGet(GLUT_ELAPSED_TIME);
 	if(timeNow - timeOfLastUpdate > 5)
 	{
-		ProcessKeyboardInput(keyboardInfo);
 		float dt = (timeNow - timeOfLastUpdate) / 1000.0;
 
 		dynamic_cast<actor::Fighter*>(Actors["awing1"].get())->Update(keyboardInfo, dt);
 		dynamic_cast<actor::Fighter*>(Actors["tie1"].get())->Update_Roaming(timeNow / 1000.0f);
-
-		// if(keyboardInfo.test(Q_IS_DOWN)) std::cout << glm::to_string(aAWing.pos) << '\n';
-		// std::cout << "Keyboard: " << keyboardInfo << '\n';
-		// for(auto& a : Actors)
-		// {
-		// 	actor::Fighter *ptr = dynamic_cast<actor::Fighter*>(a.second.get());
-		// 	if(ptr)
-		// 	{
-		// 		if(a.first == player_name)
-		// 		{
-		// 			ptr->Update(keyboardInfo, dt);
-		// 		}
-		// 		else if(a.first != "hangar1")
-		// 		{
-		// 			ptr->Update_Roaming(timeNow / 1000.0f);
-		// 		}
-		// 	}
-		// }
-		timeOfLastUpdate = timeNow;
+		timeOfLastUpdate = glutGet(GLUT_ELAPSED_TIME);
 	}
 
+	// Draw to FBO
+	glBindFramebuffer(GL_FRAMEBUFFER, fbo.id);
+	glBindTexture(GL_TEXTURE_2D, fbo.texid1);
+	glViewport(0, 0, fbo.width, fbo.height);
+	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_DEPTH_BUFFER_BIT);
+
 	camMatrix = glm::lookAt(Actors[player_name]->pos - (20.0f * Actors[player_name]->dir) + 5.0f * UP, Actors[player_name]->pos, glm::vec3(0.0, 1.0, 0.0));
+	projCamMatrix = projMatrix * camMatrix;
 	glUseProgram(skyProgram);
 	skybox.Draw(projMatrix, camMatrix);
-	glClear(GL_DEPTH_BUFFER_BIT);
 	utils::CheckErrors("draw sky");
+
+	glUseProgram(program);
+	for(auto& actor : Actors)
+	{
+		actor.second->Draw(projCamMatrix);
+	}
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	DummyCompute();
+	glClearColor(0.8, 0.8, 0.8, 1.0);
+	glViewport(0, 0, SCREEN_W, SCREEN_H);
+
+	glUseProgram(fboProgram);
+	glBindVertexArray(fbo.vao);
+	glDisable(GL_CULL_FACE);
+	glBindTexture(GL_TEXTURE_2D, fbo.texid1);
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+	glEnable(GL_CULL_FACE);
+	utils::CheckErrors("draw quad");
 
 	projCamMatrix = projMatrix * camMatrix;
 
@@ -230,7 +240,7 @@ int main(int argc, char *argv[])
 	glutInitWindowSize(1200, 900);
 	glutCreateWindow("awing");
 
-	// glewExperimental = GL_TRUE; 
+	// glewExperimental = GL_TRUE;
 	
 	GLenum glew_status = glewInit();
 	if (glew_status != GLEW_OK) {
