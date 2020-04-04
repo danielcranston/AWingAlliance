@@ -1,5 +1,5 @@
 #include <fighter.h>
-#include <keyboard_constants.h>
+#include <keyboard.h>
 
 extern std::map<std::string, Model> Models;
 
@@ -43,34 +43,34 @@ void Fighter::Update(const std::bitset<8>& keyboardInfo, float dt)
 	glm::vec3 rightVector = glm::cross(dir, glm::vec3(0.0, 1.0, 0.0));
 
 	// std::cout << "dt: " << dt << '\n';
-	if(keyboardInfo.test(LEFTARROW_IS_DOWN))
+	if(keyboardInfo.test(KeyboardMapping::LEFTARROW))
 	{
 		dir = glm::vec3(
 				glm::rotate(glm::mat4(1.0f), maxTurnSpeed * dt, glm::vec3(0, 1, 0))
 				* glm::vec4(dir, 1.0));
 	}
-	if(keyboardInfo.test(RIGHTARROW_IS_DOWN))
+	if(keyboardInfo.test(KeyboardMapping::RIGHTARROW))
 	{
 		dir = glm::vec3(
 				glm::rotate(glm::mat4(1.0f), -maxTurnSpeed * dt, glm::vec3(0, 1, 0))
 				* glm::vec4(dir, 1.0));
 	}
-	if(keyboardInfo.test(UPARROW_IS_DOWN) && dir.y > -0.9)
+	if(keyboardInfo.test(KeyboardMapping::UPARROW) && dir.y > -0.9)
 	{
 		dir = glm::vec3(
 				glm::rotate(glm::mat4(1.0f), -maxTurnSpeed * dt, rightVector)
 				* glm::vec4(dir, 1.0));
 	}
-	if(keyboardInfo.test(DOWNARROW_IS_DOWN) && dir.y < 0.9)
+	if(keyboardInfo.test(KeyboardMapping::DOWNARROW) && dir.y < 0.9)
 		{
 			dir = glm::vec3(
 					glm::rotate(glm::mat4(1.0f), maxTurnSpeed * dt, rightVector)
 					* glm::vec4(dir, 1.0));
 		}
 
-	if(keyboardInfo.test(W_IS_DOWN)) pos += glm::vec3(maxSpeed * dt * dir);
-	if(keyboardInfo.test(S_IS_DOWN)) pos -= glm::vec3(maxSpeed * dt * dir);
-	if(keyboardInfo.test(SPACEBAR_IS_DOWN)) pos = glm::vec3(0.0);
+	if(keyboardInfo.test(KeyboardMapping::W)) pos += glm::vec3(maxSpeed * dt * dir);
+	if(keyboardInfo.test(KeyboardMapping::S)) pos -= glm::vec3(maxSpeed * dt * dir);
+	if(keyboardInfo.test(KeyboardMapping::SPACEBAR)) pos = glm::vec3(0.0);
 }
 
 void Fighter::Draw(glm::mat4 camprojMat)
