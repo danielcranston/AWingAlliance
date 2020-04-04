@@ -15,11 +15,11 @@ uniform mat4 mvp;
 
 void main(void)
 {
-	gl_Position = mvp * vec4(position, 1.0);
+    gl_Position = mvp * vec4(position, 1.0);
 
-	x_position = position;
-	x_normal = normal;
-	x_color = vec3(1.0);
-	x_texcoord = texcoord;
+    x_position = position;
+    x_normal = normal;
+    x_color = vec3(1.0);
+    x_texcoord = texcoord;
 }
 

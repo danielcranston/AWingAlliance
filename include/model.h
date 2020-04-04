@@ -8,50 +8,50 @@
 #include <model.h>
 
 typedef struct {
-	unsigned int vbo, vao;
-	int numTriangles;
-	unsigned int texture_id;
-	
-	size_t material_id;
-	std::string texture_name;
+    unsigned int vbo, vao;
+    int numTriangles;
+    unsigned int texture_id;
+    
+    size_t material_id;
+    std::string texture_name;
 } DrawObject;
 
 struct BoundingBox
 {
-	unsigned int vao, vbo;
-	float xscale, yscale, zscale;
-	glm::mat4 pose;
+    unsigned int vao, vbo;
+    float xscale, yscale, zscale;
+    glm::mat4 pose;
 
-	BoundingBox() {}
-	BoundingBox(float bmin[3], float bmax[3])
-	{
-		xscale = (bmax[0] - bmin[0]) / 2.0;
-		yscale = (bmax[1] - bmin[1]) / 2.0;
-		zscale = (bmax[2] - bmin[2]) / 2.0;
-		glm::vec3 scale = glm::vec3(xscale, yscale, zscale);
+    BoundingBox() {}
+    BoundingBox(float bmin[3], float bmax[3])
+    {
+        xscale = (bmax[0] - bmin[0]) / 2.0;
+        yscale = (bmax[1] - bmin[1]) / 2.0;
+        zscale = (bmax[2] - bmin[2]) / 2.0;
+        glm::vec3 scale = glm::vec3(xscale, yscale, zscale);
 
-		float offset_x = ((bmax[0] + bmin[0]) / 2.0);
-		float offset_y = ((bmax[1] + bmin[1]) / 2.0);
-		float offset_z = ((bmax[2] + bmin[2]) / 2.0);
-		glm::vec3 offset = glm::vec3(offset_x, offset_y, offset_z) / scale;
+        float offset_x = ((bmax[0] + bmin[0]) / 2.0);
+        float offset_y = ((bmax[1] + bmin[1]) / 2.0);
+        float offset_z = ((bmax[2] + bmin[2]) / 2.0);
+        glm::vec3 offset = glm::vec3(offset_x, offset_y, offset_z) / scale;
 
-		pose = glm::translate(glm::scale(glm::mat4(1.0), scale), offset);
-	}
+        pose = glm::translate(glm::scale(glm::mat4(1.0), scale), offset);
+    }
 
 };
 
 struct Model
 {
-	std::string name;
-	std::vector<DrawObject> drawobjects;
-	BoundingBox boundingbox;
+    std::string name;
+    std::vector<DrawObject> drawobjects;
+    BoundingBox boundingbox;
 
-	Model() {};
-	Model(std::string name, std::vector<DrawObject> dos, float bmin[3], float bmax[3])
-		: name{name}
-		, drawobjects{dos}
-		, boundingbox{BoundingBox(bmin, bmax)}
-	{}
+    Model() {};
+    Model(std::string name, std::vector<DrawObject> dos, float bmin[3], float bmax[3])
+        : name{name}
+        , drawobjects{dos}
+        , boundingbox{BoundingBox(bmin, bmax)}
+    {}
 
     bool operator==(const Model& m) const
     { 

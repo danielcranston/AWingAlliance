@@ -29,21 +29,21 @@ float smoothstep(in float edge0, in float edge1, in float x)
 
 void main(void)
 {
-	vec4 mytex0 = texture(tex0, x_texcoord);
-	vec4 mytex1 = texture(tex1, x_texcoord);
-	vec4 mytex2 = texture(tex2, x_texcoord);
-	vec4 mytex3 = texture(tex3, x_texcoord);
+    vec4 mytex0 = texture(tex0, x_texcoord);
+    vec4 mytex1 = texture(tex1, x_texcoord);
+    vec4 mytex2 = texture(tex2, x_texcoord);
+    vec4 mytex3 = texture(tex3, x_texcoord);
 
-	// 4 textures available.
-	// height and normal information available.
-	// plenty of ways to make interesting terrain.
+    // 4 textures available.
+    // height and normal information available.
+    // plenty of ways to make interesting terrain.
 
-	float blend_tilt = 1 - x_normal.y;
-	float blend_height =  x_position.y / maxHeight;
-	blend_tilt = smoothstep(0.0f, 1.5f, blend_tilt);
-	blend_height = smoothstep(0.0f, 1.0f, blend_height);
+    float blend_tilt = 1 - x_normal.y;
+    float blend_height =  x_position.y / maxHeight;
+    blend_tilt = smoothstep(0.0f, 1.5f, blend_tilt);
+    blend_height = smoothstep(0.0f, 1.0f, blend_height);
 
-	vec4 height_color = (1-blend_height) * mytex1 + blend_height * mytex3;
-	
-	out_Color = height_color; // (1-blend_height) * height_color  + blend_height * mytex2;
+    vec4 height_color = (1-blend_height) * mytex1 + blend_height * mytex3;
+    
+    out_Color = height_color; // (1-blend_height) * height_color  + blend_height * mytex2;
 }

@@ -15,6 +15,6 @@ void main(void)
 
     x_texcoord = position;
     gl_Position = mvp * vec4(position, 1.0);
-	// gl_Position = pos.xyww;
+    // gl_Position = pos.xyww;
 }
 

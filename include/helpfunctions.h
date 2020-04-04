@@ -23,11 +23,11 @@ float smoothstep(float edge0, float edge1, float x)
 
 float smootherstep(float edge0, float edge1, float x)
 {
-	int s = my_sign(x);
+    int s = my_sign(x);
 
-	x = fabs(x);
-	// Scale, and clamp x to 0..1 range
-	x = clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
-	// Evaluate polynomial
-	return s * ( x * x * x * (x * (x * 6 - 15) + 10) );
+    x = fabs(x);
+    // Scale, and clamp x to 0..1 range
+    x = clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
+    // Evaluate polynomial
+    return s * ( x * x * x * (x * (x * 6 - 15) + 10) );
 }

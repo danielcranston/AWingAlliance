@@ -10,14 +10,14 @@ find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
 find_package( OpenCV REQUIRED )
 
-include_directories(	${PROJECT_SOURCE_DIR}/include
-						${PROJECT_SOURCE_DIR}/include/external)
+include_directories(    ${PROJECT_SOURCE_DIR}/include
+                        ${PROJECT_SOURCE_DIR}/include/external)
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/src)
 
 
 # add_library(mylib SHARED IMPORTED)
 # set_property(TARGET mylib
-#				PROPERTY IMPORTED_LOCATION
-#				"${LIBRARY_OUTPUT_PATH}/mylib.so")
+#               PROPERTY IMPORTED_LOCATION
+#               "${LIBRARY_OUTPUT_PATH}/mylib.so")
 

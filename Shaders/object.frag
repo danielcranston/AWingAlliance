@@ -13,10 +13,10 @@ out vec4 out_Color;
 
 void main(void)
 {
-	vec4 mytex = texture(tex, x_texcoord);
-	if(bUseColor)
-	{
-		mytex = vec4(uniform_color, 0.0);
-	}
-	out_Color = mytex;
+    vec4 mytex = texture(tex, x_texcoord);
+    if(bUseColor)
+    {
+        mytex = vec4(uniform_color, 0.0);
+    }
+    out_Color = mytex;
 }
