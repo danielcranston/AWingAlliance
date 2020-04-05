@@ -19,7 +19,7 @@ void load_models(std::map<std::string, Model>* models,
                  std::map<std::string, uint>* textures,
                  const std::set<std::string>& model_names)
 {
-    for (auto model_name : model_names)
+    for (const auto& model_name : model_names)
     {
         if (!load_model(models, textures, model_name))
         {
@@ -46,15 +46,15 @@ bool load_model(std::map<std::string, Model>* models,
             // Only load texture if it hasn't already been loaded
             if (textures->find(material.diffuse_texname) == textures->end())
             {
-                std::string tex_name = material.diffuse_texname;
+                const std::string& tex_name = material.diffuse_texname;
 
-                unsigned int tex_id = load_texture(tex_name);
+                const unsigned int tex_id = load_texture(tex_name);
                 textures->insert(std::make_pair(tex_name, tex_id));
             }
         }
 
         Model model =
-            create_model_from_drawobjects(attrib, shapes, materials, textures, model, model_name);
+            create_model_from_drawobjects(attrib, shapes, materials, textures, model_name);
         models->insert(std::make_pair(model_name, model));
     }
     else
@@ -66,14 +66,14 @@ bool load_model(std::map<std::string, Model>* models,
 
 void load_textures(std::map<std::string, uint>* textures, const std::vector<std::string>& filenames)
 {
-    for (const auto tex_name : filenames)
+    for (const auto& tex_name : filenames)
     {
         unsigned int tex_id = load_texture(tex_name);
         textures->insert(std::make_pair(tex_name, tex_id));
     }
 }
 
-unsigned int load_texture(std::string filename)
+unsigned int load_texture(const std::string& filename)
 {
     int w, h;
     int comp;
@@ -115,7 +115,7 @@ unsigned int load_texture(std::string filename)
         }
         else
         {
-            assert(0);  // TODO
+            throw std::runtime_error("Unsupported texture composition for " + filename);
         }
         glGenerateMipmap(GL_TEXTURE_2D);
         glBindTexture(GL_TEXTURE_2D, 0);
@@ -221,24 +221,24 @@ unsigned int load_texture_cubemap(const std::string& textures_folder)
     return texture_id;
 }
 
-bool load_actors(std::map<std::string, std::unique_ptr<actor::Actor>>* actors,
-                 std::map<std::string, ScenarioParser::ActorEntry>& actor_entries,
-                 std::map<std::string, Model>& models)
+void load_actors(std::map<std::string, std::unique_ptr<actor::Actor>>* actors,
+                 std::map<std::string, Model>* models,
+                 const std::map<std::string, ScenarioParser::ActorEntry>& actor_entries)
 {
-    for (auto& actorentry : actor_entries)
+    for (const auto& actorentry : actor_entries)
     {
+        Model* model_ptr = &models->operator[](actorentry.second.type);
         // Check type of actor and create appropriate derived class
         if (actorentry.second.type != "hangar")
         {
             actor::Fighter a = actor::Fighter(
                 actorentry.second.pos,
                 actorentry.second.dir,
-                { std::make_pair(&models[actorentry.second.type], glm::mat4(1.0f)) });
+                { std::make_pair(model_ptr, glm::mat4(1.0f)) });
             actors->insert(std::make_pair(actorentry.first, std::make_unique<actor::Fighter>(a)));
         }
         else
         {
-            Model* model_ptr = &models[actorentry.second.type];
             actor::Actor a = { actorentry.second.pos,
                                actorentry.second.dir,
                                { std::make_pair(model_ptr, glm::mat4(1.0f)) } };

@@ -154,7 +154,6 @@ namespace // unnamed implementation-dependent functions not to be exposed outwar
         const std::vector<tinyobj::shape_t> &shapes,
         const std::vector<tinyobj::material_t> &materials,
         std::map<std::string, uint> *textures,
-        Model &model,
         const std::string &model_name)
     {
         float bmin[3], bmax[3];
@@ -411,6 +410,6 @@ namespace // unnamed implementation-dependent functions not to be exposed outwar
 
             drawobjects.push_back(o);
         }
-        return std::move(Model(model_name, std::move(drawobjects), bmin, bmax));
+        return Model(model_name, std::move(drawobjects), bmin, bmax);
     } // create_model_from_drawobject
 } // unnamed implementation-depended functions not to be exposed outwards

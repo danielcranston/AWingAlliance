@@ -104,7 +104,7 @@ void init()
     ListTextures();
 
     // ACTOR STUFF
-    bool ret = loaders::load_actors(&Actors, parser->actors, Models);
+    loaders::load_actors(&Actors, &Models, parser->actors);
     player_name = parser->player;
     dynamic_cast<actor::Fighter*>(Actors["tie1"].get())->bDrawSpline = true;
 
