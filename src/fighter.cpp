@@ -5,8 +5,8 @@ extern std::map<std::string, Model> Models;
 
 namespace actor
 {
-Fighter::Fighter(glm::vec3& p,
-                glm::vec3& d,
+Fighter::Fighter(const glm::vec3& p,
+                const glm::vec3& d,
                 const std::vector<std::pair<Model*, glm::mat4>>& part_vector
                 )
     : Actor(p, d, part_vector)

@@ -18,8 +18,8 @@ class Actor
 {
     public:
         Actor();
-        Actor(  glm::vec3& p,
-                glm::vec3& d,
+        Actor(  const glm::vec3& p,
+                const glm::vec3& d,
                 const std::vector<std::pair<Model*, glm::mat4>>& part_vector
                 );
 

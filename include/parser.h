@@ -11,46 +11,59 @@
 
 class ScenarioParser
 {
-public:
-    ScenarioParser() {};
-    ScenarioParser(std::string filename);
+  public:
+    ScenarioParser(const std::string& filename);
     void Parse();
     void PrintRequiredModels();
 
-    std::string file_to_parse;
-
-
     struct ActorEntry
     {
-        std::string type;
-        glm::vec3 pos;
-        glm::vec3 dir;
+        explicit ActorEntry(const std::string& _type,
+                            const std::vector<float>& _pos,
+                            const std::vector<float>& _dir);
+        const std::string type;
+        const glm::vec3 pos;
+        const glm::vec3 dir;
     };
 
     struct TerrainEntry
     {
-        std::int32_t x;
-        std::int32_t z;
-        std::int32_t maxHeight;
-        std::int32_t blockSize;
-        std::int32_t seed;
-        std::string heightmap;
-        std::vector<std::string> textures;
+        explicit TerrainEntry(const std::int32_t _x,
+                              const std::int32_t _z,
+                              const std::int32_t _maxHeight,
+                              const std::int32_t _blockSize,
+                              const std::int32_t _seed,
+                              const std::string& _heightmap,
+                              const std::vector<std::string>& _textures);
+        const std::int32_t x;
+        const std::int32_t z;
+        const std::int32_t maxHeight;
+        const std::int32_t blockSize;
+        const std::int32_t seed;
+        const std::string heightmap;
+        const std::vector<std::string> textures;
     };
 
     struct SquadronEntry
     {
-        std::string actor;
-        glm::vec3 pos;
-        glm::vec3 dir;
-        std::int32_t members;
-        std::string team;
+        explicit SquadronEntry(const std::string& _actor,
+                               const std::vector<float>& _pos,
+                               const std::vector<float>& _dir,
+                               const std::int32_t _members,
+                               const std::string& _team);
+        const std::string actor;
+        const glm::vec3 pos;
+        const glm::vec3 dir;
+        const std::int32_t members;
+        const std::string team;
     };
+
+    std::string file_to_parse;
 
     std::set<std::string> required_models;
     std::map<std::string, ActorEntry> actors;
     std::map<std::string, SquadronEntry> squadrons;
-    
+
     std::string player;
     std::string skybox;
     std::unique_ptr<TerrainEntry> terrain;

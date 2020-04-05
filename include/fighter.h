@@ -8,8 +8,8 @@ namespace actor
     class Fighter : public Actor
     {
     public:
-        Fighter(glm::vec3& p,
-                glm::vec3& d,
+        Fighter(const glm::vec3& p,
+                const glm::vec3& d,
                 const std::vector<std::pair<Model*, glm::mat4>>& part_vector
                 );
         void Draw(glm::mat4 camprojMat) override;

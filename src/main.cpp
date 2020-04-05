@@ -43,7 +43,7 @@ std::map<std::string, uint> Textures;
 std::map<std::string, std::unique_ptr<actor::Actor>> Actors;
 std::string player_name;
 
-ScenarioParser parser;
+std::unique_ptr<ScenarioParser> parser;
 
 std::unique_ptr<Skybox> skybox;
 std::unique_ptr<Terrain> terrain;
@@ -94,18 +94,18 @@ void init()
     glActiveTexture(GL_TEXTURE0);
 
     // PARSE SCENARIO
-    parser = ScenarioParser("scenario1.json");
-    parser.Parse();
+    parser = std::make_unique<ScenarioParser>("scenario1.json");
+    parser->Parse();
 
     // LOAD ASSETS
-    loaders::load_models(&Models, &Textures, parser.required_models);
-    terrain = loaders::load_terrain(&Textures, *parser.terrain.get(), terrainProgram);
-    skybox = loaders::load_skybox(&Models, &Textures, parser.skybox, skyProgram);
+    loaders::load_models(&Models, &Textures, parser->required_models);
+    terrain = loaders::load_terrain(&Textures, *parser->terrain.get(), terrainProgram);
+    skybox = loaders::load_skybox(&Models, &Textures, parser->skybox, skyProgram);
     ListTextures();
 
     // ACTOR STUFF
-    bool ret = loaders::load_actors(&Actors, parser.actors, Models);
-    player_name = parser.player;
+    bool ret = loaders::load_actors(&Actors, parser->actors, Models);
+    player_name = parser->player;
     dynamic_cast<actor::Fighter*>(Actors["tie1"].get())->bDrawSpline = true;
 
     fbo.Init(800, 600);

@@ -4,7 +4,7 @@
 #include <json.hpp>
 #include <parser.h>
 
-ScenarioParser::ScenarioParser(std::string filename)
+ScenarioParser::ScenarioParser(const std::string& filename)
 {
     file_to_parse = filename;
 
@@ -15,86 +15,104 @@ ScenarioParser::ScenarioParser(std::string filename)
     player = "";
     skybox = "";
 }
+ScenarioParser::ActorEntry::ActorEntry(const std::string& _type,
+                                       const std::vector<float>& _pos,
+                                       const std::vector<float>& _dir)
+  : type(_type), pos(glm::make_vec3(_pos.data())), dir(glm::make_vec3(_dir.data()))
+{
+}
+
+ScenarioParser::TerrainEntry::TerrainEntry(const std::int32_t _x,
+                                           const std::int32_t _z,
+                                           const std::int32_t _maxHeight,
+                                           const std::int32_t _blockSize,
+                                           const std::int32_t _seed,
+                                           const std::string& _heightmap,
+                                           const std::vector<std::string>& _textures)
+  : x(_x),
+    z(_z),
+    maxHeight(_maxHeight),
+    blockSize(_blockSize),
+    seed(_seed),
+    heightmap(_heightmap),
+    textures(_textures.begin(), _textures.end())
+{
+}
+
+ScenarioParser::SquadronEntry::SquadronEntry(const std::string& _actor,
+                                             const std::vector<float>& _pos,
+                                             const std::vector<float>& _dir,
+                                             const std::int32_t _members,
+                                             const std::string& _team)
+  : actor(_actor),
+    pos(glm::make_vec3(_pos.data())),
+    dir(glm::make_vec3(_dir.data())),
+    members(_members),
+    team(_team)
+{
+}
 
 void ScenarioParser::Parse()
 {
     std::cout << "Parsing scenario file [" << file_to_parse << "]\n";
 
-    using json = nlohmann::json;
     std::ifstream i(file_to_parse);
-    json scenario;
+    nlohmann::json scenario;
     i >> scenario;
 
-    if(scenario.find("actors") != scenario.end())
+    if (scenario.find("actors") != scenario.end())
     {
-        for (auto& actor : scenario["actors"].items())
+        for (const auto& actor : scenario["actors"].items())
         {
-            // std::cout << actor.key() << " : type=" << actor.value()["type"] << '\n';
-            ActorEntry ae;
-            
-            std::string model_name = std::string(actor.value()["type"]);
+            const std::string model_name = std::string(actor.value()["type"]);
             required_models.insert(model_name);
 
-            std::vector<float> pos = actor.value()["pos"];
-            std::vector<float> dir = actor.value()["dir"];
-            
-            ae.type = model_name;
-            ae.pos = glm::make_vec3(&pos[0]);
-            ae.dir = glm::make_vec3(&dir[0]);
+            const ActorEntry ae(model_name, actor.value()["pos"], actor.value()["dir"]);
 
             actors.insert(std::make_pair(actor.key(), ae));
         }
     }
     std::cout << "  Number of actors: " << actors.size() << '\n';
 
-    if(scenario.find("terrain") != scenario.end())
+    if (scenario.find("terrain") != scenario.end())
     {
-        terrain = std::make_unique<TerrainEntry>();
-        terrain->x = scenario["terrain"]["x"];
-        terrain->z = scenario["terrain"]["z"];
-        terrain->maxHeight = scenario["terrain"]["maxHeight"];
-        terrain->blockSize = scenario["terrain"]["blockSize"];
-        terrain->seed = scenario["terrain"]["seed"];
-        terrain->heightmap = scenario["terrain"]["heightmap"];
-        for(auto tex_name : scenario["terrain"]["textures"])
-        {
-            terrain->textures.push_back(tex_name);
-        }
+        terrain = std::make_unique<TerrainEntry>(scenario["terrain"]["x"],
+                                                 scenario["terrain"]["z"],
+                                                 scenario["terrain"]["maxHeight"],
+                                                 scenario["terrain"]["blockSize"],
+                                                 scenario["terrain"]["seed"],
+                                                 scenario["terrain"]["heightmap"],
+                                                 scenario["terrain"]["textures"]);
     }
     std::cout << "  Use terrain? ";
-    if(terrain) std::cout << "Yes\n";
-    else std::cout << "Yes\n";
+    if (terrain)
+        std::cout << "Yes\n";
+    else
+        std::cout << "Yes\n";
 
-    if(scenario.find("skybox") != scenario.end())
+    if (scenario.find("skybox") != scenario.end())
     {
         skybox = scenario["skybox"];
     }
     std::cout << "  Skybox image: " << skybox << std::endl;
 
-    if(scenario.find("player") != scenario.end())
-    {
-        player = scenario["player"];
-    }
+    if (!(scenario.find("player") != scenario.end()))
+        throw std::runtime_error("player not specified in scenario file!");
+    player = scenario["player"];
     std::cout << "  Player ID: " << player << std::endl;
 
-    if(scenario.find("squadrons") != scenario.end())
+    if (scenario.find("squadrons") != scenario.end())
     {
-        for (auto& squadron : scenario["squadrons"].items())
+        for (const auto& squadron : scenario["squadrons"].items())
         {
-            SquadronEntry se;
-    
-            std::string model_name = std::string(squadron.value()["actor"]);
+            const std::string model_name = squadron.value()["actor"];
             required_models.insert(model_name);
 
-            std::vector<float> pos = squadron.value()["pos"];
-            std::vector<float> dir = squadron.value()["dir"];
-            
-            se.actor = model_name;
-            se.pos = glm::make_vec3(&pos[0]);
-            se.dir = glm::make_vec3(&dir[0]);
-            se.members = squadron.value()["members"];
-            se.team = squadron.value()["team"];
-
+            const SquadronEntry se(model_name,
+                                   squadron.value()["pos"],
+                                   squadron.value()["dir"],
+                                   squadron.value()["members"],
+                                   squadron.value()["team"]);
             squadrons.insert(std::make_pair(squadron.key(), se));
         }
     }
@@ -105,6 +123,6 @@ void ScenarioParser::Parse()
 void ScenarioParser::PrintRequiredModels()
 {
     std::cout << "  Required models: " << std::endl;
-    for(auto const& model_name : required_models)
-        std:: cout << "    " << model_name << std::endl;
+    for (const auto& model_name : required_models)
+        std::cout << "    " << model_name << std::endl;
 }
