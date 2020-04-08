@@ -15,53 +15,41 @@
 
 namespace loaders
 {
-void load_models(std::map<std::string, Model>* models,
+void load_models(std::map<std::string, std::unique_ptr<Model>>* models,
                  std::map<std::string, uint>* textures,
                  const std::set<std::string>& model_names)
 {
     for (const auto& model_name : model_names)
     {
-        if (!load_model(models, textures, model_name))
+        // Ignore if model is already loaded.
+        std::cout << "Loading [" << model_name << "]\n";
+        if (models->find(model_name) == models->end())
         {
-            throw std::runtime_error("  Failed to load model [" + model_name + "]!");
+            models->insert(std::make_pair(model_name, load_model(textures, model_name)));
         }
     }
 }
 
-bool load_model(std::map<std::string, Model>* models,
-                std::map<std::string, uint>* textures,
-                const std::string& model_name)
+std::unique_ptr<Model> load_model(std::map<std::string, uint>* textures, const std::string& model_name)
 {
-    // Ignore if model is already loaded.
-    std::cout << "Loading [" << model_name << "]\n";
-    if (models->find(model_name) == models->end())
-    {
-        tinyobj::attrib_t attrib;
-        std::vector<tinyobj::shape_t> shapes;
-        std::vector<tinyobj::material_t> materials;
-        bool ret = load_obj(&attrib, &shapes, &materials, model_name);
+    tinyobj::attrib_t attrib;
+    std::vector<tinyobj::shape_t> shapes;
+    std::vector<tinyobj::material_t> materials;
+    bool ret = load_obj(&attrib, &shapes, &materials, model_name);
 
-        for (const auto& material : materials)
+    for (const auto& material : materials)
+    {
+        // Only load texture if it hasn't already been loaded
+        if (textures->find(material.diffuse_texname) == textures->end())
         {
-            // Only load texture if it hasn't already been loaded
-            if (textures->find(material.diffuse_texname) == textures->end())
-            {
-                const std::string& tex_name = material.diffuse_texname;
+            const std::string& tex_name = material.diffuse_texname;
 
-                const unsigned int tex_id = load_texture(tex_name);
-                textures->insert(std::make_pair(tex_name, tex_id));
-            }
+            const unsigned int tex_id = load_texture(tex_name);
+            textures->insert(std::make_pair(tex_name, tex_id));
         }
+    }
 
-        Model model =
-            create_model_from_drawobjects(attrib, shapes, materials, textures, model_name);
-        models->insert(std::make_pair(model_name, model));
-    }
-    else
-    {
-        std::cout << "  model already exists. skipping..." << '\n';
-    }
-    return true;
+    return make_unique_model(attrib, shapes, materials, *textures, model_name);
 }
 
 void load_textures(std::map<std::string, uint>* textures, const std::vector<std::string>& filenames)
@@ -148,15 +136,15 @@ std::unique_ptr<Terrain> load_terrain(std::map<std::string, uint>* textures,
     return std::make_unique<Terrain>(terrainentry, textures, program);
 }
 
-std::unique_ptr<Skybox> load_skybox(std::map<std::string, Model>* models,
+std::unique_ptr<Skybox> load_skybox(std::map<std::string, std::unique_ptr<Model>>* models,
                                     std::map<std::string, uint>* textures,
                                     const std::string& textures_folder,
                                     const uint program)
 {
     std::cout << "Loading skybox\n";
 
-    if (!loaders::load_model(models, textures, "cube"))
-        throw std::runtime_error("  Failed to load model [cube]!");
+    if (models->find("cube") == models->end())
+        models->insert(std::make_pair("cube", load_model(textures, "cube")));
 
     // Only load texture if it hasn't already been loaded
     if (textures->find(textures_folder) == textures->end())
@@ -165,7 +153,7 @@ std::unique_ptr<Skybox> load_skybox(std::map<std::string, Model>* models,
         textures->insert(std::make_pair(textures_folder, tex_id));
     }
     uint tex_id = textures->find(textures_folder)->second;
-    Model* cube = &models->operator[]("cube");
+    Model* cube = models->operator[]("cube").get();
     return std::make_unique<Skybox>(cube, tex_id, program);
 }
 
@@ -222,12 +210,12 @@ unsigned int load_texture_cubemap(const std::string& textures_folder)
 }
 
 void load_actors(std::map<std::string, std::unique_ptr<actor::Actor>>* actors,
-                 std::map<std::string, Model>* models,
+                 std::map<std::string, std::unique_ptr<Model>>* models,
                  const std::map<std::string, ScenarioParser::ActorEntry>& actor_entries)
 {
     for (const auto& actorentry : actor_entries)
     {
-        Model* model_ptr = &models->operator[](actorentry.second.type);
+        Model* model_ptr = models->operator[](actorentry.second.type).get();
         // Check type of actor and create appropriate derived class
         if (actorentry.second.type != "hangar")
         {

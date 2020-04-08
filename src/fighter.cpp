@@ -1,7 +1,7 @@
 #include <fighter.h>
 #include <keyboard.h>
 
-extern std::map<std::string, Model> Models;
+extern std::map<std::string, std::unique_ptr<Model>> Models;
 
 namespace actor
 {
@@ -88,7 +88,7 @@ void Fighter::Draw(glm::mat4 camprojMat)
     {
         glm::mat4 mvp2 = mvp * p.pose;
         glUniformMatrix4fv(glGetUniformLocation(program, "mvp"), 1, GL_FALSE, glm::value_ptr(mvp2));
-        for(DrawObject o: p.model->drawobjects)
+        for(const DrawObject& o: p.model->drawobjects)
         {
             if(o.texture_name == "")
             {
@@ -110,7 +110,7 @@ void Fighter::Draw(glm::mat4 camprojMat)
 
             glm::mat4 mvp2 = mvp * p.model->boundingbox.pose;
             glUniformMatrix4fv(glGetUniformLocation(program, "mvp"), 1, GL_FALSE, glm::value_ptr(mvp2));
-            glBindVertexArray(Models["cube"].drawobjects[0].vao);
+            glBindVertexArray(Models["cube"]->drawobjects[0].vao);
             glDrawArrays(GL_LINE_STRIP, 0, 3 * 12);
         }
     }

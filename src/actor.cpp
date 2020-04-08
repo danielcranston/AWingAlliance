@@ -43,7 +43,7 @@ void Actor::Draw(glm::mat4 camprojMat)
     {
         glm::mat4 mvp2 = mvp * p.pose;
         glUniformMatrix4fv(glGetUniformLocation(program, "mvp"), 1, GL_FALSE, glm::value_ptr(mvp2));
-        for(DrawObject o: p.model->drawobjects)
+        for(const DrawObject& o: p.model->drawobjects)
         {
             if(o.texture_name == "")
             {

@@ -38,7 +38,7 @@ glm::mat4 projCamMatrix, camMatrix, projMatrix;
 
 FBO fbo;
 
-std::map<std::string, Model> Models;
+std::map<std::string, std::unique_ptr<Model>> Models;
 std::map<std::string, uint> Textures;
 std::map<std::string, std::unique_ptr<actor::Actor>> Actors;
 std::string player_name;

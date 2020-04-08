@@ -174,8 +174,8 @@ void create_buffer(const tinyobj::attrib_t& attrib,
                                     const tinyobj::shape_t& shape,
                                     const std::vector<tinyobj::material_t>& materials,
                                     std::vector<float>& buffer,
-                                    float bmin[3],
-                                    float bmax[3])
+                                    std::array<float, 3>& bmin,
+                                    std::array<float, 3>& bmax)
 {
     // Check for smoothing group and compute smoothing normals
     std::map<int, vec3> smoothVertexNormals;
@@ -366,16 +366,16 @@ void create_buffer(const tinyobj::attrib_t& attrib,
     }
 } // create_buffer
 
-Model create_model_from_drawobjects(const tinyobj::attrib_t& attrib,
-                                    const std::vector<tinyobj::shape_t>& shapes,
-                                    const std::vector<tinyobj::material_t>& materials,
-                                    std::map<std::string, uint>* textures,
-                                    const std::string& model_name)
+std::unique_ptr<Model> make_unique_model(const tinyobj::attrib_t& attrib,
+                                         const std::vector<tinyobj::shape_t>& shapes,
+                                         const std::vector<tinyobj::material_t>& materials,
+                                         const std::map<std::string, uint>& textures,
+                                         const std::string& model_name)
 {
-    float bmin[3], bmax[3];
+    std::array<float, 3> bmin, bmax;
     std::vector<DrawObject> drawobjects;
     bmin[0] = bmin[1] = bmin[2] = std::numeric_limits<float>::max();
-    bmax[0] = bmax[1] = bmax[2] = -std::numeric_limits<float>::max();
+    bmax[0] = bmax[1] = bmax[2] = std::numeric_limits<float>::lowest();
 
     // Create DrawObject for each shape
     for (size_t s = 0; s < shapes.size(); s++)
@@ -394,11 +394,11 @@ Model create_model_from_drawobjects(const tinyobj::attrib_t& attrib,
             material_id = materials.size() - 1;  // = ID for default material.
         }
         const auto& texture_name = materials[material_id].diffuse_texname;
-        const auto& texture_id = (*textures)[texture_name];
+        const auto& texture_id = textures.at(texture_name);
         DrawObject o(buffer, texture_id, texture_name);
 
         drawobjects.push_back(o);
     }
-    return Model(model_name, std::move(drawobjects), bmin, bmax);
+    return std::make_unique<Model>(model_name, drawobjects, bmin, bmax);
 }  // create_model_from_drawobject
 }  // namespace

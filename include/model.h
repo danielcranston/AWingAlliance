@@ -6,6 +6,7 @@
 #include <string>
 #include <memory>
 #include <model.h>
+#include <iostream>
 
 #include <GL/glew.h>
 
@@ -22,6 +23,7 @@ struct DrawObject
     {
         if (buffer.size() > 0)
         {
+            // This needs a better home
             glGenVertexArrays(1, &vao);
             glGenBuffers(1, &vbo);
 
@@ -57,7 +59,7 @@ struct BoundingBox
     glm::mat4 pose;
 
     BoundingBox() {}
-    BoundingBox(float bmin[3], float bmax[3])
+    BoundingBox(std::array<float, 3> bmin, std::array<float, 3> bmax)
     {
         xscale = (bmax[0] - bmin[0]) / 2.0;
         yscale = (bmax[1] - bmin[1]) / 2.0;
@@ -80,12 +82,14 @@ struct Model
     std::vector<DrawObject> drawobjects;
     BoundingBox boundingbox;
 
-    Model() {};
-    Model(std::string name, std::vector<DrawObject> dos, float bmin[3], float bmax[3])
-        : name{name}
-        , drawobjects{dos}
-        , boundingbox{BoundingBox(bmin, bmax)}
-    {}
+    Model(){};
+    Model(std::string name,
+          std::vector<DrawObject> dos,
+          std::array<float, 3> bmin,
+          std::array<float, 3> bmax)
+      : name{ name }, drawobjects{ dos }, boundingbox{ BoundingBox(bmin, bmax) }
+    {
+    }
 
     bool operator==(const Model& m) const
     { 

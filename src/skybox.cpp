@@ -19,7 +19,7 @@ void Skybox::Draw(const glm::mat4 &projMatrix, const glm::mat4 &camMatrix)
 
     glDisable(GL_CULL_FACE);
     glUniformMatrix4fv(glGetUniformLocation(program, "mvp"), 1, GL_FALSE, glm::value_ptr(projMatrix * no_translation));
-    for(DrawObject o: model->drawobjects)
+    for(const DrawObject& o: model->drawobjects)
     {
         glBindVertexArray(o.vao);
         glBindTexture(GL_TEXTURE_CUBE_MAP, o.texture_id);
