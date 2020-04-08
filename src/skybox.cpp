@@ -19,11 +19,11 @@ void Skybox::Draw(const glm::mat4 &projMatrix, const glm::mat4 &camMatrix)
 
     glDisable(GL_CULL_FACE);
     glUniformMatrix4fv(glGetUniformLocation(program, "mvp"), 1, GL_FALSE, glm::value_ptr(projMatrix * no_translation));
-    for(const DrawObject& o: model->drawobjects)
+    for(const auto& o: model->drawobjects)
     {
-        glBindVertexArray(o.vao);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, o.texture_id);
-        glDrawArrays(GL_TRIANGLES, 0, 3 * o.numTriangles);
+        glBindVertexArray(o->vao);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, o->texture_id);
+        glDrawArrays(GL_TRIANGLES, 0, 3 * o->numTriangles);
     }
     glEnable(GL_CULL_FACE);
 

@@ -170,13 +170,13 @@ void computeSmoothingNormals(const tinyobj::attrib_t& attrib,
 
 }  // computeSmoothingNormals
 
-void create_buffer(const tinyobj::attrib_t& attrib,
+std::vector<float> create_buffer(const tinyobj::attrib_t& attrib,
                                     const tinyobj::shape_t& shape,
                                     const std::vector<tinyobj::material_t>& materials,
-                                    std::vector<float>& buffer,
                                     std::array<float, 3>& bmin,
                                     std::array<float, 3>& bmax)
 {
+    std::vector<float> buffer;
     // Check for smoothing group and compute smoothing normals
     std::map<int, vec3> smoothVertexNormals;
     if (hasSmoothingGroup(shape) > 0)
@@ -364,6 +364,7 @@ void create_buffer(const tinyobj::attrib_t& attrib,
             buffer.push_back(tc[k][1]);
         }
     }
+    return buffer;
 } // create_buffer
 
 std::unique_ptr<Model> make_unique_model(const tinyobj::attrib_t& attrib,
@@ -373,15 +374,14 @@ std::unique_ptr<Model> make_unique_model(const tinyobj::attrib_t& attrib,
                                          const std::string& model_name)
 {
     std::array<float, 3> bmin, bmax;
-    std::vector<DrawObject> drawobjects;
     bmin[0] = bmin[1] = bmin[2] = std::numeric_limits<float>::max();
     bmax[0] = bmax[1] = bmax[2] = std::numeric_limits<float>::lowest();
 
     // Create DrawObject for each shape
+    std::vector<OBJGroup> groups;
     for (size_t s = 0; s < shapes.size(); s++)
     {
-        std::vector<float> buffer;
-        create_buffer(attrib, shapes[s], materials, buffer, bmin, bmax);
+        const std::vector<float> buffer = create_buffer(attrib, shapes[s], materials, bmin, bmax);
         
         std::size_t material_id;
         if (shapes[s].mesh.material_ids.size() > 0 && shapes[s].mesh.material_ids.size() > s)
@@ -395,10 +395,9 @@ std::unique_ptr<Model> make_unique_model(const tinyobj::attrib_t& attrib,
         }
         const auto& texture_name = materials[material_id].diffuse_texname;
         const auto& texture_id = textures.at(texture_name);
-        DrawObject o(buffer, texture_id, texture_name);
 
-        drawobjects.push_back(o);
+        groups.emplace_back(buffer, texture_id, texture_name);
     }
-    return std::make_unique<Model>(model_name, drawobjects, bmin, bmax);
+    return std::make_unique<Model>(model_name, groups, bmin, bmax);
 }  // create_model_from_drawobject
 }  // namespace

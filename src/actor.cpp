@@ -43,9 +43,9 @@ void Actor::Draw(glm::mat4 camprojMat)
     {
         glm::mat4 mvp2 = mvp * p.pose;
         glUniformMatrix4fv(glGetUniformLocation(program, "mvp"), 1, GL_FALSE, glm::value_ptr(mvp2));
-        for(const DrawObject& o: p.model->drawobjects)
+        for(const auto& o: p.model->drawobjects)
         {
-            if(o.texture_name == "")
+            if(o->texture_name == "")
             {
                 glUniform3f(glGetUniformLocation(program, "uniform_color"), 0.7f, 0.0f, 0.0f);
                 glUniform1i(glGetUniformLocation(program, "bUseColor"), 1);
@@ -54,9 +54,9 @@ void Actor::Draw(glm::mat4 camprojMat)
             {
                 glUniform1i(glGetUniformLocation(program, "bUseColor"), 0);
             }
-            glBindVertexArray(o.vao);
-            glBindTexture(GL_TEXTURE_2D, o.texture_id);
-            glDrawArrays(GL_TRIANGLES, 0, 3 * o.numTriangles);
+            glBindVertexArray(o->vao);
+            glBindTexture(GL_TEXTURE_2D, o->texture_id);
+            glDrawArrays(GL_TRIANGLES, 0, 3 * o->numTriangles);
         }
     }
 }
