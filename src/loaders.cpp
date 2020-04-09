@@ -30,7 +30,8 @@ void load_models(std::map<std::string, std::unique_ptr<Model>>* models,
     }
 }
 
-std::unique_ptr<Model> load_model(std::map<std::string, uint>* textures, const std::string& model_name)
+std::unique_ptr<Model> load_model(std::map<std::string, uint>* textures,
+                                  const std::string& model_name)
 {
     tinyobj::attrib_t attrib;
     std::vector<tinyobj::shape_t> shapes;
@@ -150,9 +151,11 @@ std::unique_ptr<Skybox> load_skybox(std::map<std::string, std::unique_ptr<Model>
     if (textures->find(textures_folder) == textures->end())
     {
         unsigned int tex_id = load_texture_cubemap(textures_folder);
+        std::cout << " loading skybox: tex_id: " << tex_id << std::endl;
         textures->insert(std::make_pair(textures_folder, tex_id));
     }
     uint tex_id = textures->find(textures_folder)->second;
+    std::cout << " loading skybox: tex_id: " << tex_id << std::endl;
     Model* cube = models->operator[]("cube").get();
     return std::make_unique<Skybox>(cube, tex_id, program);
 }
@@ -219,10 +222,9 @@ void load_actors(std::map<std::string, std::unique_ptr<actor::Actor>>* actors,
         // Check type of actor and create appropriate derived class
         if (actorentry.second.type != "hangar")
         {
-            actor::Fighter a = actor::Fighter(
-                actorentry.second.pos,
-                actorentry.second.dir,
-                { std::make_pair(model_ptr, glm::mat4(1.0f)) });
+            actor::Fighter a = actor::Fighter(actorentry.second.pos,
+                                              actorentry.second.dir,
+                                              { std::make_pair(model_ptr, glm::mat4(1.0f)) });
             actors->insert(std::make_pair(actorentry.first, std::make_unique<actor::Fighter>(a)));
         }
         else

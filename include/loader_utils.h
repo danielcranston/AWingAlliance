@@ -159,22 +159,20 @@ void computeSmoothingNormals(const tinyobj::attrib_t& attrib,
                 smoothVertexNormals[vi[i]].v[2] = normal[2];
             }
         }
-
-    }  // f
+    }
 
     // Normalize the normals, that is, make them unit vectors
     for (iter = smoothVertexNormals.begin(); iter != smoothVertexNormals.end(); iter++)
     {
         normalizeVector(iter->second);
     }
-
-}  // computeSmoothingNormals
+}
 
 std::vector<float> create_buffer(const tinyobj::attrib_t& attrib,
-                                    const tinyobj::shape_t& shape,
-                                    const std::vector<tinyobj::material_t>& materials,
-                                    std::array<float, 3>& bmin,
-                                    std::array<float, 3>& bmax)
+                                 const tinyobj::shape_t& shape,
+                                 const std::vector<tinyobj::material_t>& materials,
+                                 std::array<float, 3>& bmin,
+                                 std::array<float, 3>& bmax)
 {
     std::vector<float> buffer;
     // Check for smoothing group and compute smoothing normals
@@ -197,7 +195,7 @@ std::vector<float> create_buffer(const tinyobj::attrib_t& attrib,
         {
             // Invaid material ID. Use default material.
             current_material_id = materials.size() - 1;  // Default material is added to the
-                                                            // last item in `materials`.
+                                                         // last item in `materials`.
         }
 
         float diffuse[3];
@@ -208,8 +206,7 @@ std::vector<float> create_buffer(const tinyobj::attrib_t& attrib,
         float tc[3][2];
         if (attrib.texcoords.size() > 0)
         {
-            if ((idx0.texcoord_index < 0) || (idx1.texcoord_index < 0) ||
-                (idx2.texcoord_index < 0))
+            if ((idx0.texcoord_index < 0) || (idx1.texcoord_index < 0) || (idx2.texcoord_index < 0))
             {
                 // face does not contain valid uv index.
                 tc[0][0] = 0.0f;
@@ -345,8 +342,8 @@ std::vector<float> create_buffer(const tinyobj::attrib_t& attrib,
             float normal_factor = 0.2;
             float diffuse_factor = 1 - normal_factor;
             float c[3] = { n[k][0] * normal_factor + diffuse[0] * diffuse_factor,
-                            n[k][1] * normal_factor + diffuse[1] * diffuse_factor,
-                            n[k][2] * normal_factor + diffuse[2] * diffuse_factor };
+                           n[k][1] * normal_factor + diffuse[1] * diffuse_factor,
+                           n[k][2] * normal_factor + diffuse[2] * diffuse_factor };
             float len2 = c[0] * c[0] + c[1] * c[1] + c[2] * c[2];
             if (len2 > 0.0f)
             {
@@ -365,7 +362,7 @@ std::vector<float> create_buffer(const tinyobj::attrib_t& attrib,
         }
     }
     return buffer;
-} // create_buffer
+}
 
 std::unique_ptr<Model> make_unique_model(const tinyobj::attrib_t& attrib,
                                          const std::vector<tinyobj::shape_t>& shapes,
@@ -382,12 +379,11 @@ std::unique_ptr<Model> make_unique_model(const tinyobj::attrib_t& attrib,
     for (size_t s = 0; s < shapes.size(); s++)
     {
         const std::vector<float> buffer = create_buffer(attrib, shapes[s], materials, bmin, bmax);
-        
+
         std::size_t material_id;
         if (shapes[s].mesh.material_ids.size() > 0 && shapes[s].mesh.material_ids.size() > s)
         {
-            material_id =
-                shapes[s].mesh.material_ids[0];  // use the material ID of the first face.
+            material_id = shapes[s].mesh.material_ids[0];  // use the material ID of the first face.
         }
         else
         {
@@ -399,5 +395,5 @@ std::unique_ptr<Model> make_unique_model(const tinyobj::attrib_t& attrib,
         groups.emplace_back(buffer, texture_id, texture_name);
     }
     return std::make_unique<Model>(model_name, groups, bmin, bmax);
-}  // create_model_from_drawobject
+}
 }  // namespace
