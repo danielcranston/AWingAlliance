@@ -46,6 +46,7 @@ std::string player_name;
 std::unique_ptr<ScenarioParser> parser;
 
 std::unique_ptr<Skybox> skybox;
+std::unique_ptr<Skybox> skybox2;
 std::unique_ptr<Terrain> terrain;
 
 void ListTextures()
@@ -101,6 +102,7 @@ void init()
     loaders::load_models(&Models, &Textures, parser->required_models);
     terrain = loaders::load_terrain(&Textures, *parser->terrain.get(), terrainProgram);
     skybox = loaders::load_skybox(&Models, &Textures, parser->skybox, skyProgram);
+    skybox2 = loaders::load_skybox(&Models, &Textures, "skybox/blue", skyProgram);
     ListTextures();
 
     // ACTOR STUFF
@@ -166,7 +168,6 @@ void onDisplay()
     projCamMatrix = projMatrix * camMatrix;
     if (skybox)
     {
-        glUseProgram(skyProgram);
         skybox->Draw(projMatrix, camMatrix);
         utils::CheckErrors("draw sky");
     }
@@ -182,6 +183,12 @@ void onDisplay()
     DummyCompute();
     glClearColor(0.8, 0.8, 0.8, 1.0);
     glViewport(0, 0, SCREEN_W, SCREEN_H);
+
+    if (skybox2)
+    {
+        skybox2->Draw(projMatrix, camMatrix);
+        utils::CheckErrors("draw sky");
+    }
 
     glUseProgram(fboProgram);
     glBindVertexArray(fbo.vao);
