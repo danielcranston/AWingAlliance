@@ -51,8 +51,9 @@ class Model
                    const std::array<float, 3>& bmax);
 
     void Draw(const glm::mat4& camprojMat, const uint program, const glm::vec3& color) const;
+    const DrawObject* get_drawobject(const int i) const;
 
-    // until I clean up skybox these will remain public
+    // until I clean up fighter (bounding box) these will remain public
     std::string name;
     std::vector<std::unique_ptr<DrawObject>> drawobjects;
     BoundingBox boundingbox;

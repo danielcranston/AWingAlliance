@@ -151,13 +151,11 @@ std::unique_ptr<Skybox> load_skybox(std::map<std::string, std::unique_ptr<Model>
     if (textures->find(textures_folder) == textures->end())
     {
         unsigned int tex_id = load_texture_cubemap(textures_folder);
-        std::cout << " loading skybox: tex_id: " << tex_id << std::endl;
         textures->insert(std::make_pair(textures_folder, tex_id));
     }
     uint tex_id = textures->find(textures_folder)->second;
-    std::cout << " loading skybox: tex_id: " << tex_id << std::endl;
     Model* cube = models->operator[]("cube").get();
-    return std::make_unique<Skybox>(cube, tex_id, program);
+    return std::make_unique<Skybox>(cube->get_drawobject(0)->vao, tex_id, program);
 }
 
 // from https://learnopengl.com/Advanced-OpenGL/Cubemaps
@@ -171,6 +169,7 @@ unsigned int load_texture_cubemap(const std::string& textures_folder)
 
     unsigned int texture_id;
     glGenTextures(1, &texture_id);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, texture_id);
 
     int w, h, comp;
     for (std::size_t i = 0; i < faces.size(); i++)
@@ -205,9 +204,6 @@ unsigned int load_texture_cubemap(const std::string& textures_folder)
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_BASE_LEVEL, 0);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAX_LEVEL, 0);
-
-    // Not needed. Also, if put after glGenTextures the cubemap becomes all black. Not sure why...
-    glBindTexture(GL_TEXTURE_CUBE_MAP, texture_id);
 
     return texture_id;
 }

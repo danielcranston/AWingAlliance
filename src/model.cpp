@@ -72,6 +72,13 @@ Model::Model(const std::string& name,
         drawobjects.emplace_back(std::make_unique<DrawObject>(group));
 }
 
+const DrawObject* Model::get_drawobject(const int i) const
+{
+    if (i < 0 || i > drawobjects.size())
+        throw std::runtime_error("Tried to access element outside vector size");
+    return drawobjects[i].get();
+}
+
 void Model::Draw(const glm::mat4& mvp, const uint program, const glm::vec3& color) const
 {
     glUniformMatrix4fv(glGetUniformLocation(program, "mvp"), 1, GL_FALSE, glm::value_ptr(mvp));
