@@ -2,9 +2,12 @@
 #include <iostream>
 
 #include <GL/glew.h>
+#include <glm/gtc/type_ptr.hpp>
 
 #include "shaders.h"
 
+namespace
+{
 // From computer-graphics.se
 char* readFile(const char* file)
 {
@@ -50,8 +53,10 @@ void printShaderInfoLog(const uint obj, const char* fn)
         free(infoLog);
     }
 }
+}  // namespace
 
-uint compileComputeShader(const std::string& computeSource)
+std::unique_ptr<ShaderProgram> compileComputeShader(const std::string& name,
+                                                    const std::string& computeSource)
 {
     // Create an empty vertex shader handle
     GLuint computeShader = glCreateShader(GL_COMPUTE_SHADER);
@@ -121,11 +126,13 @@ uint compileComputeShader(const std::string& computeSource)
     glDetachShader(program, computeShader);
 
     std::cout << "Compute Shader Compiled and Linked Successfully." << '\n';
-    return program;
+    return std::make_unique<ShaderProgram>(name, ShaderType::NORMAL, program);
 }
 
 // From https://www.khronos.org/opengl/wiki/Shader_Compilation
-uint compileShaders(const std::string& vertexSource, const std::string& fragmentSource)
+std::unique_ptr<ShaderProgram> compileShaders(const std::string& name,
+                                              const std::string& vertexSource,
+                                              const std::string& fragmentSource)
 {
     // Create an empty vertex shader handle
     GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
@@ -233,5 +240,44 @@ uint compileShaders(const std::string& vertexSource, const std::string& fragment
     glDetachShader(program, vertexShader);
     glDetachShader(program, fragmentShader);
 
-    return program;
+    return std::make_unique<ShaderProgram>(name, ShaderType::COMPUTE, program);
+}
+
+ShaderProgram::ShaderProgram(const std::string& n, const ShaderType t, const uint program)
+  : name(n), type(t), program_id(program)
+{
+}
+
+void ShaderProgram::Use() const
+{
+    glUseProgram(program_id);
+}
+
+void ShaderProgram::SetUniform1i(const std::string& name, const int value) const
+{
+    glUniform1i(glGetUniformLocation(program_id, name.c_str()), value);
+}
+
+void ShaderProgram::SetUniform2f(const std::string& name, const float f1, const float f2) const
+{
+    glUniform2f(glGetUniformLocation(program_id, name.c_str()), f1, f2);
+}
+
+void ShaderProgram::SetUniform3f(const std::string& name,
+                                 const float f1,
+                                 const float f2,
+                                 const float f3) const
+{
+    glUniform3f(glGetUniformLocation(program_id, name.c_str()), f1, f2, f3);
+}
+
+void ShaderProgram::SetUniform3fv(const std::string& name, const glm::vec3& vec) const
+{
+    glUniform3fv(glGetUniformLocation(program_id, name.c_str()), 1, glm::value_ptr(vec));
+}
+
+void ShaderProgram::SetUniformMatrix4fv(const std::string& name, const glm::mat4& mat) const
+{
+    glUniformMatrix4fv(
+        glGetUniformLocation(program_id, name.c_str()), 1, GL_TRUE, glm::value_ptr(mat));
 }
