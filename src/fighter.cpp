@@ -5,10 +5,8 @@ extern std::map<std::string, std::unique_ptr<Model>> Models;
 
 namespace actor
 {
-Fighter::Fighter(const glm::vec3& p,
-                 const glm::vec3& d,
-                 const std::vector<std::pair<Model*, glm::mat4>>& part_vector)
-  : Actor(p, d, part_vector),
+Fighter::Fighter(const glm::vec3& p, const glm::vec3& d, const Model* mdl)
+  : Actor(p, d, mdl),
     currentSpeed(0.0),
     currentTurnSpeed(0.0),
     maxSpeed(50.0),
@@ -76,23 +74,17 @@ void Fighter::Draw(glm::mat4 camprojMat)
     mdlMatrix = glm::inverse(glm::lookAt(glm::vec3(0.0, 0.0, 0.0), -dir, glm::vec3(0.0, 1.0, 0.0)));
     mdlMatrix = glm::translate(glm::mat4(1.0F), pos) * mdlMatrix;
 
-    // Draw each part
     glm::mat4 mvp = camprojMat * mdlMatrix;
-    for (Part p : parts)
+    model->Draw(mvp, program, color);
+    if (bDrawBBox)
     {
-        glm::mat4 mvp2 = mvp * p.pose;
-        p.model->Draw(mvp2, program, color);
-        if (bDrawBBox)
-        {
-            glUniform3f(glGetUniformLocation(program, "uniform_color"), 0.0, 1.0, 0.0);
-            glUniform1i(glGetUniformLocation(program, "bUseColor"), 1);
+        glUniform3f(glGetUniformLocation(program, "uniform_color"), 0.0, 1.0, 0.0);
+        glUniform1i(glGetUniformLocation(program, "bUseColor"), 1);
 
-            glm::mat4 mvp2 = mvp * p.model->boundingbox.pose;
-            glUniformMatrix4fv(
-                glGetUniformLocation(program, "mvp"), 1, GL_FALSE, glm::value_ptr(mvp2));
-            glBindVertexArray(Models["cube"]->drawobjects[0]->vao);
-            glDrawArrays(GL_LINE_STRIP, 0, 3 * 12);
-        }
+        glm::mat4 mvp2 = mvp * model->boundingbox.pose;
+        glUniformMatrix4fv(glGetUniformLocation(program, "mvp"), 1, GL_FALSE, glm::value_ptr(mvp2));
+        glBindVertexArray(Models["cube"]->drawobjects[0]->vao);
+        glDrawArrays(GL_POINTS, 0, 3 * 13);
     }
     if (bDrawSpline)
     {

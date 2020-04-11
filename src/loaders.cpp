@@ -218,16 +218,13 @@ void load_actors(std::map<std::string, std::unique_ptr<actor::Actor>>* actors,
         // Check type of actor and create appropriate derived class
         if (actorentry.second.type != "hangar")
         {
-            actor::Fighter a = actor::Fighter(actorentry.second.pos,
-                                              actorentry.second.dir,
-                                              { std::make_pair(model_ptr, glm::mat4(1.0f)) });
+            actor::Fighter a =
+                actor::Fighter(actorentry.second.pos, actorentry.second.dir, model_ptr);
             actors->insert(std::make_pair(actorentry.first, std::make_unique<actor::Fighter>(a)));
         }
         else
         {
-            actor::Actor a = { actorentry.second.pos,
-                               actorentry.second.dir,
-                               { std::make_pair(model_ptr, glm::mat4(1.0f)) } };
+            actor::Actor a = { actorentry.second.pos, actorentry.second.dir, model_ptr };
             actors->insert(std::make_pair(actorentry.first, std::make_unique<actor::Actor>(a)));
         }
     }
