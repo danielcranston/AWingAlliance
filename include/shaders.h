@@ -1,12 +1,8 @@
 #pragma once
 
-#include <iostream>
+#include <string.h>
 
-
-#include <GL/glew.h>
-#include <GL/freeglut.h>
-
-char* readFile(const char *file);
-void printShaderInfoLog(GLuint obj, const char *fn);
-GLuint compileShaders(std::string vertexSource, std::string fragmentSource);
-GLuint compileComputeShader(std::string computeSource);
+char* readFile(const char* file);
+void printShaderInfoLog(const uint obj, const char* fn);
+uint compileShaders(const std::string& vertexSource, const std::string& fragmentSource);
+uint compileComputeShader(const std::string& computeSource);
