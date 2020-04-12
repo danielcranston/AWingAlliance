@@ -368,7 +368,8 @@ std::unique_ptr<Model> make_unique_model(const tinyobj::attrib_t& attrib,
                                          const std::vector<tinyobj::shape_t>& shapes,
                                          const std::vector<tinyobj::material_t>& materials,
                                          const std::map<std::string, uint>& textures,
-                                         const std::string& model_name)
+                                         const std::string& model_name,
+                                         const ShaderProgram* shader)
 {
     std::array<float, 3> bmin, bmax;
     bmin[0] = bmin[1] = bmin[2] = std::numeric_limits<float>::max();
@@ -394,6 +395,6 @@ std::unique_ptr<Model> make_unique_model(const tinyobj::attrib_t& attrib,
 
         groups.emplace_back(buffer, texture_id, texture_name);
     }
-    return std::make_unique<Model>(model_name, groups, bmin, bmax);
+    return std::make_unique<Model>(model_name, groups, bmin, bmax, shader);
 }
 }  // namespace

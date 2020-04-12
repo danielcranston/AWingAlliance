@@ -10,6 +10,8 @@
 
 #include <GL/glew.h>
 
+#include "shaders.h"
+
 struct OBJGroup
 {
     explicit OBJGroup(const std::vector<float>& buf,
@@ -48,13 +50,15 @@ class Model
     explicit Model(const std::string& name,
                    const std::vector<OBJGroup>& groups,
                    const std::array<float, 3>& bmin,
-                   const std::array<float, 3>& bmax);
+                   const std::array<float, 3>& bmax,
+                   const ShaderProgram* shad);
 
-    void Draw(const glm::mat4& camprojMat, const uint program, const glm::vec3& color) const;
+    void Draw(const glm::mat4& mvp, const glm::vec3& color) const;
     const DrawObject* get_drawobject(const int i) const;
 
     // until I clean up fighter (bounding box) these will remain public
     std::string name;
     std::vector<std::unique_ptr<DrawObject>> drawobjects;
     BoundingBox boundingbox;
+    const ShaderProgram* shader;
 };

@@ -9,7 +9,7 @@
 //  #define GLM_ENABLE_EXPERIMENTAL
 //  #include <glm/gtx/string_cast.hpp>
 
-extern GLuint program;
+// extern GLuint program;
 
 namespace actor
 {
@@ -25,7 +25,7 @@ void Actor::Draw(glm::mat4 camprojMat)
     mdlMatrix = glm::translate(glm::mat4(1.0F), pos) * mdlMatrix;
 
     glm::mat4 mvp = camprojMat * mdlMatrix;
-    model->Draw(mvp, program, glm::vec3(0.0, 0.0, 0.0));
+    model->Draw(mvp, glm::vec3(0.0, 0.0, 0.0));
 }
 
 void Actor::SetPosition(glm::vec3 p)

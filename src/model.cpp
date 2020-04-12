@@ -64,8 +64,9 @@ BoundingBox::BoundingBox(const std::array<float, 3>& bmin, const std::array<floa
 Model::Model(const std::string& name,
              const std::vector<OBJGroup>& groups,
              const std::array<float, 3>& bmin,
-             const std::array<float, 3>& bmax)
-  : name{ name }, boundingbox{ BoundingBox(bmin, bmax) }
+             const std::array<float, 3>& bmax,
+             const ShaderProgram* shad)
+  : name{ name }, boundingbox{ BoundingBox(bmin, bmax) }, shader(shad)
 {
     std::cout << "  Creating model:" << std::endl;
     for (const auto& group : groups)
@@ -79,19 +80,23 @@ const DrawObject* Model::get_drawobject(const int i) const
     return drawobjects[i].get();
 }
 
-void Model::Draw(const glm::mat4& mvp, const uint program, const glm::vec3& color) const
+void Model::Draw(const glm::mat4& mvp, const glm::vec3& color) const
 {
-    glUniformMatrix4fv(glGetUniformLocation(program, "mvp"), 1, GL_FALSE, glm::value_ptr(mvp));
+    glUniformMatrix4fv(
+        glGetUniformLocation(shader->GetProgram(), "mvp"), 1, GL_FALSE, glm::value_ptr(mvp));
     for (const auto& o : drawobjects)
     {
         if (o->use_color)
         {
-            glUniform3f(glGetUniformLocation(program, "uniform_color"), color.x, color.y, color.z);
-            glUniform1i(glGetUniformLocation(program, "bUseColor"), 1);
+            glUniform3f(glGetUniformLocation(shader->GetProgram(), "uniform_color"),
+                        color.x,
+                        color.y,
+                        color.z);
+            glUniform1i(glGetUniformLocation(shader->GetProgram(), "bUseColor"), 1);
         }
         else
         {
-            glUniform1i(glGetUniformLocation(program, "bUseColor"), 0);
+            glUniform1i(glGetUniformLocation(shader->GetProgram(), "bUseColor"), 0);
         }
         glBindVertexArray(o->vao);
         glBindTexture(GL_TEXTURE_2D, o->texture_id);

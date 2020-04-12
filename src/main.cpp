@@ -33,7 +33,7 @@ uint SCREEN_W, SCREEN_H;
 uint timeNow, timeOfLastUpdate, timeOfLastSplineChange;
 std::bitset<8> keyboardInfo = 0;
 
-GLuint program, terrainProgram, skyProgram, fboProgram, computeProgram;
+// GLuint program, terrainProgram, skyProgram, fboProgram, computeProgram;
 glm::mat4 projCamMatrix, camMatrix, projMatrix;
 
 FBO fbo;
@@ -41,6 +41,7 @@ FBO fbo;
 std::map<std::string, std::unique_ptr<Model>> Models;
 std::map<std::string, uint> Textures;
 std::map<std::string, std::unique_ptr<actor::Actor>> Actors;
+std::map<std::string, std::unique_ptr<ShaderProgram>> Shaders;
 std::string player_name;
 
 std::unique_ptr<ScenarioParser> parser;
@@ -67,31 +68,43 @@ void init()
     timeOfLastSplineChange = 0;
 
     // SHADER STUFF
-    program = compileShaders("Shaders/object.vert", "Shaders/object.frag");
-    glUseProgram(program);
-    glUniform1i(glGetUniformLocation(program, "tex"), 0);
-    glUniform1i(glGetUniformLocation(program, "bUseColor"), 0);
-    glUniform3f(glGetUniformLocation(program, "uniform_color"), 0.0f, 1.0f, 1.0f);
+    std::cout << "Shaders" << std::endl;
+    Shaders.insert(std::make_pair(
+        "program", compileShaders("program", "Shaders/object.vert", "Shaders/object.frag")));
+    Shaders.insert(
+        std::make_pair("sky", compileShaders("sky", "Shaders/sky.vert", "Shaders/sky.frag")));
+    Shaders.insert(std::make_pair(
+        "terrain", compileShaders("terrain", "Shaders/terrain.vert", "Shaders/terrain.frag")));
+    Shaders.insert(
+        std::make_pair("compute", compileComputeShader("compute", "Shaders/filter.glsl")));
+    Shaders.insert(
+        std::make_pair("fbo", compileShaders("fbo", "Shaders/fbo.vert", "Shaders/fbo.frag")));
 
-    terrainProgram = compileShaders("Shaders/terrain.vert", "Shaders/terrain.frag");
+    // program = compileShaders("Shaders/object.vert", "Shaders/object.frag");
+    // glUseProgram(program);
+    // glUniform1i(glGetUniformLocation(program, "tex"), 0);
+    // glUniform1i(glGetUniformLocation(program, "bUseColor"), 0);
+    // glUniform3f(glGetUniformLocation(program, "uniform_color"), 0.0f, 1.0f, 1.0f);
 
-    skyProgram = compileShaders("Shaders/sky.vert", "Shaders/sky.frag");
-    glUseProgram(skyProgram);
-    glUniform1i(glGetUniformLocation(skyProgram, "tex"), 0);
+    // terrainProgram = compileShaders("Shaders/terrain.vert", "Shaders/terrain.frag");
 
-    fboProgram = compileShaders("Shaders/fbo.vert", "Shaders/fbo.frag");
-    glUseProgram(fboProgram);
-    glUniform1i(glGetUniformLocation(fboProgram, "screenTexture"), 0);
-    glUniform2f(glGetUniformLocation(fboProgram, "scale"), 0.5, 0.5);
-    glUniform2f(glGetUniformLocation(fboProgram, "offset"), 0.5, 0.5);
+    // skyProgram = compileShaders("Shaders/sky.vert", "Shaders/sky.frag");
+    // glUseProgram(skyProgram);
+    // glUniform1i(glGetUniformLocation(skyProgram, "tex"), 0);
 
-    computeProgram = compileComputeShader("Shaders/filter.glsl");
-    glUseProgram(computeProgram);
-    glUniform1i(glGetUniformLocation(computeProgram, "input_image"), 0);
-    glUniform1i(glGetUniformLocation(computeProgram, "output_image"), 1);
+    // fboProgram = compileShaders("Shaders/fbo.vert", "Shaders/fbo.frag");
+    // glUseProgram(fboProgram);
+    // glUniform1i(glGetUniformLocation(fboProgram, "screenTexture"), 0);
+    // glUniform2f(glGetUniformLocation(fboProgram, "scale"), 0.5, 0.5);
+    // glUniform2f(glGetUniformLocation(fboProgram, "offset"), 0.5, 0.5);
 
-    utils::CheckErrors("setup programs");
-    glUseProgram(program);
+    // computeProgram = compileComputeShader("Shaders/filter.glsl");
+    // glUseProgram(computeProgram);
+    // glUniform1i(glGetUniformLocation(computeProgram, "input_image"), 0);
+    // glUniform1i(glGetUniformLocation(computeProgram, "output_image"), 1);
+
+    // utils::CheckErrors("setup programs");
+    // glUseProgram(program);
     glActiveTexture(GL_TEXTURE0);
 
     // PARSE SCENARIO
@@ -99,13 +112,20 @@ void init()
     parser->Parse();
 
     // LOAD ASSETS
-    loaders::load_models(&Models, &Textures, parser->required_models);
-    terrain = loaders::load_terrain(&Textures, *parser->terrain.get(), terrainProgram);
-    skybox = loaders::load_skybox(&Models, &Textures, parser->skybox, skyProgram);
-    skybox2 = loaders::load_skybox(&Models, &Textures, "skybox/blue", skyProgram);
+    std::cout << "Models" << std::endl;
+    loaders::load_models(&Models, &Textures, parser->required_models, Shaders.at("program").get());
+
+    std::cout << "Terrain" << std::endl;
+    terrain = loaders::load_terrain(
+        &Textures, *parser->terrain.get(), Shaders.at("terrain")->GetProgram());
+
+    std::cout << "Skybox" << std::endl;
+    skybox = loaders::load_skybox(&Models, &Textures, parser->skybox, Shaders.at("sky").get());
+    skybox2 = loaders::load_skybox(&Models, &Textures, "skybox/blue", Shaders.at("sky").get());
     ListTextures();
 
     // ACTOR STUFF
+    std::cout << "Actors" << std::endl;
     loaders::load_actors(&Actors, &Models, parser->actors);
     player_name = parser->player;
     dynamic_cast<actor::Fighter*>(Actors["tie1"].get())->bDrawSpline = true;
@@ -123,19 +143,19 @@ void onIdle()
     glutPostRedisplay();
 }
 
-void DummyCompute()
-{
-    glUseProgram(computeProgram);
-    glBindImageTexture(0, fbo.texid1, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
-    glBindImageTexture(1, fbo.texid2, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
-    // Dispatch compute shaders in Y direction and write it as x component
-    int nGroupsX = std::ceil(fbo.width / 32.0);
-    int nGroupsY = std::ceil(fbo.height / 32.0);
-    glDispatchCompute(nGroupsX, nGroupsY, 1);
+// void DummyCompute()
+// {
+//     glUseProgram(computeProgram);
+//     glBindImageTexture(0, fbo.texid1, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
+//     glBindImageTexture(1, fbo.texid2, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+//     // Dispatch compute shaders in Y direction and write it as x component
+//     int nGroupsX = std::ceil(fbo.width / 32.0);
+//     int nGroupsY = std::ceil(fbo.height / 32.0);
+//     glDispatchCompute(nGroupsX, nGroupsY, 1);
 
-    glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
-    glUseProgram(0);
-}
+//     glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+//     glUseProgram(0);
+// }
 
 void onDisplay()
 {
@@ -153,59 +173,65 @@ void onDisplay()
         timeOfLastUpdate = glutGet(GLUT_ELAPSED_TIME);
     }
 
-    // Draw to FBO
-    glBindFramebuffer(GL_FRAMEBUFFER, fbo.id);
-    glBindTexture(GL_TEXTURE_2D, fbo.texid1);
-    glViewport(0, 0, fbo.width, fbo.height);
-    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
-    glClear(GL_DEPTH_BUFFER_BIT);
-
     camMatrix = glm::lookAt(Actors[player_name]->pos - (20.0f * Actors[player_name]->dir) +
                                 5.0f * glm::vec3(0.0, 1.0, 0.0),
                             Actors[player_name]->pos,
                             glm::vec3(0.0, 1.0, 0.0));
     projCamMatrix = projMatrix * camMatrix;
-    if (skybox)
-    {
-        skybox->Draw(projMatrix, camMatrix);
-        utils::CheckErrors("draw sky");
-    }
 
-    glUseProgram(program);
-    for (auto& actor : Actors)
-    {
-        actor.second->Draw(projCamMatrix);
-    }
+    // Draw to FBO
+    // glBindFramebuffer(GL_FRAMEBUFFER, fbo.id);
+    // glBindTexture(GL_TEXTURE_2D, fbo.texid1);
+    // glViewport(0, 0, fbo.width, fbo.height);
+    // glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+    // glClear(GL_COLOR_BUFFER_BIT);
+    // glClear(GL_DEPTH_BUFFER_BIT);
+    // if (skybox)
+    // {
+    //     skybox->Draw(projMatrix, camMatrix);
+    //     utils::CheckErrors("draw sky");
+    // }
 
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    // glUseProgram(program);
+    // for (auto& actor : Actors)
+    // {
+    //     actor.second->Draw(projCamMatrix);
+    // }
 
-    DummyCompute();
-    glClearColor(0.8, 0.8, 0.8, 1.0);
-    glViewport(0, 0, SCREEN_W, SCREEN_H);
+    // glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    // DummyCompute();
+    // glClearColor(0.8, 0.8, 0.8, 1.0);
+    // glViewport(0, 0, SCREEN_W, SCREEN_H);
 
     if (skybox2)
     {
+        std::cout << "drawing skybox2" << std::endl;
+        Shaders["sky"]->Use();
         skybox2->Draw(projMatrix, camMatrix);
         utils::CheckErrors("draw sky");
     }
 
-    glUseProgram(fboProgram);
-    glBindVertexArray(fbo.vao);
-    glDisable(GL_CULL_FACE);
-    glBindTexture(GL_TEXTURE_2D, fbo.texid1);
-    glDrawArrays(GL_TRIANGLES, 0, 6);
-    glEnable(GL_CULL_FACE);
-    utils::CheckErrors("draw quad");
+    // Draw billboard of FBO contents
+    // glUseProgram(fboProgram);
+    // glBindVertexArray(fbo.vao);
+    // glDisable(GL_CULL_FACE);
+    // glBindTexture(GL_TEXTURE_2D, fbo.texid1);
+    // glDrawArrays(GL_TRIANGLES, 0, 6);
+    // glEnable(GL_CULL_FACE);
+    // utils::CheckErrors("draw quad");
 
     if (terrain)
     {
-        glUseProgram(terrainProgram);
+        std::cout << "drawing terrain" << std::endl;
+        Shaders["terrain"]->Use();
         terrain->Draw(projCamMatrix);
         utils::CheckErrors("draw terrain");
     }
 
-    glUseProgram(program);
+    Shaders["program"]->Use();
+    glUseProgram(Shaders["program"]->GetProgram());
+    std::cout << "drawing actors" << std::endl;
     for (auto& actor : Actors)
     {
         actor.second->Draw(projCamMatrix);

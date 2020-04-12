@@ -17,7 +17,8 @@ namespace loaders
 {
 void load_models(std::map<std::string, std::unique_ptr<Model>>* models,
                  std::map<std::string, uint>* textures,
-                 const std::set<std::string>& model_names)
+                 const std::set<std::string>& model_names,
+                 const ShaderProgram* shader)
 {
     for (const auto& model_name : model_names)
     {
@@ -25,13 +26,14 @@ void load_models(std::map<std::string, std::unique_ptr<Model>>* models,
         std::cout << "Loading [" << model_name << "]\n";
         if (models->find(model_name) == models->end())
         {
-            models->insert(std::make_pair(model_name, load_model(textures, model_name)));
+            models->insert(std::make_pair(model_name, load_model(textures, model_name, shader)));
         }
     }
 }
 
 std::unique_ptr<Model> load_model(std::map<std::string, uint>* textures,
-                                  const std::string& model_name)
+                                  const std::string& model_name,
+                                  const ShaderProgram* shader)
 {
     tinyobj::attrib_t attrib;
     std::vector<tinyobj::shape_t> shapes;
@@ -50,7 +52,7 @@ std::unique_ptr<Model> load_model(std::map<std::string, uint>* textures,
         }
     }
 
-    return make_unique_model(attrib, shapes, materials, *textures, model_name);
+    return make_unique_model(attrib, shapes, materials, *textures, model_name, shader);
 }
 
 void load_textures(std::map<std::string, uint>* textures, const std::vector<std::string>& filenames)
@@ -140,12 +142,12 @@ std::unique_ptr<Terrain> load_terrain(std::map<std::string, uint>* textures,
 std::unique_ptr<Skybox> load_skybox(std::map<std::string, std::unique_ptr<Model>>* models,
                                     std::map<std::string, uint>* textures,
                                     const std::string& textures_folder,
-                                    const uint program)
+                                    const ShaderProgram* shader)
 {
     std::cout << "Loading skybox\n";
 
     if (models->find("cube") == models->end())
-        models->insert(std::make_pair("cube", load_model(textures, "cube")));
+        models->insert(std::make_pair("cube", load_model(textures, "cube", shader)));
 
     // Only load texture if it hasn't already been loaded
     if (textures->find(textures_folder) == textures->end())
@@ -155,7 +157,7 @@ std::unique_ptr<Skybox> load_skybox(std::map<std::string, std::unique_ptr<Model>
     }
     uint tex_id = textures->find(textures_folder)->second;
     Model* cube = models->operator[]("cube").get();
-    return std::make_unique<Skybox>(cube->get_drawobject(0)->vao, tex_id, program);
+    return std::make_unique<Skybox>(cube->get_drawobject(0)->vao, tex_id, shader->GetProgram());
 }
 
 // from https://learnopengl.com/Advanced-OpenGL/Cubemaps

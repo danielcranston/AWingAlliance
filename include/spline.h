@@ -8,13 +8,13 @@
 #include <GL/glew.h>
 #include <iostream>
 
-extern GLuint program;
+// extern GLuint program;
 
 class Spline
 {
-public:
+  public:
     glm::vec3 p0, p1, p2, p3;
-    glm::mat4 MP,MpP;
+    glm::mat4 MP, MpP;
     glm::vec4 U;
     unsigned int vao, vbo;
     float start_time, duration, arrive_time;
@@ -25,7 +25,7 @@ public:
     void Update(glm::vec3 p_start, glm::vec3 dir_start, glm::vec3 p_end, glm::vec3 dir_end);
     void UpdateRandom(glm::vec3 p_start, glm::vec3 dir_start);
 
-    std::pair<glm::vec3, glm::vec3> operator () (float u);
+    std::pair<glm::vec3, glm::vec3> operator()(float u);
 
     void UploadPoints();
     void Draw(glm::mat4 camprojMatrix);

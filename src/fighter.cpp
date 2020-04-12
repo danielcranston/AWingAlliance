@@ -1,8 +1,6 @@
 #include <fighter.h>
 #include <keyboard.h>
 
-extern std::map<std::string, std::unique_ptr<Model>> Models;
-
 namespace actor
 {
 Fighter::Fighter(const glm::vec3& p, const glm::vec3& d, const Model* mdl)
@@ -75,22 +73,22 @@ void Fighter::Draw(glm::mat4 camprojMat)
     mdlMatrix = glm::translate(glm::mat4(1.0F), pos) * mdlMatrix;
 
     glm::mat4 mvp = camprojMat * mdlMatrix;
-    model->Draw(mvp, program, color);
-    if (bDrawBBox)
-    {
-        glUniform3f(glGetUniformLocation(program, "uniform_color"), 0.0, 1.0, 0.0);
-        glUniform1i(glGetUniformLocation(program, "bUseColor"), 1);
+    model->Draw(mvp, color);
+    // if (bDrawBBox)
+    // {
+    //     glUniform3f(glGetUniformLocation(program, "uniform_color"), 0.0, 1.0, 0.0);
+    //     glUniform1i(glGetUniformLocation(program, "bUseColor"), 1);
 
-        glm::mat4 mvp2 = mvp * model->boundingbox.pose;
-        glUniformMatrix4fv(glGetUniformLocation(program, "mvp"), 1, GL_FALSE, glm::value_ptr(mvp2));
-        glBindVertexArray(Models["cube"]->drawobjects[0]->vao);
-        glDrawArrays(GL_POINTS, 0, 3 * 13);
-    }
-    if (bDrawSpline)
-    {
-        glUniform3f(glGetUniformLocation(program, "uniform_color"), 0.0, 0.0, 1.0);
-        glUniform1i(glGetUniformLocation(program, "bUseColor"), 1);
-        s.Draw(camprojMat);
-    }
+    //     glm::mat4 mvp2 = mvp * model->boundingbox.pose;
+    //     glUniformMatrix4fv(glGetUniformLocation(program, "mvp"), 1, GL_FALSE,
+    //     glm::value_ptr(mvp2)); glBindVertexArray(Models["cube"]->drawobjects[0]->vao);
+    //     glDrawArrays(GL_POINTS, 0, 3 * 13);
+    // }
+    // if (bDrawSpline)
+    // {
+    //     glUniform3f(glGetUniformLocation(program, "uniform_color"), 0.0, 0.0, 1.0);
+    //     glUniform1i(glGetUniformLocation(program, "bUseColor"), 1);
+    //     s.Draw(camprojMat);
+    // }
 }
 }  // namespace actor

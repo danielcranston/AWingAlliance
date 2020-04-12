@@ -125,6 +125,8 @@ std::unique_ptr<ShaderProgram> compileComputeShader(const std::string& name,
     // Always detach shaders after a successful link.
     glDetachShader(program, computeShader);
 
+    std::cout << "making ShaderProgram" << std::endl;
+
     std::cout << "Compute Shader Compiled and Linked Successfully." << '\n';
     return std::make_unique<ShaderProgram>(name, ShaderType::NORMAL, program);
 }
@@ -240,6 +242,8 @@ std::unique_ptr<ShaderProgram> compileShaders(const std::string& name,
     glDetachShader(program, vertexShader);
     glDetachShader(program, fragmentShader);
 
+    std::cout << "making ShaderProgram" << std::endl;
+
     return std::make_unique<ShaderProgram>(name, ShaderType::COMPUTE, program);
 }
 
@@ -251,6 +255,11 @@ ShaderProgram::ShaderProgram(const std::string& n, const ShaderType t, const uin
 void ShaderProgram::Use() const
 {
     glUseProgram(program_id);
+}
+
+const uint ShaderProgram::GetProgram() const
+{
+    return program_id;
 }
 
 void ShaderProgram::SetUniform1i(const std::string& name, const int value) const
