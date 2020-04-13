@@ -7,7 +7,6 @@
 
 #include "shaders.h"
 #include "model.h"
-#include "actor.h"
 #include "terrain.h"
 
 class Renderer
@@ -28,6 +27,11 @@ class Renderer
     void UseProgram(const std::string& name);
     const ShaderProgram* GetShaderProgram(const std::string& name);
     const Model* GetModel(const std::string& name);
+
+    void render(const glm::vec3& pos,
+                const glm::vec3& dir,
+                const Model* model,
+                const glm::mat4 camera_pose);
 
   private:
     explicit Renderer();

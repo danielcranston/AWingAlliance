@@ -156,3 +156,17 @@ void Renderer::list_textures()
     for (auto const& texture : Textures)
         std::cout << "  " << texture.second << " : " << texture.first << std::endl;
 }
+
+void Renderer::render(const glm::vec3& pos,
+                      const glm::vec3& dir,
+                      const Model* model,
+                      const glm::mat4 camera_pose)
+{
+    // Construct Model Matrix from Position and Viewing Direction
+    glm::mat4 model_matrix =
+        glm::inverse(glm::lookAt(glm::vec3(0.0, 0.0, 0.0), -dir, glm::vec3(0.0, 1.0, 0.0)));
+    model_matrix = glm::translate(glm::mat4(1.0F), pos) * model_matrix;
+
+    glm::mat4 mvp = camera_pose * model_matrix;
+    model->Draw(mvp, glm::vec3(0.0, 1.0, 0.0), Shaders.at("program")->GetProgram());
+}
