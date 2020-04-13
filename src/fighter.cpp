@@ -1,5 +1,6 @@
 #include <fighter.h>
 #include <keyboard.h>
+#include <actor.h>
 
 namespace actor
 {
@@ -14,6 +15,12 @@ Fighter::Fighter(const glm::vec3& p, const glm::vec3& d, const Model* mdl)
 {
     s = Spline(p, dir, 0.0, 5.0);
 }
+
+std::unique_ptr<Fighter> Fighter::Create(const glm::vec3& p, const glm::vec3& d, const Model* mdl)
+{
+    return std::make_unique<Fighter>(p, d, mdl);
+}
+
 void Fighter::Update_Roaming(float t)
 {
     if (t - s.start_time > s.duration)
@@ -64,31 +71,5 @@ void Fighter::Update(const std::bitset<8>& keyboardInfo, float dt)
         pos -= glm::vec3(maxSpeed * dt * dir);
     if (keyboardInfo.test(KeyboardMapping::SPACEBAR))
         pos = glm::vec3(0.0);
-}
-
-void Fighter::Draw(glm::mat4 camprojMat)
-{
-    // Construct Model Matrix from Position and Viewing Direction
-    mdlMatrix = glm::inverse(glm::lookAt(glm::vec3(0.0, 0.0, 0.0), -dir, glm::vec3(0.0, 1.0, 0.0)));
-    mdlMatrix = glm::translate(glm::mat4(1.0F), pos) * mdlMatrix;
-
-    glm::mat4 mvp = camprojMat * mdlMatrix;
-    model->Draw(mvp, color);
-    // if (bDrawBBox)
-    // {
-    //     glUniform3f(glGetUniformLocation(program, "uniform_color"), 0.0, 1.0, 0.0);
-    //     glUniform1i(glGetUniformLocation(program, "bUseColor"), 1);
-
-    //     glm::mat4 mvp2 = mvp * model->boundingbox.pose;
-    //     glUniformMatrix4fv(glGetUniformLocation(program, "mvp"), 1, GL_FALSE,
-    //     glm::value_ptr(mvp2)); glBindVertexArray(Models["cube"]->drawobjects[0]->vao);
-    //     glDrawArrays(GL_POINTS, 0, 3 * 13);
-    // }
-    // if (bDrawSpline)
-    // {
-    //     glUniform3f(glGetUniformLocation(program, "uniform_color"), 0.0, 0.0, 1.0);
-    //     glUniform1i(glGetUniformLocation(program, "bUseColor"), 1);
-    //     s.Draw(camprojMat);
-    // }
 }
 }  // namespace actor

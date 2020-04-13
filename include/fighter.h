@@ -8,8 +8,10 @@ namespace actor
 class Fighter : public Actor
 {
   public:
+    static std::unique_ptr<Fighter> Create(const glm::vec3& p,
+                                           const glm::vec3& d,
+                                           const Model* mdl);
     Fighter(const glm::vec3& p, const glm::vec3& d, const Model* mdl);
-    void Draw(glm::mat4 camprojMat) override;
 
     void Update(const float speedChange, const float turnChange, const float dt);
     void Update(const std::bitset<8>& keyboardInfo, float dt);

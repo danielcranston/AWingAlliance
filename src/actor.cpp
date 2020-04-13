@@ -18,14 +18,14 @@ Actor::Actor(const glm::vec3& p, const glm::vec3& d, const Model* mdl)
 {
 }
 
-void Actor::Draw(glm::mat4 camprojMat)
+std::unique_ptr<Actor> Actor::Create(const glm::vec3& p, const glm::vec3& d, const Model* mdl)
 {
-    // Construct Model Matrix from Position and Viewing Direction
-    mdlMatrix = glm::inverse(glm::lookAt(glm::vec3(0.0, 0.0, 0.0), -dir, glm::vec3(0.0, 1.0, 0.0)));
-    mdlMatrix = glm::translate(glm::mat4(1.0F), pos) * mdlMatrix;
+    return std::make_unique<Actor>(p, d, mdl);
+}
 
-    glm::mat4 mvp = camprojMat * mdlMatrix;
-    model->Draw(mvp, glm::vec3(0.0, 0.0, 0.0));
+const Model* Actor::GetModel() const
+{
+    return model;
 }
 
 void Actor::SetPosition(glm::vec3 p)

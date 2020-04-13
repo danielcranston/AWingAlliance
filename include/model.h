@@ -47,18 +47,18 @@ struct BoundingBox
 class Model
 {
   public:
+    static std::unique_ptr<Model> Create(const std::string& name,
+                                         const std::vector<OBJGroup>& groups,
+                                         const BoundingBox& bbox);
     explicit Model(const std::string& name,
                    const std::vector<OBJGroup>& groups,
-                   const std::array<float, 3>& bmin,
-                   const std::array<float, 3>& bmax,
-                   const ShaderProgram* shad);
+                   const BoundingBox& bbox);
 
-    void Draw(const glm::mat4& mvp, const glm::vec3& color) const;
+    void Draw(const glm::mat4& mvp, const glm::vec3& color, const uint program) const;
     const DrawObject* get_drawobject(const int i) const;
 
-    // until I clean up fighter (bounding box) these will remain public
+  private:
     std::string name;
     std::vector<std::unique_ptr<DrawObject>> drawobjects;
     BoundingBox boundingbox;
-    const ShaderProgram* shader;
 };
