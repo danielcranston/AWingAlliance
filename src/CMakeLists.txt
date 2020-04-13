@@ -4,4 +4,3 @@ add_executable(awing main.cpp actor.cpp model.cpp keyboard.cpp shaders.cpp terra
 
 target_link_libraries(awing ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES})
 target_link_libraries(awing -lglut)
-target_link_libraries(awing ${OpenCV_LIBS} )
