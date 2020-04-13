@@ -363,13 +363,26 @@ std::vector<float> create_buffer(const tinyobj::attrib_t& attrib,
     }
     return buffer;
 }
+}  // namespace
 
-std::unique_ptr<Model> make_unique_model(const tinyobj::attrib_t& attrib,
-                                         const std::vector<tinyobj::shape_t>& shapes,
-                                         const std::vector<tinyobj::material_t>& materials,
-                                         const std::map<std::string, uint>& textures,
-                                         const std::string& model_name,
-                                         const ShaderProgram* shader)
+namespace tinobj_helper
+{
+struct ParseOBJResponse
+{
+    explicit ParseOBJResponse(const std::vector<OBJGroup>&& grps,
+                              const std::array<float, 3> bmin,
+                              const std::array<float, 3> bmax)
+      : groups(grps), bounding_box(bmin, bmax)
+    {
+    }
+    std::vector<OBJGroup> groups;
+    BoundingBox bounding_box;
+};
+
+ParseOBJResponse parse_obj(const tinyobj::attrib_t& attrib,
+                           const std::vector<tinyobj::shape_t>& shapes,
+                           const std::vector<tinyobj::material_t>& materials,
+                           const std::map<std::string, uint>& textures)
 {
     std::array<float, 3> bmin, bmax;
     bmin[0] = bmin[1] = bmin[2] = std::numeric_limits<float>::max();
@@ -395,6 +408,6 @@ std::unique_ptr<Model> make_unique_model(const tinyobj::attrib_t& attrib,
 
         groups.emplace_back(buffer, texture_id, texture_name);
     }
-    return std::make_unique<Model>(model_name, groups, bmin, bmax, shader);
+    return ParseOBJResponse(std::move(groups), bmin, bmax);
 }
-}  // namespace
+}  // namespace tinobj_helper
