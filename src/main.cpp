@@ -177,8 +177,7 @@ void onDisplay()
     renderer->UseProgram("program");
     for (auto& actor : Actors)
     {
-        renderer->render_actor(
-            actor.second->pos, actor.second->dir, actor.second->model, projCamMatrix);
+        renderer->render_actor(*actor.second, projCamMatrix);
     }
 
     glutSwapBuffers();

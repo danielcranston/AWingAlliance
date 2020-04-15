@@ -16,8 +16,7 @@ Renderer::Renderer()
 
 std::unique_ptr<Renderer> Renderer::Create()
 {
-    Renderer r{};
-    return std::make_unique<Renderer>(std::move(r));
+    return std::make_unique<Renderer>(Renderer());
 }
 
 void Renderer::register_shader(const std::string& name,
@@ -175,18 +174,15 @@ void Renderer::list_textures()
         std::cout << "  " << texture.second << " : " << texture.first << std::endl;
 }
 
-void Renderer::render_actor(const glm::vec3& pos,
-                            const glm::vec3& dir,
-                            const Model* model,
-                            const glm::mat4 camera_pose)
+void Renderer::render_actor(const actor::Actor& actor, const glm::mat4 camera_pose)
 {
     // Construct Model Matrix from Position and Viewing Direction
     glm::mat4 model_matrix =
-        glm::inverse(glm::lookAt(glm::vec3(0.0, 0.0, 0.0), -dir, glm::vec3(0.0, 1.0, 0.0)));
-    model_matrix = glm::translate(glm::mat4(1.0F), pos) * model_matrix;
+        glm::inverse(glm::lookAt(glm::vec3(0.0, 0.0, 0.0), -actor.dir, glm::vec3(0.0, 1.0, 0.0)));
+    model_matrix = glm::translate(glm::mat4(1.0F), actor.pos) * model_matrix;
 
     glm::mat4 mvp = camera_pose * model_matrix;
-    model->Draw(mvp, glm::vec3(0.0, 1.0, 0.0), Shaders.at("program")->GetProgram());
+    actor.model->Draw(mvp, glm::vec3(0.0, 1.0, 0.0), Shaders.at("program")->GetProgram());
 }
 
 void Renderer::render_terrain(glm::mat4& camera_pose)
