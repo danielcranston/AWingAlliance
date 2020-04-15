@@ -102,3 +102,64 @@ void Model::Draw(const glm::mat4& mvp, const glm::vec3& color, const uint progra
         glDrawArrays(GL_TRIANGLES, 0, 3 * o->numTriangles);
     }
 }
+
+TerrainModel::TerrainModel(const std::vector<uint>& texture_ids,
+                           const std::vector<float>& buffer,
+                           const std::vector<uint>& indices,
+                           const float max_height,
+                           const uint program)
+  : texture_ids(texture_ids), num_indices(indices.size())
+{
+    std::cout << "TerrainModel constructed" << std::endl;
+    glUseProgram(program);
+    for (std::size_t i = 0; i < texture_ids.size(); i++)
+    {
+        glActiveTexture(GL_TEXTURE0 + i);
+        glBindTexture(GL_TEXTURE_2D, texture_ids[i]);
+    }
+    glActiveTexture(GL_TEXTURE0);
+
+    glUniform1i(glGetUniformLocation(program, "tex0"), 0);  // Texture unit 0
+    glUniform1i(glGetUniformLocation(program, "tex1"), 1);  // Texture unit 1
+    glUniform1i(glGetUniformLocation(program, "tex2"), 2);  // Texture unit 2
+    glUniform1i(glGetUniformLocation(program, "tex3"), 3);  // Texture unit 3
+    glUniform1f(glGetUniformLocation(program, "maxHeight"), max_height);
+
+    glGenVertexArrays(1, &vao);
+    glGenBuffers(1, &vboVertices);
+    glGenBuffers(1, &vboIndices);
+
+    glBindVertexArray(vao);
+
+    glBindBuffer(GL_ARRAY_BUFFER, vboVertices);
+    glBufferData(GL_ARRAY_BUFFER, buffer.size() * sizeof(float), &buffer.at(0), GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboIndices);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+                 indices.size() * sizeof(unsigned int),
+                 &indices.at(0),
+                 GL_STATIC_DRAW);
+
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+    glEnableVertexAttribArray(3);
+    unsigned int stride = attribs_per_vertex * sizeof(float);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, (const void*)0);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride, (const void*)(sizeof(float) * 3));
+    glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, stride, (const void*)(sizeof(float) * 6));
+}
+
+TerrainModel::~TerrainModel()
+{
+    std::cout << "TerrainModel being destroyed" << std::endl;
+    glDeleteVertexArrays(1, &vao);
+    glDeleteBuffers(1, &vboVertices);
+    glDeleteBuffers(1, &vboIndices);
+}
+
+void TerrainModel::Draw(const glm::mat4& mvp, const uint program) const
+{
+    glUniformMatrix4fv(glGetUniformLocation(program, "mvp"), 1, GL_FALSE, glm::value_ptr(mvp));
+    glBindVertexArray(vao);
+    glDrawElements(GL_TRIANGLES, num_indices, GL_UNSIGNED_INT, (const void*)0);
+}

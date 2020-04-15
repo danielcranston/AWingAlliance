@@ -28,7 +28,8 @@ struct DrawObject
     explicit DrawObject(const OBJGroup& group);
     ~DrawObject();
 
-    const int attribs_per_vertex = (3 + 3 + 3 + 2);  // 3:vtx, 3:normal, 3:col, 2:texcoord
+    // 3:vtx, 3:normal, 3:col, 2:texcoord
+    static constexpr int attribs_per_vertex = (3 + 3 + 3 + 2);
 
     unsigned int vbo, vao;
     int numTriangles;
@@ -61,4 +62,25 @@ class Model
     std::string name;
     std::vector<std::unique_ptr<DrawObject>> drawobjects;
     BoundingBox boundingbox;
+};
+
+class TerrainModel
+{
+  public:
+    explicit TerrainModel(const std::vector<uint>& texture_ids,
+                          const std::vector<float>& buffer,
+                          const std::vector<uint>& indices,
+                          const float max_height,
+                          const uint program);
+    ~TerrainModel();
+
+    // 3:vtx, 3:normal, 2:texcoord
+    static constexpr int attribs_per_vertex = (3 + 3 + 2);
+
+    void Draw(const glm::mat4& mvp, const uint program) const;
+
+  private:
+    const std::vector<uint> texture_ids;
+    const unsigned int num_indices;
+    uint vao, vboVertices, vboIndices;
 };
