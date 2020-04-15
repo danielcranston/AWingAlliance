@@ -56,7 +56,6 @@ class Model
                    const BoundingBox& bbox);
 
     void Draw(const glm::mat4& mvp, const glm::vec3& color, const uint program) const;
-    const DrawObject* get_drawobject(const int i) const;
 
   private:
     std::string name;

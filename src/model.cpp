@@ -76,13 +76,6 @@ std::unique_ptr<Model> Model::Create(const std::string& name,
     return std::make_unique<Model>(name, groups, bbox);
 }
 
-const DrawObject* Model::get_drawobject(const int i) const
-{
-    if (i < 0 || i > drawobjects.size())
-        throw std::runtime_error("Tried to access element outside vector size");
-    return drawobjects[i].get();
-}
-
 void Model::Draw(const glm::mat4& mvp, const glm::vec3& color, const uint program) const
 {
     glUniformMatrix4fv(glGetUniformLocation(program, "mvp"), 1, GL_FALSE, glm::value_ptr(mvp));
