@@ -65,7 +65,8 @@ void init()
     renderer->register_shader("terrain", "Shaders/terrain.vert", "Shaders/terrain.frag");
     renderer->load_models(parser->required_models);
 
-    // terrain = std::make_unique<Terrain>(parser->terrain.get());
+    terrain = std::make_unique<Terrain>(parser->terrain.get());
+    renderer->register_terrain(terrain.get(), parser->terrain->textures);
     // skybox = loaders::load_skybox(&Models, &Textures, parser->skybox, Shaders.at("sky").get());
     renderer->list_textures();
 
@@ -171,10 +172,13 @@ void onDisplay()
     // glEnable(GL_CULL_FACE);
     // utils::CheckErrors("draw quad");
 
+    renderer->render_terrain(projCamMatrix);
+
     renderer->UseProgram("program");
     for (auto& actor : Actors)
     {
-        renderer->render(actor.second->pos, actor.second->dir, actor.second->model, projCamMatrix);
+        renderer->render_actor(
+            actor.second->pos, actor.second->dir, actor.second->model, projCamMatrix);
     }
 
     glutSwapBuffers();
