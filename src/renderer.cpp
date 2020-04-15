@@ -24,7 +24,25 @@ void Renderer::register_shader(const std::string& name,
                                const std::string& vertex_source,
                                const std::string& frag_source)
 {
-    Shaders.insert(std::make_pair("program", compileShaders(name, vertex_source, frag_source)));
+    Shaders.insert(std::make_pair(name, compileShaders(name, vertex_source, frag_source)));
+}
+
+void Renderer::register_terrain(const Terrain* terrain,
+                                const std::vector<std::string>& texture_names)
+{
+    std::vector<uint> texture_ids;
+    for (const auto& tex_name : texture_names)
+    {
+        load_texture(tex_name);
+        texture_ids.push_back(Textures.at(tex_name));
+    }
+
+    const auto& buffers = terrain->CreateBuffers();
+    terrain_model = std::make_unique<TerrainModel>(texture_ids,
+                                                   buffers.first,
+                                                   buffers.second,
+                                                   terrain->max_height,
+                                                   Shaders["terrain"]->GetProgram());
 }
 
 void Renderer::load_models(const std::set<std::string>& model_names)
@@ -157,10 +175,10 @@ void Renderer::list_textures()
         std::cout << "  " << texture.second << " : " << texture.first << std::endl;
 }
 
-void Renderer::render(const glm::vec3& pos,
-                      const glm::vec3& dir,
-                      const Model* model,
-                      const glm::mat4 camera_pose)
+void Renderer::render_actor(const glm::vec3& pos,
+                            const glm::vec3& dir,
+                            const Model* model,
+                            const glm::mat4 camera_pose)
 {
     // Construct Model Matrix from Position and Viewing Direction
     glm::mat4 model_matrix =
@@ -169,4 +187,13 @@ void Renderer::render(const glm::vec3& pos,
 
     glm::mat4 mvp = camera_pose * model_matrix;
     model->Draw(mvp, glm::vec3(0.0, 1.0, 0.0), Shaders.at("program")->GetProgram());
+}
+
+void Renderer::render_terrain(glm::mat4& camera_pose)
+{
+    Shaders.at("terrain")->Use();
+    if (terrain_model)
+    {
+        terrain_model->Draw(camera_pose, Shaders.at("terrain")->GetProgram());
+    }
 }
