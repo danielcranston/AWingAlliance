@@ -18,8 +18,7 @@
 #include <GL/glew.h>
 #include <GL/freeglut.h>
 
-#include <actor/fighter.h>
-// #include <actor/fighter.h>
+#include <actor/ship.h>
 #include <keyboard.h>
 #include <terrain.h>
 #include <fbo.h>

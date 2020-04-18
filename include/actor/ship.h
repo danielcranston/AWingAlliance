@@ -4,16 +4,17 @@
 
 namespace actor
 {
-class Fighter : public Actor
+class Ship : public Actor
 {
   public:
     static std::unique_ptr<Actor> Create(const glm::vec3& p, const glm::vec3& d, const Model* mdl);
 
     void Update(const float dt);
+    void Update(const std::bitset<8>& keyboardInfo, float dt);
     void Update_Roaming(float t);
 
   private:
-    explicit Fighter(const glm::vec3& p, const glm::vec3& d, const Model* mdl);
+    explicit Ship(const glm::vec3& p, const glm::vec3& d, const Model* mdl);
 
     float current_speed = 0.0f;
     float current_turnspeed = 0.0f;
