@@ -44,6 +44,19 @@ void Renderer::register_terrain(const Terrain* terrain,
                                                    Shaders["terrain"]->GetProgram());
 }
 
+void Renderer::register_skybox(const std::string& textures_folder)
+{
+    std::cout << "Loading skybox" << std::endl;
+
+    if (Models.find("cube") == Models.end())
+        load_model("cube");
+
+    if (Textures.find(textures_folder) == Textures.end())
+        load_texture_cubemap(textures_folder);
+
+    skybox_texture = textures_folder;
+}
+
 void Renderer::load_models(const std::set<std::string>& model_names)
 {
     for (const auto& model_name : model_names)
@@ -149,6 +162,56 @@ void Renderer::load_texture(const std::string& filename)
     Textures.insert(std::make_pair(filename, texture_id));
 }
 
+// from https://learnopengl.com/Advanced-OpenGL/Cubemaps
+void Renderer::load_texture_cubemap(const std::string& textures_folder)
+{
+    std::vector<std::string> faces = {
+        "Textures/" + textures_folder + "/right.png", "Textures/" + textures_folder + "/left.png",
+        "Textures/" + textures_folder + "/top.png",   "Textures/" + textures_folder + "/bot.png",
+        "Textures/" + textures_folder + "/front.png", "Textures/" + textures_folder + "/back.png"
+    };
+
+    unsigned int texture_id;
+    glGenTextures(1, &texture_id);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, texture_id);
+
+    int w, h, comp;
+    for (std::size_t i = 0; i < faces.size(); i++)
+    {
+        unsigned char* data = stbi_load(faces[i].c_str(), &w, &h, &comp, 0);
+        if (data)
+        {
+            std::cout << "  Loaded CUBEMAP texture: " << faces[i] << ", w = " << w << ", h = " << h
+                      << ", comp = " << comp << std::endl;
+
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+                         0,
+                         GL_RGB,
+                         w,
+                         h,
+                         0,
+                         GL_RGB,
+                         GL_UNSIGNED_BYTE,
+                         data);
+            stbi_image_free(data);
+        }
+        else
+        {
+            stbi_image_free(data);
+            throw std::runtime_error("    Cubemap texture failed to load at path: " + faces[i]);
+        }
+    }
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_BASE_LEVEL, 0);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAX_LEVEL, 0);
+
+    Textures.insert(std::make_pair(textures_folder, texture_id));
+}
+
 void Renderer::UseProgram(const std::string& name)
 {
     assert(Shaders.find(name) != Shaders.end());
@@ -187,9 +250,29 @@ void Renderer::render_actor(const actor::Actor& actor, const glm::mat4 camera_po
 
 void Renderer::render_terrain(glm::mat4& camera_pose)
 {
-    Shaders.at("terrain")->Use();
     if (terrain_model)
     {
+        Shaders.at("terrain")->Use();
         terrain_model->Draw(camera_pose, Shaders.at("terrain")->GetProgram());
+    }
+}
+
+void Renderer::render_skybox(const glm::mat4& proj_matrix, glm::mat4 cam_matrix)
+{
+    if (skybox_texture != "")
+    {
+        cam_matrix[3] = glm::vec4(0, 0, 0, 1);
+        const auto mvp = proj_matrix * cam_matrix;
+
+        ShaderProgram* sky_program = Shaders.at("sky").get();
+        sky_program->Use();
+        sky_program->SetUniform1i("tex", 0);
+        sky_program->SetUniformMatrix4fv("mvp", mvp);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, Textures.at(skybox_texture));
+
+        glDisable(GL_CULL_FACE);
+        Models.at("cube")->Draw();
+        glEnable(GL_CULL_FACE);
+        glClear(GL_DEPTH_BUFFER_BIT);
     }
 }

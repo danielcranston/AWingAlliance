@@ -76,6 +76,17 @@ std::unique_ptr<Model> Model::Create(const std::string& name,
     return std::make_unique<Model>(name, groups, bbox);
 }
 
+void Model::Draw() const
+{
+    // When we just want to draw using whatever GL state has already been set up, ignoring the
+    // drawobjects textures (eg skybox).
+    for (const auto& o : drawobjects)
+    {
+        glBindVertexArray(o->vao);
+        glDrawArrays(GL_TRIANGLES, 0, 3 * o->numTriangles);
+    }
+}
+
 void Model::Draw(const glm::mat4& mvp, const glm::vec3& color, const uint program) const
 {
     glUniformMatrix4fv(glGetUniformLocation(program, "mvp"), 1, GL_FALSE, glm::value_ptr(mvp));

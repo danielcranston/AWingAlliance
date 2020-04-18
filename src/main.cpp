@@ -22,7 +22,6 @@
 #include <fighter.h>
 #include <keyboard.h>
 #include <terrain.h>
-#include <skybox.h>
 #include <fbo.h>
 #include <spline.h>
 #include <parser.h>
@@ -41,8 +40,6 @@ std::map<std::string, std::unique_ptr<actor::Actor>> Actors;
 std::string player_name;
 
 std::unique_ptr<ScenarioParser> parser;
-
-std::unique_ptr<Skybox> skybox;
 std::unique_ptr<Terrain> terrain;
 
 void init()
@@ -67,7 +64,7 @@ void init()
 
     terrain = std::make_unique<Terrain>(parser->terrain.get());
     renderer->register_terrain(terrain.get(), parser->terrain->textures);
-    // skybox = loaders::load_skybox(&Models, &Textures, parser->skybox, Shaders.at("sky").get());
+    renderer->register_skybox(parser->skybox);
     renderer->list_textures();
 
     // ACTOR STUFF
@@ -145,11 +142,6 @@ void onDisplay()
     // glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
     // glClear(GL_COLOR_BUFFER_BIT);
     // glClear(GL_DEPTH_BUFFER_BIT);
-    // if (skybox)
-    // {
-    //     skybox->Draw(projMatrix, camMatrix);
-    //     utils::CheckErrors("draw sky");
-    // }
 
     // glUseProgram(program);
     // for (auto& actor : Actors)
@@ -172,6 +164,7 @@ void onDisplay()
     // glEnable(GL_CULL_FACE);
     // utils::CheckErrors("draw quad");
 
+    renderer->render_skybox(projMatrix, camMatrix);
     renderer->render_terrain(projCamMatrix);
 
     renderer->UseProgram("program");
@@ -228,7 +221,6 @@ int main(int argc, char* argv[])
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
     glEnable(GL_PROGRAM_POINT_SIZE);
-    // glEnable(GL_PRIMITIVE_RESTART);
     glutMainLoop();
 
     return 0;
