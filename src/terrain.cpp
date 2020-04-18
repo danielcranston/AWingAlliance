@@ -2,8 +2,6 @@
 #include <fstream>
 #include <sstream>
 
-#include <GL/glew.h>
-
 #include <terrain.h>
 #include <PerlinNoise.hpp>
 
