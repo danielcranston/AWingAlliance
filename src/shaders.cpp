@@ -288,5 +288,5 @@ void ShaderProgram::SetUniform3fv(const std::string& name, const glm::vec3& vec)
 void ShaderProgram::SetUniformMatrix4fv(const std::string& name, const glm::mat4& mat) const
 {
     glUniformMatrix4fv(
-        glGetUniformLocation(program_id, name.c_str()), 1, GL_TRUE, glm::value_ptr(mat));
+        glGetUniformLocation(program_id, name.c_str()), 1, GL_FALSE, glm::value_ptr(mat));
 }
