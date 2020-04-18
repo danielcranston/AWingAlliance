@@ -8,7 +8,7 @@
 #include "shaders.h"
 #include "model.h"
 #include "terrain.h"
-#include "actor.h"
+#include "actor/actor.h"
 
 class Renderer
 {

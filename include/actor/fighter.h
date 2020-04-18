@@ -1,33 +1,24 @@
 #pragma once
 
-#include <actor.h>
-#include <spline.h>
+#include "actor/actor.h"
 
 namespace actor
 {
 class Fighter : public Actor
 {
   public:
-    static std::unique_ptr<Fighter> Create(const glm::vec3& p,
-                                           const glm::vec3& d,
-                                           const Model* mdl);
-    Fighter(const glm::vec3& p, const glm::vec3& d, const Model* mdl);
+    static std::unique_ptr<Actor> Create(const glm::vec3& p, const glm::vec3& d, const Model* mdl);
 
-    void Update(const float speedChange, const float turnChange, const float dt);
-    void Update(const std::bitset<8>& keyboardInfo, float dt);
+    void Update(const float dt);
     void Update_Roaming(float t);
 
-    bool bDrawBBox;
-    bool bDrawSpline;
-
   private:
-    Spline s;
-    glm::vec3 color = { 0.7, 0.0, 0.0 };
+    explicit Fighter(const glm::vec3& p, const glm::vec3& d, const Model* mdl);
 
-    float currentSpeed;
-    float currentTurnSpeed;
-    const float maxSpeed;
-    const float maxTurnSpeed;
+    float current_speed = 0.0f;
+    float current_turnspeed = 0.0f;
+    const float max_speed = 10.0f;
+    const float max_turnspeed = glm::pi<float>() / 5.0f;
 };
 
 }  // namespace actor

@@ -240,12 +240,10 @@ void Renderer::list_textures()
 void Renderer::render_actor(const actor::Actor& actor, const glm::mat4 camera_pose)
 {
     // Construct Model Matrix from Position and Viewing Direction
-    glm::mat4 model_matrix =
-        glm::inverse(glm::lookAt(glm::vec3(0.0, 0.0, 0.0), -actor.dir, glm::vec3(0.0, 1.0, 0.0)));
-    model_matrix = glm::translate(glm::mat4(1.0F), actor.pos) * model_matrix;
+    glm::mat4 model_matrix = actor.GetPose();
 
     glm::mat4 mvp = camera_pose * model_matrix;
-    actor.model->Draw(mvp, glm::vec3(0.0, 1.0, 0.0), Shaders.at("program")->GetProgram());
+    actor.GetModel()->Draw(mvp, actor.GetColor(), Shaders.at("program")->GetProgram());
 }
 
 void Renderer::render_terrain(glm::mat4& camera_pose)

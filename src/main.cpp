@@ -18,8 +18,8 @@
 #include <GL/glew.h>
 #include <GL/freeglut.h>
 
-#include <actor.h>
-#include <fighter.h>
+#include <actor/fighter.h>
+// #include <actor/fighter.h>
 #include <keyboard.h>
 #include <terrain.h>
 #include <fbo.h>
@@ -71,22 +71,12 @@ void init()
     for (const auto& actorentry : parser->actors)
     {
         const Model* model_ptr = renderer->GetModel(actorentry.second.type);
-        // Check type of actor and create appropriate derived class
-        if (actorentry.second.type == "hangar")
-        {
-            Actors.insert(std::make_pair(
-                actorentry.first,
-                actor::Actor::Create(actorentry.second.pos, actorentry.second.dir, model_ptr)));
-        }
-        else
-        {
-            Actors.insert(std::make_pair(
-                actorentry.first,
-                actor::Fighter::Create(actorentry.second.pos, actorentry.second.dir, model_ptr)));
-        }
+        Actors.insert(std::make_pair(
+            actorentry.first,
+            actor::Actor::Create(actorentry.second.pos, actorentry.second.dir, model_ptr)));
     }
     player_name = parser->player;
-    dynamic_cast<actor::Fighter*>(Actors["tie1"].get())->bDrawSpline = true;
+    // dynamic_cast<actor::Fighter*>(Actors["tie1"].get())->bDrawSpline = true;
 
     fbo.Init(800, 600);
     fbo.SetupQuad();
@@ -124,15 +114,18 @@ void onDisplay()
     {
         float dt = (timeNow - timeOfLastUpdate) / 1000.0;
 
-        dynamic_cast<actor::Fighter*>(Actors["awing1"].get())->Update(keyboardInfo, dt);
-        dynamic_cast<actor::Fighter*>(Actors["tie1"].get())->Update_Roaming(timeNow / 1000.0f);
+        Actors["tie1"]->Update(dt);
+        // dynamic_cast<actor::Fighter*>(Actors["awing1"].get())->Update(keyboardInfo, dt);
+        // dynamic_cast<actor::Fighter*>(Actors["tie1"].get())->Update_Roaming(timeNow / 1000.0f);
         timeOfLastUpdate = glutGet(GLUT_ELAPSED_TIME);
     }
 
-    camMatrix = glm::lookAt(Actors[player_name]->pos - (20.0f * Actors[player_name]->dir) +
-                                5.0f * glm::vec3(0.0, 1.0, 0.0),
-                            Actors[player_name]->pos,
-                            glm::vec3(0.0, 1.0, 0.0));
+    const glm::vec3& player_pos = Actors[player_name]->GetPosition();
+    const glm::vec3& player_dir = Actors[player_name]->GetDirection();
+    glm::vec3 cam_pos = player_pos - 20.0f * player_dir + 5.0f * glm::vec3(0.0, 1.0, 0.0);
+    glm::vec3 cam_dir = Actors[player_name]->GetPosition();
+
+    camMatrix = glm::lookAt(cam_pos, cam_dir, glm::vec3(0.0, 1.0, 0.0));
     projCamMatrix = projMatrix * camMatrix;
 
     // Draw to FBO
@@ -221,6 +214,20 @@ int main(int argc, char* argv[])
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
     glEnable(GL_PROGRAM_POINT_SIZE);
+    // glEnable(GL_PRIMITIVE_RESTART);
+    // glutTimerFunc(1000/FPS, &onTimer, 0);
+    // Set OpenGL debug message callback.
+    // glEnable(GL_DEBUG_OUTPUT);
+    // glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+    // glDebugMessageControl(
+    //     GL_DONT_CARE,
+    //     GL_DONT_CARE,
+    //     GL_DEBUG_SEVERITY_NOTIFICATION,
+    //     0,
+    //     0,
+    //     GL_FALSE
+    // );
+    // glDebugMessageCallback(onDebugMessage, 0);
     glutMainLoop();
 
     return 0;
