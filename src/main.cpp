@@ -114,6 +114,7 @@ void onDisplay()
         float dt = (timeNow - timeOfLastUpdate) / 1000.0;
 
         dynamic_cast<actor::Ship*>(Actors.at("awing1").get())->Update(keyboardInfo, dt);
+        dynamic_cast<actor::Ship*>(Actors.at("tie2").get())->Follow(*Actors.at("awing1"), dt);
 
         timeOfLastUpdate = glutGet(GLUT_ELAPSED_TIME);
     }

@@ -14,6 +14,7 @@ class Ship : public Actor
     void Update(const float dt);
     void Update(const std::bitset<8>& keyboardInfo, float dt);
     void Update_Roaming(float t);
+    void Follow(const Actor& target, const float dt);
 
     const glm::vec3& GetDesiredDir();
 

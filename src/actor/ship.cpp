@@ -72,6 +72,23 @@ const glm::vec3& Ship::GetDesiredDir()
 //     dir = glm::normalize(interp.second);
 // }
 
+void Ship::Follow(const Actor& target, const float dt)
+{
+    glm::quat quat = RotationBetweenVectors(dir, target.GetPosition() - pos);
+    glm::mat3 R(quat);
+    dir = glm::normalize((0.15f * quat) * dir);
+
+    float closest_distance = 20.0f;
+    float thresh_distance = 40.0f;
+
+    float distance = std::abs(glm::l2Norm(pos - target.GetPosition()));
+    float dist_multiplier = std::min(std::max(0.0f, distance - 20.0f), 20.0f);
+
+    dist_multiplier = glm::smoothstep(0.0f, 20.0f, dist_multiplier);
+
+    pos = pos + dir * max_speed * dist_multiplier * dt;  // std::min(max_speed, distance);
+}
+
 void Ship::Update(const std::bitset<8>& keyboardInfo, float dt)
 {
     // std::cout << "dt: " << dt << '\n';
