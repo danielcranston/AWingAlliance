@@ -32,7 +32,7 @@ class Renderer
     const ShaderProgram* GetShaderProgram(const std::string& name);
     const Model* GetModel(const std::string& name);
 
-    void render_actor(const actor::Actor& actor, const glm::mat4 camera_pose);
+    void render_actor(const actor::Actor& actor, const glm::mat4& camera_pose);
     void render_terrain(glm::mat4& camera_pose);
     void render_skybox(const glm::mat4& proj_matrix, glm::mat4 cam_matrix);
 

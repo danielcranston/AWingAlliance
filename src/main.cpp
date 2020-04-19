@@ -72,7 +72,7 @@ void init()
         const Model* model_ptr = renderer->GetModel(actorentry.second.type);
         Actors.insert(std::make_pair(
             actorentry.first,
-            actor::Actor::Create(actorentry.second.pos, actorentry.second.dir, model_ptr)));
+            actor::Ship::Create(actorentry.second.pos, actorentry.second.dir, model_ptr)));
     }
     player_name = parser->player;
     // dynamic_cast<actor::Fighter*>(Actors["tie1"].get())->bDrawSpline = true;
@@ -113,16 +113,28 @@ void onDisplay()
     {
         float dt = (timeNow - timeOfLastUpdate) / 1000.0;
 
-        Actors["tie1"]->Update(dt);
-        // dynamic_cast<actor::Fighter*>(Actors["awing1"].get())->Update(keyboardInfo, dt);
-        // dynamic_cast<actor::Fighter*>(Actors["tie1"].get())->Update_Roaming(timeNow / 1000.0f);
+        dynamic_cast<actor::Ship*>(Actors.at("awing1").get())->Update(keyboardInfo, dt);
+
         timeOfLastUpdate = glutGet(GLUT_ELAPSED_TIME);
     }
 
     const glm::vec3& player_pos = Actors[player_name]->GetPosition();
     const glm::vec3& player_dir = Actors[player_name]->GetDirection();
-    glm::vec3 cam_pos = player_pos - 20.0f * player_dir + 5.0f * glm::vec3(0.0, 1.0, 0.0);
-    glm::vec3 cam_dir = Actors[player_name]->GetPosition();
+    const glm::vec3& player_desired_dir =
+        dynamic_cast<actor::Ship*>(Actors[player_name].get())->GetDesiredDir();
+
+    glm::vec3 cam_pos, cam_dir;
+    if (keyboardInfo.test(KeyboardMapping::Q))
+    {
+        cam_pos = player_pos + 20.0f * player_desired_dir + 5.0f * glm::vec3(0.0, 1.0, 0.0);
+        cam_dir = player_pos - 20.0f * player_dir;
+    }
+    else
+    {
+        cam_pos = player_pos + 5.0f * player_desired_dir - 25.0f * player_dir +
+                  5.0f * glm::vec3(0.0, 1.0, 0.0);
+        cam_dir = player_pos + 20.0f * player_dir;
+    }
 
     camMatrix = glm::lookAt(cam_pos, cam_dir, glm::vec3(0.0, 1.0, 0.0));
     projCamMatrix = projMatrix * camMatrix;

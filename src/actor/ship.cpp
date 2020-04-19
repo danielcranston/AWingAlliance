@@ -1,6 +1,40 @@
 #include <keyboard.h>
 #include <actor/ship.h>
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/matrix_cross_product.hpp>
+#include <glm/common.hpp>
+#include <glm/gtx/norm.hpp>
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/quaternion.hpp>
+#include <glm/gtx/string_cast.hpp>
+
+namespace
+{
+glm::quat RotationBetweenVectors(glm::vec3 start, glm::vec3 dest)
+{
+    using namespace glm;
+    start = normalize(start);
+    dest = normalize(dest);
+
+    float cosTheta = dot(start, dest);
+    vec3 rotationAxis;
+
+    if (cosTheta < -1 + 0.001f)
+    {
+        // special case when vectors in opposite directions
+        return quat(0.0f, 0.0f, 0.0f, 1.0f);
+    }
+
+    rotationAxis = cross(start, dest);
+
+    float s = sqrt((1 + cosTheta) * 2);
+    float invs = 1 / s;
+
+    return quat(s * 0.5f, rotationAxis.x * invs, rotationAxis.y * invs, rotationAxis.z * invs);
+}
+}  // namespace
+
 namespace actor
 {
 std::unique_ptr<Actor> Ship::Create(const glm::vec3& p, const glm::vec3& d, const Model* mdl)
@@ -8,7 +42,8 @@ std::unique_ptr<Actor> Ship::Create(const glm::vec3& p, const glm::vec3& d, cons
     return std::unique_ptr<Actor>(new Ship(p, d, mdl));
 }
 
-Ship::Ship(const glm::vec3& p, const glm::vec3& d, const Model* mdl) : Actor(p, d, mdl)
+Ship::Ship(const glm::vec3& p, const glm::vec3& d, const Model* mdl)
+  : Actor(p, d, mdl), desired_dir(d)
 {
 }
 
@@ -16,6 +51,11 @@ void Ship::Update(const float dt)
 {
     glm::mat3 rot = glm::rotate(glm::mat4(1.0f), dt * glm::pi<float>(), glm::vec3(1.0, 0.0, 0.0));
     dir = dir * rot;
+}
+
+const glm::vec3& Ship::GetDesiredDir()
+{
+    return desired_dir;
 }
 
 // void Ship::Update_Roaming(float t)
@@ -32,37 +72,39 @@ void Ship::Update(const float dt)
 //     dir = glm::normalize(interp.second);
 // }
 
-// void Ship::Update(const std::bitset<8>& keyboardInfo, float dt)
-// {
-//     glm::vec3 rightVector = glm::cross(dir, glm::vec3(0.0, 1.0, 0.0));
+void Ship::Update(const std::bitset<8>& keyboardInfo, float dt)
+{
+    // std::cout << "dt: " << dt << '\n';
+    if (keyboardInfo.test(KeyboardMapping::LEFTARROW))
+    {
+        desired_dir =
+            glm::vec3(glm::rotate(glm::mat4(1.0f), max_turnspeed * dt, glm::vec3(0, 1, 0)) *
+                      glm::vec4(desired_dir, 1.0));
+    }
+    if (keyboardInfo.test(KeyboardMapping::RIGHTARROW))
+    {
+        desired_dir =
+            glm::vec3(glm::rotate(glm::mat4(1.0f), -max_turnspeed * dt, glm::vec3(0, 1, 0)) *
+                      glm::vec4(desired_dir, 1.0));
+    }
+    glm::vec3 rightVector = glm::cross(dir, glm::vec3(0.0, 1.0, 0.0));
+    if (keyboardInfo.test(KeyboardMapping::UPARROW) && desired_dir.y > -0.9)
+    {
+        desired_dir = glm::vec3(glm::rotate(glm::mat4(1.0f), -max_turnspeed * dt, rightVector) *
+                                glm::vec4(desired_dir, 1.0));
+    }
+    if (keyboardInfo.test(KeyboardMapping::DOWNARROW) && desired_dir.y < 0.9)
+    {
+        desired_dir = glm::vec3(glm::rotate(glm::mat4(1.0f), max_turnspeed * dt, rightVector) *
+                                glm::vec4(desired_dir, 1.0));
+    }
 
-//     // std::cout << "dt: " << dt << '\n';
-//     if (keyboardInfo.test(KeyboardMapping::LEFTARROW))
-//     {
-//         dir = glm::vec3(glm::rotate(glm::mat4(1.0f), max_turnspeed * dt, glm::vec3(0, 1, 0)) *
-//                         glm::vec4(dir, 1.0));
-//     }
-//     if (keyboardInfo.test(KeyboardMapping::RIGHTARROW))
-//     {
-//         dir = glm::vec3(glm::rotate(glm::mat4(1.0f), -max_turnspeed * dt, glm::vec3(0, 1, 0)) *
-//                         glm::vec4(dir, 1.0));
-//     }
-//     if (keyboardInfo.test(KeyboardMapping::UPARROW) && dir.y > -0.9)
-//     {
-//         dir = glm::vec3(glm::rotate(glm::mat4(1.0f), -max_turnspeed * dt, rightVector) *
-//                         glm::vec4(dir, 1.0));
-//     }
-//     if (keyboardInfo.test(KeyboardMapping::DOWNARROW) && dir.y < 0.9)
-//     {
-//         dir = glm::vec3(glm::rotate(glm::mat4(1.0f), max_turnspeed * dt, rightVector) *
-//                         glm::vec4(dir, 1.0));
-//     }
+    glm::quat quat = RotationBetweenVectors(dir, desired_dir);
+    dir = glm::normalize((0.25f * quat) * dir);
 
-//     if (keyboardInfo.test(KeyboardMapping::W))
-//         pos += glm::vec3(maxSpeed * dt * dir);
-//     if (keyboardInfo.test(KeyboardMapping::S))
-//         pos -= glm::vec3(maxSpeed * dt * dir);
-//     if (keyboardInfo.test(KeyboardMapping::SPACEBAR))
-//         pos = glm::vec3(0.0);
-// }
+    if (keyboardInfo.test(KeyboardMapping::W))
+        pos += glm::vec3(max_speed * dt * dir);
+    if (keyboardInfo.test(KeyboardMapping::S))
+        pos -= glm::vec3(max_speed * dt * dir);
+}
 }  // namespace actor

@@ -2,11 +2,6 @@
 
 #include <glm/glm.hpp>
 
-// #define GLM_ENABLE_EXPERIMENTAL
-// #include <glm/gtc/quaternion.hpp>
-// #include <glm/gtx/quaternion.hpp>
-// #include <glm/gtx/string_cast.hpp>
-
 #include "model.h"
 
 namespace actor

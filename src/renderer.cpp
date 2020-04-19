@@ -237,12 +237,10 @@ void Renderer::list_textures()
         std::cout << "  " << texture.second << " : " << texture.first << std::endl;
 }
 
-void Renderer::render_actor(const actor::Actor& actor, const glm::mat4 camera_pose)
+void Renderer::render_actor(const actor::Actor& actor, const glm::mat4& camera_pose)
 {
     // Construct Model Matrix from Position and Viewing Direction
-    glm::mat4 model_matrix = actor.GetPose();
-
-    glm::mat4 mvp = camera_pose * model_matrix;
+    glm::mat4 mvp = camera_pose * actor.GetPose();
     actor.GetModel()->Draw(mvp, actor.GetColor(), Shaders.at("program")->GetProgram());
 }
 
