@@ -244,6 +244,18 @@ void Renderer::render_actor(const actor::Actor& actor, const glm::mat4& camera_p
     actor.GetModel()->Draw(mvp, actor.GetColor(), Shaders.at("program")->GetProgram());
 }
 
+void Renderer::render_laser(const Laser& laser, const glm::mat4& camera_pose)
+{
+    glm::mat4 mvp = camera_pose * laser.GetPose();
+
+    ShaderProgram* program = Shaders.at("program").get();
+    program->Use();
+    program->SetUniform3fv("uniform_color", laser.color);
+    program->SetUniform1i("bUseColor", 1);
+    program->SetUniformMatrix4fv("mvp", mvp);
+    Models.at("cube")->Draw();
+}
+
 void Renderer::render_terrain(glm::mat4& camera_pose)
 {
     if (terrain_model)

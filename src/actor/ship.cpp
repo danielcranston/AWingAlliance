@@ -1,5 +1,6 @@
 #include <keyboard.h>
-#include <actor/ship.h>
+#include "actor/ship.h"
+#include <chrono>
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/matrix_cross_product.hpp>
@@ -37,13 +38,22 @@ glm::quat RotationBetweenVectors(glm::vec3 start, glm::vec3 dest)
 
 namespace actor
 {
-std::unique_ptr<Actor> Ship::Create(const glm::vec3& p, const glm::vec3& d, const Model* mdl)
+std::unique_ptr<Actor> Ship::Create(const glm::vec3& p,
+                                    const glm::vec3& d,
+                                    const Model* mdl,
+                                    std::function<void(const Laser& Laser)> laser_func)
 {
-    return std::unique_ptr<Actor>(new Ship(p, d, mdl));
+    return std::unique_ptr<Actor>(new Ship(p, d, mdl, laser_func));
 }
 
-Ship::Ship(const glm::vec3& p, const glm::vec3& d, const Model* mdl)
-  : Actor(p, d, mdl), desired_dir(d)
+Ship::Ship(const glm::vec3& p,
+           const glm::vec3& d,
+           const Model* mdl,
+           std::function<void(const Laser& Laser)> laser_func)
+  : Actor(p, d, mdl),
+    desired_dir(d),
+    RegisterLaserFunc(laser_func),
+    last_fired_time(std::chrono::system_clock::now())
 {
 }
 
@@ -124,4 +134,23 @@ void Ship::Update(const std::bitset<8>& keyboardInfo, float dt)
     if (keyboardInfo.test(KeyboardMapping::S))
         pos -= glm::vec3(max_speed * dt * dir);
 }
+
+void Ship::Fire()
+{
+    using namespace std::chrono;
+    const auto seconds_since_last_fired =
+        duration_cast<milliseconds>(system_clock::now() - last_fired_time);
+
+    if (seconds_since_last_fired > fire_recharge_time)
+    {
+        std::cout << "Firing" << std::endl;
+        glm::vec3 laser_pos = GetPosition();
+        glm::vec3 laser_dir = GetDirection();
+        const Laser laser{ laser_pos, laser_dir, system_clock::now() + seconds(1) };
+        RegisterLaserFunc(laser);
+
+        last_fired_time = system_clock::now();
+    }
+}
+
 }  // namespace actor

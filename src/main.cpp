@@ -6,6 +6,11 @@
 #include <memory>
 #include <bitset>
 #include <map>
+#include <list>
+
+#include <chrono>
+#include <iostream>
+#include <unistd.h>
 
 /* External Dependencies*/
 #include <glm/glm.hpp>
@@ -36,6 +41,7 @@ FBO fbo;
 
 std::unique_ptr<Renderer> renderer;
 std::map<std::string, std::unique_ptr<actor::Actor>> Actors;
+std::list<Laser> Lasers;
 std::string player_name;
 
 std::unique_ptr<ScenarioParser> parser;
@@ -72,7 +78,11 @@ void init()
         const Model* model_ptr = renderer->GetModel(actorentry.second.type);
         Actors.insert(std::make_pair(
             actorentry.first,
-            actor::Ship::Create(actorentry.second.pos, actorentry.second.dir, model_ptr)));
+            actor::Ship::Create(
+                actorentry.second.pos,
+                actorentry.second.dir,
+                model_ptr,
+                std::bind(Laser::RegisterLaser, std::ref(Lasers), std::placeholders::_1))));
     }
     player_name = parser->player;
     // dynamic_cast<actor::Fighter*>(Actors["tie1"].get())->bDrawSpline = true;
@@ -113,11 +123,32 @@ void onDisplay()
     {
         float dt = (timeNow - timeOfLastUpdate) / 1000.0;
 
+        if (!Lasers.empty())
+        {
+            using namespace std::chrono;
+            auto time_until_expiration =
+                duration_cast<seconds>(Lasers.front().expire_time - system_clock::now());
+
+            if (time_until_expiration < milliseconds(0))
+            {
+                Lasers.pop_front();
+            }
+            for (Laser& laser : Lasers)
+            {
+                laser.Update(dt);
+            }
+        }
+
+        if (keyboardInfo.test(KeyboardMapping::SPACEBAR))
+            dynamic_cast<actor::Ship*>(Actors.at("awing1").get())->Fire();
+
         dynamic_cast<actor::Ship*>(Actors.at("awing1").get())->Update(keyboardInfo, dt);
         dynamic_cast<actor::Ship*>(Actors.at("tie2").get())->Follow(*Actors.at("awing1"), dt);
 
         timeOfLastUpdate = glutGet(GLUT_ELAPSED_TIME);
     }
+
+    std::cout << "Lasers.size(): " << Lasers.size() << std::endl;
 
     const glm::vec3& player_pos = Actors[player_name]->GetPosition();
     const glm::vec3& player_dir = Actors[player_name]->GetDirection();
@@ -176,6 +207,10 @@ void onDisplay()
     for (auto& actor : Actors)
     {
         renderer->render_actor(*actor.second, projCamMatrix);
+    }
+    for (const auto& laser : Lasers)
+    {
+        renderer->render_laser(laser, projCamMatrix);
     }
 
     glutSwapBuffers();
