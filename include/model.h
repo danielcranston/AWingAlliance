@@ -55,7 +55,10 @@ class Model
                    const std::vector<OBJGroup>& groups,
                    const BoundingBox& bbox);
 
+    const BoundingBox& GetBoundingBox() const;
+
     void Draw() const;
+    void DrawWireframe() const;
     void Draw(const glm::mat4& mvp, const glm::vec3& color, const uint program) const;
 
   private:

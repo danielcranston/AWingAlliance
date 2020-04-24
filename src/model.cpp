@@ -76,6 +76,11 @@ std::unique_ptr<Model> Model::Create(const std::string& name,
     return std::make_unique<Model>(name, groups, bbox);
 }
 
+const BoundingBox& Model::GetBoundingBox() const
+{
+    return boundingbox;
+}
+
 void Model::Draw() const
 {
     // When we just want to draw using whatever GL state has already been set up, ignoring the
@@ -84,6 +89,16 @@ void Model::Draw() const
     {
         glBindVertexArray(o->vao);
         glDrawArrays(GL_TRIANGLES, 0, 3 * o->numTriangles);
+    }
+}
+
+void Model::DrawWireframe() const
+{
+    // Same as above, the state is expected to be set up prior to this call.
+    for (const auto& o : drawobjects)
+    {
+        glBindVertexArray(o->vao);
+        glDrawArrays(GL_LINE_STRIP, 0, 3 * o->numTriangles);
     }
 }
 

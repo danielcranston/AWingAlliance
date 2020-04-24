@@ -242,6 +242,13 @@ void Renderer::render_actor(const actor::Actor& actor, const glm::mat4& camera_p
     // Construct Model Matrix from Position and Viewing Direction
     glm::mat4 mvp = camera_pose * actor.GetPose();
     actor.GetModel()->Draw(mvp, actor.GetColor(), Shaders.at("program")->GetProgram());
+
+    mvp = mvp * actor.GetModel()->GetBoundingBox().pose;
+    Shaders.at("program")->SetUniformMatrix4fv("mvp", mvp);
+    Shaders.at("program")->SetUniform1i("bUseColor", true);
+    Shaders.at("program")->SetUniform3fv("uniform_color", { 0.0f, 1.0f, 0.0f });
+
+    Models.at("cube")->DrawWireframe();
 }
 
 void Renderer::render_laser(const Laser& laser, const glm::mat4& camera_pose)
