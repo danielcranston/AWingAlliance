@@ -10,6 +10,7 @@
 #include "terrain.h"
 #include "actor/actor.h"
 #include "actor/laser.h"
+#include "game_state.h"
 
 class Renderer
 {
@@ -31,8 +32,11 @@ class Renderer
 
     void UseProgram(const std::string& name);
     const ShaderProgram* GetShaderProgram(const std::string& name);
+
+    const std::map<std::string, std::unique_ptr<Model>>& GetModels();
     const Model* GetModel(const std::string& name);
 
+    void render(const GameState* game_state);
     void render_actor(const actor::Actor& actor, const glm::mat4& camera_pose);
     void render_terrain(const glm::mat4& camera_pose);
     void render_skybox(const glm::mat4& proj_matrix, glm::mat4 cam_matrix);

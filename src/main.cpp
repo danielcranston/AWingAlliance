@@ -4,7 +4,6 @@
 #include <array>
 #include <vector>
 #include <memory>
-#include <bitset>
 #include <map>
 #include <list>
 
@@ -30,22 +29,22 @@
 #include <spline.h>
 #include <parser.h>
 #include <renderer.h>
+#include <game_state.h>
 
 uint SCREEN_W, SCREEN_H;
-uint timeNow, timeOfLastUpdate, timeOfLastSplineChange;
-std::bitset<8> keyboardInfo = 0;
 
-glm::mat4 projCamMatrix, camMatrix, projMatrix;
+std::chrono::system_clock::time_point t;
+const std::chrono::system_clock::duration dt = std::chrono::milliseconds(10);
+
+std::chrono::system_clock::time_point currentTime;
+std::chrono::system_clock::duration accumulator;
 
 FBO fbo;
 
 std::unique_ptr<Renderer> renderer;
-std::map<std::string, std::unique_ptr<actor::Actor>> Actors;
-std::list<Laser> Lasers;
-std::string player_name;
+std::unique_ptr<GameState> game_state;
 
 std::unique_ptr<ScenarioParser> parser;
-std::unique_ptr<Terrain> terrain;
 
 void init()
 {
@@ -53,9 +52,6 @@ void init()
 
     SCREEN_W = 1200;
     SCREEN_H = 900;
-    timeNow = 0;
-    timeOfLastUpdate = 0;
-    timeOfLastSplineChange = 0;
 
     // PARSE SCENARIO
     parser = std::make_unique<ScenarioParser>("scenario1.json");
@@ -66,26 +62,18 @@ void init()
     renderer->register_shader("sky", "Shaders/sky.vert", "Shaders/sky.frag");
     renderer->register_shader("terrain", "Shaders/terrain.vert", "Shaders/terrain.frag");
     renderer->load_models(parser->required_models);
-
-    terrain = std::make_unique<Terrain>(parser->terrain.get());
-    renderer->register_terrain(terrain.get(), parser->terrain->textures);
     renderer->register_skybox(parser->skybox);
+
+    game_state = GameState::Create();
+    game_state->register_ships(parser->actors, renderer->GetModels());
+    game_state->register_terrain(parser->terrain.get());
+    game_state->register_player(parser->player);
+
+    renderer->register_terrain(game_state->GetTerrain(), parser->terrain->textures);
     renderer->list_textures();
 
-    // ACTOR STUFF
-    for (const auto& actorentry : parser->actors)
-    {
-        const Model* model_ptr = renderer->GetModel(actorentry.second.type);
-        Actors.insert(std::make_pair(
-            actorentry.first,
-            actor::Ship::Create(
-                actorentry.second.pos,
-                actorentry.second.dir,
-                model_ptr,
-                std::bind(Laser::RegisterLaser, std::ref(Lasers), std::placeholders::_1))));
-    }
-    player_name = parser->player;
-    // dynamic_cast<actor::Fighter*>(Actors["tie1"].get())->bDrawSpline = true;
+    currentTime = std::chrono::system_clock::now();
+    accumulator = std::chrono::milliseconds(0);
 
     fbo.Init(800, 600);
     fbo.SetupQuad();
@@ -117,101 +105,23 @@ void onDisplay()
     glClearColor(0.8, 0.8, 0.8, 1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    ProcessKeyboardInput(keyboardInfo);
-    timeNow = glutGet(GLUT_ELAPSED_TIME);
-    if (timeNow - timeOfLastUpdate > 5)
+    // https://gafferongames.com/post/fix_your_timestep/
+    // " the renderer produces time and the simulation consumes it in discrete dt sized steps."
+    using namespace std::chrono;
+    auto newTime = system_clock::now();
+    auto frameTime = duration_cast<milliseconds>(newTime - currentTime);
+    currentTime = newTime;
+
+    accumulator += frameTime;
+
+    while (accumulator >= dt)
     {
-        float dt = (timeNow - timeOfLastUpdate) / 1000.0;
-
-        if (!Lasers.empty())
-        {
-            using namespace std::chrono;
-            auto time_until_expiration =
-                duration_cast<seconds>(Lasers.front().expire_time - system_clock::now());
-
-            if (time_until_expiration < milliseconds(0))
-            {
-                Lasers.pop_front();
-            }
-            for (Laser& laser : Lasers)
-            {
-                laser.Update(dt);
-            }
-        }
-
-        if (keyboardInfo.test(KeyboardMapping::SPACEBAR))
-            dynamic_cast<actor::Ship*>(Actors.at("awing1").get())->Fire();
-
-        dynamic_cast<actor::Ship*>(Actors.at("awing1").get())->Update(keyboardInfo, dt);
-        dynamic_cast<actor::Ship*>(Actors.at("tie2").get())->Follow(*Actors.at("awing1"), dt);
-
-        timeOfLastUpdate = glutGet(GLUT_ELAPSED_TIME);
+        game_state->integrate(t, dt);
+        accumulator -= dt;
+        t += dt;
     }
 
-    std::cout << "Lasers.size(): " << Lasers.size() << std::endl;
-
-    const glm::vec3& player_pos = Actors[player_name]->GetPosition();
-    const glm::vec3& player_dir = Actors[player_name]->GetDirection();
-    const glm::vec3& player_desired_dir =
-        dynamic_cast<actor::Ship*>(Actors[player_name].get())->GetDesiredDir();
-
-    glm::vec3 cam_pos, cam_dir;
-    if (keyboardInfo.test(KeyboardMapping::Q))
-    {
-        cam_pos = player_pos + 20.0f * player_desired_dir + 5.0f * glm::vec3(0.0, 1.0, 0.0);
-        cam_dir = player_pos - 20.0f * player_dir;
-    }
-    else
-    {
-        cam_pos = player_pos + 5.0f * player_desired_dir - 25.0f * player_dir +
-                  5.0f * glm::vec3(0.0, 1.0, 0.0);
-        cam_dir = player_pos + 20.0f * player_dir;
-    }
-
-    camMatrix = glm::lookAt(cam_pos, cam_dir, glm::vec3(0.0, 1.0, 0.0));
-    projCamMatrix = projMatrix * camMatrix;
-
-    // Draw to FBO
-    // glBindFramebuffer(GL_FRAMEBUFFER, fbo.id);
-    // glBindTexture(GL_TEXTURE_2D, fbo.texid1);
-    // glViewport(0, 0, fbo.width, fbo.height);
-    // glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-    // glClear(GL_COLOR_BUFFER_BIT);
-    // glClear(GL_DEPTH_BUFFER_BIT);
-
-    // glUseProgram(program);
-    // for (auto& actor : Actors)
-    // {
-    //     actor.second->Draw(projCamMatrix);
-    // }
-
-    // glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-    // DummyCompute();
-    // glClearColor(0.8, 0.8, 0.8, 1.0);
-    // glViewport(0, 0, SCREEN_W, SCREEN_H);
-
-    // Draw billboard of FBO contents
-    // glUseProgram(fboProgram);
-    // glBindVertexArray(fbo.vao);
-    // glDisable(GL_CULL_FACE);
-    // glBindTexture(GL_TEXTURE_2D, fbo.texid1);
-    // glDrawArrays(GL_TRIANGLES, 0, 6);
-    // glEnable(GL_CULL_FACE);
-    // utils::CheckErrors("draw quad");
-
-    renderer->render_skybox(projMatrix, camMatrix);
-    renderer->render_terrain(projCamMatrix);
-
-    renderer->UseProgram("program");
-    for (auto& actor : Actors)
-    {
-        renderer->render_actor(*actor.second, projCamMatrix);
-    }
-    for (const auto& laser : Lasers)
-    {
-        renderer->render_laser(laser, projCamMatrix);
-    }
+    renderer->render(game_state.get());
 
     glutSwapBuffers();
 }
@@ -223,7 +133,7 @@ void onReshape(int width, int height)
     SCREEN_H = height;
     glViewport(0, 0, SCREEN_W, SCREEN_H);
 
-    projMatrix = glm::perspective(45.0f, 1.0f * SCREEN_W / SCREEN_H, 0.1f, 8192.0f);
+    game_state->projMatrix = glm::perspective(45.0f, 1.0f * SCREEN_W / SCREEN_H, 0.1f, 8192.0f);
 }
 
 int main(int argc, char* argv[])

@@ -230,11 +230,32 @@ const Model* Renderer::GetModel(const std::string& name)
     return Models.at(name).get();
 }
 
+const std::map<std::string, std::unique_ptr<Model>>& Renderer::GetModels()
+{
+    return Models;
+}
+
 void Renderer::list_textures()
 {
     std::cout << "Loaded Textures: (texID : name)" << std::endl;
     for (auto const& texture : Textures)
         std::cout << "  " << texture.second << " : " << texture.first << std::endl;
+}
+
+void Renderer::render(const GameState* game_state)
+{
+    render_skybox(game_state->projMatrix, game_state->camMatrix);
+    render_terrain(game_state->projCamMatrix);
+
+    UseProgram("program");
+    for (const auto& ship : game_state->GetShips())
+    {
+        render_actor(*ship.second, game_state->projCamMatrix);
+    }
+    for (const auto& laser : game_state->GetLasers())
+    {
+        render_laser(laser, game_state->projCamMatrix);
+    }
 }
 
 void Renderer::render_actor(const actor::Actor& actor, const glm::mat4& camera_pose)
