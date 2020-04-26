@@ -4,29 +4,28 @@
 #include "actor/ship.h"
 #include "keyboard.h"
 
-std::unique_ptr<GameState> GameState::Create()
+std::unique_ptr<GameState>
+GameState::Create(const std::map<std::string, std::unique_ptr<Model>>* models_ptr)
 {
-    return std::make_unique<GameState>();
+    return std::make_unique<GameState>(models_ptr);
 }
 
-GameState::GameState()
+GameState::GameState(const std::map<std::string, std::unique_ptr<Model>>* models_ptr)
+  : models_ptr(models_ptr)
 {
 }
 
-void GameState::register_ships(const std::map<std::string, ScenarioParser::ActorEntry>& actors,
-                               const std::map<std::string, std::unique_ptr<Model>>& models)
+void GameState::register_ships(const std::map<std::string, ScenarioParser::ActorEntry>& actors)
 {
     for (const auto& actor_item : actors)
     {
-        const Model* model_ptr = models.at(actor_item.second.type).get();
-        register_ship(actor_item.first, model_ptr, actor_item.second);
+        register_ship(actor_item.first, actor_item.second);
     }
 }
 
-void GameState::register_ship(const std::string& name,
-                              const Model* model_ptr,
-                              const ScenarioParser::ActorEntry& actorentry)
+void GameState::register_ship(const std::string& name, const ScenarioParser::ActorEntry& actorentry)
 {
+    const Model* model_ptr = models_ptr->at(actorentry.type).get();
     Ships.insert(std::make_pair(
         name,
         actor::Ship::Create(

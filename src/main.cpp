@@ -64,8 +64,8 @@ void init()
     renderer->load_models(parser->required_models);
     renderer->register_skybox(parser->skybox);
 
-    game_state = GameState::Create();
-    game_state->register_ships(parser->actors, renderer->GetModels());
+    game_state = GameState::Create(renderer->GetModels());
+    game_state->register_ships(parser->actors);
     game_state->register_terrain(parser->terrain.get());
     game_state->register_player(parser->player);
 

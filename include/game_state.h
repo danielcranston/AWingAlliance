@@ -14,14 +14,12 @@
 class GameState
 {
   public:
-    static std::unique_ptr<GameState> Create();
-    explicit GameState();
+    static std::unique_ptr<GameState>
+    Create(const std::map<std::string, std::unique_ptr<Model>>* models_ptr);
+    explicit GameState(const std::map<std::string, std::unique_ptr<Model>>* models_ptr);
 
-    void register_ships(const std::map<std::string, ScenarioParser::ActorEntry>& actors,
-                        const std::map<std::string, std::unique_ptr<Model>>& models);
-    void register_ship(const std::string& name,
-                       const Model* model_ptr,
-                       const ScenarioParser::ActorEntry& actorentry);
+    void register_ships(const std::map<std::string, ScenarioParser::ActorEntry>& actors);
+    void register_ship(const std::string& name, const ScenarioParser::ActorEntry& actorentry);
     void register_laser(const Laser& laser);
     void register_terrain(const ScenarioParser::TerrainEntry* terrainentry);
     void register_player(const std::string& name);
@@ -39,6 +37,7 @@ class GameState
     std::list<Laser> Lasers;
     std::unique_ptr<Terrain> terrain;
     std::string player_name;
+    const std::map<std::string, std::unique_ptr<Model>>* models_ptr;
 
     std::bitset<8> keyboardInfo = 0;
 

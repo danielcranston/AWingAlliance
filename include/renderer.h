@@ -33,7 +33,7 @@ class Renderer
     void UseProgram(const std::string& name);
     const ShaderProgram* GetShaderProgram(const std::string& name);
 
-    const std::map<std::string, std::unique_ptr<Model>>& GetModels();
+    const std::map<std::string, std::unique_ptr<Model>>* GetModels();
     const Model* GetModel(const std::string& name);
 
     void render(const GameState* game_state);

@@ -230,9 +230,9 @@ const Model* Renderer::GetModel(const std::string& name)
     return Models.at(name).get();
 }
 
-const std::map<std::string, std::unique_ptr<Model>>& Renderer::GetModels()
+const std::map<std::string, std::unique_ptr<Model>>* Renderer::GetModels()
 {
-    return Models;
+    return &Models;
 }
 
 void Renderer::list_textures()
