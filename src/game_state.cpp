@@ -92,8 +92,6 @@ void GameState::integrate(std::chrono::system_clock::time_point t,
     dynamic_cast<actor::Ship*>(Ships.at("awing1").get())->Update(keyboardInfo, dt);
     dynamic_cast<actor::Ship*>(Ships.at("tie2").get())->Follow(*Ships.at("awing1"), dt);
 
-    std::cout << "Lasers.size(): " << Lasers.size() << std::endl;
-
     const glm::vec3& player_pos = Ships[player_name]->GetPosition();
     const glm::vec3& player_dir = Ships[player_name]->GetDirection();
     const glm::vec3& player_desired_dir =

@@ -143,7 +143,6 @@ void Ship::Fire()
 
     if (seconds_since_last_fired > fire_recharge_time)
     {
-        std::cout << "Firing" << std::endl;
         glm::vec3 laser_pos = GetPosition();
         glm::vec3 laser_dir = GetDirection();
         const Laser laser{ laser_pos, laser_dir, system_clock::now() + seconds(1) };

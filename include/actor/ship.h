@@ -35,7 +35,6 @@ class Ship : public Actor
     glm::vec3 desired_dir;
     float current_speed = 0.0f;
     float current_turnspeed = 0.0f;
-    const float max_speed = 50.0f;
     const float max_turnspeed = glm::pi<float>() / 1.5f;
 
     std::chrono::system_clock::time_point last_fired_time;

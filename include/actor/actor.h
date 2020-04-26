@@ -18,6 +18,7 @@ class Actor
     const glm::vec3& GetPosition() const;
     const glm::vec3& GetDirection() const;
     const glm::mat4 GetPose() const;
+    const float GetMaxSpeed() const;
 
     const Model* GetModel() const;
     const glm::vec3& GetColor() const;
@@ -32,5 +33,6 @@ class Actor
     glm::vec3 dir;
     const Model* model;
     glm::vec3 color = { 0.0f, 0.0f, 0.7f };
+    const float max_speed = 50.0f;
 };
 }  // namespace actor

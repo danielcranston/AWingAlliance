@@ -31,29 +31,22 @@
 #include <renderer.h>
 #include <game_state.h>
 
+constexpr float FOV_Y = glm::radians(45.0f);
 uint SCREEN_W, SCREEN_H;
 
 std::chrono::system_clock::time_point t;
 const std::chrono::system_clock::duration dt = std::chrono::milliseconds(10);
-
 std::chrono::system_clock::time_point currentTime;
 std::chrono::system_clock::duration accumulator;
 
-FBO fbo;
-
+std::unique_ptr<ScenarioParser> parser;
 std::unique_ptr<Renderer> renderer;
 std::unique_ptr<GameState> game_state;
-
-std::unique_ptr<ScenarioParser> parser;
 
 void init()
 {
     std::cout << "init" << '\n';
 
-    SCREEN_W = 1200;
-    SCREEN_H = 900;
-
-    // PARSE SCENARIO
     parser = std::make_unique<ScenarioParser>("scenario1.json");
     parser->Parse();
 
@@ -75,9 +68,6 @@ void init()
     currentTime = std::chrono::system_clock::now();
     accumulator = std::chrono::milliseconds(0);
 
-    fbo.Init(800, 600);
-    fbo.SetupQuad();
-    glActiveTexture(GL_TEXTURE0);
     std::cout << "Finished Init" << '\n';
 }
 
@@ -85,20 +75,6 @@ void onIdle()
 {
     glutPostRedisplay();
 }
-
-// void DummyCompute()
-// {
-//     glUseProgram(computeProgram);
-//     glBindImageTexture(0, fbo.texid1, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
-//     glBindImageTexture(1, fbo.texid2, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
-//     // Dispatch compute shaders in Y direction and write it as x component
-//     int nGroupsX = std::ceil(fbo.width / 32.0);
-//     int nGroupsY = std::ceil(fbo.height / 32.0);
-//     glDispatchCompute(nGroupsX, nGroupsY, 1);
-
-//     glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
-//     glUseProgram(0);
-// }
 
 void onDisplay()
 {
@@ -133,7 +109,7 @@ void onReshape(int width, int height)
     SCREEN_H = height;
     glViewport(0, 0, SCREEN_W, SCREEN_H);
 
-    game_state->projMatrix = glm::perspective(45.0f, 1.0f * SCREEN_W / SCREEN_H, 0.1f, 8192.0f);
+    game_state->projMatrix = glm::perspective(FOV_Y, 1.0f * SCREEN_W / SCREEN_H, 0.1f, 8192.0f);
 }
 
 int main(int argc, char* argv[])
@@ -141,7 +117,9 @@ int main(int argc, char* argv[])
     glutInit(&argc, argv);
     glutInitContextVersion(3, 2);
     glutInitDisplayMode(GLUT_RGBA | GLUT_ALPHA | GLUT_DEPTH);  // GLUT_DOUBLE
-    glutInitWindowSize(1200, 900);
+    SCREEN_W = 1200;
+    SCREEN_H = 900;
+    glutInitWindowSize(SCREEN_W, SCREEN_H);
     glutCreateWindow("awing");
 
     // glewExperimental = GL_TRUE;
@@ -171,20 +149,7 @@ int main(int argc, char* argv[])
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
     glEnable(GL_PROGRAM_POINT_SIZE);
-    // glEnable(GL_PRIMITIVE_RESTART);
     // glutTimerFunc(1000/FPS, &onTimer, 0);
-    // Set OpenGL debug message callback.
-    // glEnable(GL_DEBUG_OUTPUT);
-    // glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-    // glDebugMessageControl(
-    //     GL_DONT_CARE,
-    //     GL_DONT_CARE,
-    //     GL_DEBUG_SEVERITY_NOTIFICATION,
-    //     0,
-    //     0,
-    //     GL_FALSE
-    // );
-    // glDebugMessageCallback(onDebugMessage, 0);
     glutMainLoop();
 
     return 0;
