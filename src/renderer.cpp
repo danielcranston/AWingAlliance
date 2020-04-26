@@ -263,7 +263,7 @@ void Renderer::render_laser(const Laser& laser, const glm::mat4& camera_pose)
     Models.at("cube")->Draw();
 }
 
-void Renderer::render_terrain(glm::mat4& camera_pose)
+void Renderer::render_terrain(const glm::mat4& camera_pose)
 {
     if (terrain_model)
     {
