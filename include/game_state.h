@@ -9,8 +9,9 @@
 
 #include "actor/ship.h"
 #include "actor/laser.h"
-#include "terrain.h"
 #include "actor/camera.h"
+#include "terrain.h"
+#include "spline.h"
 
 class GameState
 {
@@ -39,6 +40,8 @@ class GameState
     std::string player_name;
     const std::map<std::string, std::unique_ptr<Model>>* models_ptr;
     mutable Camera camera;
+
+    Spline spline;
 
     std::bitset<8> keyboardInfo = 0;
 

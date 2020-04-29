@@ -13,20 +13,23 @@
 class Spline
 {
   public:
-    glm::vec3 p0, p1, p2, p3;
-    glm::mat4 MP, MpP;
-    glm::vec4 U;
-    unsigned int vao, vbo;
-    float start_time, duration, arrive_time;
-
-    Spline();
-    Spline(glm::vec3 p_start, glm::vec3 dir_start, float start_t, float dur);
-
-    void Update(glm::vec3 p_start, glm::vec3 dir_start, glm::vec3 p_end, glm::vec3 dir_end);
-    void UpdateRandom(glm::vec3 p_start, glm::vec3 dir_start);
+    struct Waypoint
+    {
+        explicit Waypoint(const glm::vec3& pos, const glm::vec3 dir, const float speed);
+        glm::vec3 pos;
+        glm::vec3 dir;
+        float speed;
+    };
+    explicit Spline(const Waypoint start, const Waypoint end);
 
     std::pair<glm::vec3, glm::vec3> operator()(float u);
 
-    void UploadPoints();
-    void Draw(glm::mat4 camprojMatrix);
+  private:
+    Waypoint start;
+    Waypoint end;
+
+    glm::mat4 MP, MpP;
+    glm::vec4 U;
+
+    void Update();
 };
