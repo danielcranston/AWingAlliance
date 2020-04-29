@@ -41,7 +41,7 @@ void Renderer::register_terrain(const Terrain* terrain,
                                                    buffers.first,
                                                    buffers.second,
                                                    terrain->max_height,
-                                                   Shaders["terrain"]->GetProgram());
+                                                   Shaders.at("terrain")->GetProgram());
 }
 
 void Renderer::register_skybox(const std::string& textures_folder)
