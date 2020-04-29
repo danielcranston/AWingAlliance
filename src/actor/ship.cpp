@@ -38,12 +38,12 @@ glm::quat RotationBetweenVectors(glm::vec3 start, glm::vec3 dest)
 
 namespace actor
 {
-std::unique_ptr<Actor> Ship::Create(const glm::vec3& p,
-                                    const glm::vec3& d,
-                                    const Model* mdl,
-                                    std::function<void(const Laser& Laser)> laser_func)
+std::unique_ptr<Ship> Ship::Create(const glm::vec3& p,
+                                   const glm::vec3& d,
+                                   const Model* mdl,
+                                   std::function<void(const Laser& Laser)> laser_func)
 {
-    return std::unique_ptr<Actor>(new Ship(p, d, mdl, laser_func));
+    return std::unique_ptr<Ship>(new Ship(p, d, mdl, laser_func));
 }
 
 Ship::Ship(const glm::vec3& p,

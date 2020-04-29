@@ -49,7 +49,7 @@ const Terrain* const GameState::GetTerrain() const
     return terrain.get();
 }
 
-const std::map<std::string, std::unique_ptr<actor::Actor>>& GameState::GetShips() const
+const std::map<std::string, std::unique_ptr<actor::Ship>>& GameState::GetShips() const
 {
     return Ships;
 }
@@ -92,10 +92,10 @@ void GameState::integrate(std::chrono::system_clock::time_point t,
     }
 
     if (keyboardInfo.test(KeyboardMapping::SPACEBAR))
-        dynamic_cast<actor::Ship*>(Ships.at("awing1").get())->Fire();
+        Ships.at("awing1")->Fire();
 
-    dynamic_cast<actor::Ship*>(Ships.at("awing1").get())->Update(keyboardInfo, dt);
-    dynamic_cast<actor::Ship*>(Ships.at("tie2").get())->Follow(*Ships.at("awing1"), dt);
+    Ships.at("awing1")->Update(keyboardInfo, dt);
+    Ships.at("tie2")->Follow(*Ships.at("awing1"), dt);
 
     camera.Update(dt);
 }

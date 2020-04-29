@@ -9,8 +9,6 @@ namespace actor
 class Actor
 {
   public:
-    static std::unique_ptr<Actor> Create(const glm::vec3& p, const glm::vec3& d, const Model* mdl);
-
     void SetPosition(const glm::vec3& pos);
     void SetDirection(const glm::vec3& dir);
     void SetPose(const glm::vec3& pos, const glm::vec3& dir);
@@ -23,9 +21,7 @@ class Actor
     const Model* GetModel() const;
     const glm::vec3& GetColor() const;
 
-    // These can be pure virtual once I start only making unique ptrs to derived
-    virtual void Update(const float dt);
-    virtual void PrintInfo() const {};
+    virtual void Update(const float dt) = 0;
 
   protected:
     explicit Actor(const glm::vec3& p, const glm::vec3& d, const Model* mdl);

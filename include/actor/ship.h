@@ -12,12 +12,12 @@ namespace actor
 class Ship : public Actor
 {
   public:
-    static std::unique_ptr<Actor> Create(const glm::vec3& p,
-                                         const glm::vec3& d,
-                                         const Model* mdl,
-                                         std::function<void(const Laser& Laser)> laser_func);
+    static std::unique_ptr<Ship> Create(const glm::vec3& p,
+                                        const glm::vec3& d,
+                                        const Model* mdl,
+                                        std::function<void(const Laser& Laser)> laser_func);
 
-    void Update(const float dt);
+    void Update(const float dt) override;
     void Update(const std::bitset<8>& keyboardInfo, float dt);
     void Update_Roaming(float t);
     void Follow(const Actor& target, const float dt);

@@ -7,7 +7,7 @@
 #include <memory>
 #include <bitset>
 
-#include "actor/actor.h"
+#include "actor/ship.h"
 #include "actor/laser.h"
 #include "terrain.h"
 #include "actor/camera.h"
@@ -27,13 +27,13 @@ class GameState
 
     void integrate(std::chrono::system_clock::time_point t, std::chrono::duration<float> d_time);
 
-    const std::map<std::string, std::unique_ptr<actor::Actor>>& GetShips() const;
+    const std::map<std::string, std::unique_ptr<actor::Ship>>& GetShips() const;
     const Terrain* const GetTerrain() const;
     const std::list<Laser>& GetLasers() const;
     Camera& GetCamera() const;
 
   private:
-    std::map<std::string, std::unique_ptr<actor::Actor>> Ships;
+    std::map<std::string, std::unique_ptr<actor::Ship>> Ships;
     std::list<Laser> Lasers;
     std::unique_ptr<Terrain> terrain;
     std::string player_name;

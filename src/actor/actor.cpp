@@ -8,11 +8,6 @@
 
 namespace actor
 {
-std::unique_ptr<Actor> Actor::Create(const glm::vec3& p, const glm::vec3& d, const Model* mdl)
-{
-    return std::unique_ptr<Actor>(new Actor(p, d, mdl));
-}
-
 Actor::Actor(const glm::vec3& p, const glm::vec3& d, const Model* mdl)
   : pos{ p }, dir{ glm::normalize(d) }, model{ mdl }
 {
@@ -64,11 +59,4 @@ const glm::vec3& Actor::GetColor() const
 {
     return color;
 }
-
-void Actor::Update(const float dt)
-{
-    glm::mat3 rot = glm::rotate(glm::mat4(1.0f), dt * glm::pi<float>(), glm::vec3(0.0, 1.0, 0.0));
-    dir = dir * rot;
-}
-
 }  // namespace actor
