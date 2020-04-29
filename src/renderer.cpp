@@ -253,7 +253,7 @@ void Renderer::render(const GameState* game_state)
     UseProgram("program");
     for (const auto& ship : game_state->GetShips())
     {
-        render_actor(*ship.second, projCamMatrix);
+        render_ship(*ship.second, projCamMatrix);
     }
     for (const auto& laser : game_state->GetLasers())
     {
@@ -261,13 +261,13 @@ void Renderer::render(const GameState* game_state)
     }
 }
 
-void Renderer::render_actor(const actor::Actor& actor, const glm::mat4& camera_pose)
+void Renderer::render_ship(const actor::Ship& ship, const glm::mat4& camera_pose)
 {
     // Construct Model Matrix from Position and Viewing Direction
-    glm::mat4 mvp = camera_pose * actor.GetPose();
-    actor.GetModel()->Draw(mvp, actor.GetColor(), Shaders.at("program")->GetProgram());
+    glm::mat4 mvp = camera_pose * ship.GetPose();
+    ship.GetModel()->Draw(mvp, ship.GetColor(), Shaders.at("program")->GetProgram());
 
-    mvp = mvp * actor.GetModel()->GetBoundingBox().pose;
+    mvp = mvp * ship.GetModel()->GetBoundingBox().pose;
     Shaders.at("program")->SetUniformMatrix4fv("mvp", mvp);
     Shaders.at("program")->SetUniform1i("bUseColor", true);
     Shaders.at("program")->SetUniform3fv("uniform_color", { 0.0f, 1.0f, 0.0f });

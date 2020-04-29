@@ -23,7 +23,8 @@ class Ship : public Actor
     void Follow(const Actor& target, const float dt);
     void Fire();
 
-    const glm::vec3& GetDesiredDir();
+    const glm::vec3& GetDesiredDir() const;
+    const glm::vec3& GetColor() const;
 
   private:
     explicit Ship(const glm::vec3& p,
@@ -35,7 +36,10 @@ class Ship : public Actor
     glm::vec3 desired_dir;
     float current_speed = 0.0f;
     float current_turnspeed = 0.0f;
+    const float max_speed = 50.0f;
     const float max_turnspeed = glm::pi<float>() / 1.5f;
+
+    glm::vec3 color = glm::vec3(0.0f, 0.0f, 0.7f);
 
     std::chrono::system_clock::time_point last_fired_time;
     std::chrono::system_clock::duration fire_recharge_time = std::chrono::milliseconds(250);

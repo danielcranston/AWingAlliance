@@ -63,9 +63,14 @@ void Ship::Update(const float dt)
     dir = dir * rot;
 }
 
-const glm::vec3& Ship::GetDesiredDir()
+const glm::vec3& Ship::GetDesiredDir() const
 {
     return desired_dir;
+}
+
+const glm::vec3& Ship::GetColor() const
+{
+    return color;
 }
 
 // void Ship::Update_Roaming(float t)

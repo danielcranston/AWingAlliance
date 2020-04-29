@@ -61,8 +61,7 @@ void init()
     game_state->register_ships(parser->actors);
     game_state->register_terrain(parser->terrain.get());
     game_state->register_player(parser->player);
-    game_state->GetCamera().attach_to(
-        dynamic_cast<actor::Ship*>(game_state->GetShips().at(parser->player).get()));
+    game_state->GetCamera().attach_to(game_state->GetShips().at(parser->player).get());
 
     renderer->register_terrain(game_state->GetTerrain(), parser->terrain->textures);
     renderer->list_textures();

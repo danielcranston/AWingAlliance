@@ -45,18 +45,8 @@ const glm::mat4 Actor::GetPose() const
     return glm::translate(glm::mat4(1.0f), pos) * glm::transpose(rot);
 }
 
-const float Actor::GetMaxSpeed() const
-{
-    return max_speed;
-}
-
 const Model* Actor::GetModel() const
 {
     return model;
-}
-
-const glm::vec3& Actor::GetColor() const
-{
-    return color;
 }
 }  // namespace actor
