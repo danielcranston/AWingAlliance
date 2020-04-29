@@ -59,6 +59,11 @@ const std::list<Laser>& GameState::GetLasers() const
     return Lasers;
 }
 
+Camera& GameState::GetCamera() const
+{
+    return camera;
+}
+
 void GameState::register_player(const std::string& name)
 {
     player_name = name;
@@ -92,24 +97,5 @@ void GameState::integrate(std::chrono::system_clock::time_point t,
     dynamic_cast<actor::Ship*>(Ships.at("awing1").get())->Update(keyboardInfo, dt);
     dynamic_cast<actor::Ship*>(Ships.at("tie2").get())->Follow(*Ships.at("awing1"), dt);
 
-    const glm::vec3& player_pos = Ships[player_name]->GetPosition();
-    const glm::vec3& player_dir = Ships[player_name]->GetDirection();
-    const glm::vec3& player_desired_dir =
-        dynamic_cast<actor::Ship*>(Ships.at(player_name).get())->GetDesiredDir();
-
-    glm::vec3 cam_pos, cam_dir;
-    if (keyboardInfo.test(KeyboardMapping::Q))
-    {
-        cam_pos = player_pos + 20.0f * player_desired_dir + 5.0f * glm::vec3(0.0, 1.0, 0.0);
-        cam_dir = player_pos - 20.0f * player_dir;
-    }
-    else
-    {
-        cam_pos = player_pos + 5.0f * player_desired_dir - 25.0f * player_dir +
-                  5.0f * glm::vec3(0.0, 1.0, 0.0);
-        cam_dir = player_pos + 20.0f * player_dir;
-    }
-
-    camMatrix = glm::lookAt(cam_pos, cam_dir, glm::vec3(0.0, 1.0, 0.0));
-    projCamMatrix = projMatrix * camMatrix;
+    camera.Update(dt);
 }

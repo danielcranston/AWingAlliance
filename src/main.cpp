@@ -61,6 +61,8 @@ void init()
     game_state->register_ships(parser->actors);
     game_state->register_terrain(parser->terrain.get());
     game_state->register_player(parser->player);
+    game_state->GetCamera().attach_to(
+        dynamic_cast<actor::Ship*>(game_state->GetShips().at(parser->player).get()));
 
     renderer->register_terrain(game_state->GetTerrain(), parser->terrain->textures);
     renderer->list_textures();
@@ -109,7 +111,8 @@ void onReshape(int width, int height)
     SCREEN_H = height;
     glViewport(0, 0, SCREEN_W, SCREEN_H);
 
-    game_state->projMatrix = glm::perspective(FOV_Y, 1.0f * SCREEN_W / SCREEN_H, 0.1f, 8192.0f);
+    game_state->GetCamera().SetProjMatrix(
+        glm::perspective(FOV_Y, 1.0f * SCREEN_W / SCREEN_H, 0.1f, 8192.0f));
 }
 
 int main(int argc, char* argv[])

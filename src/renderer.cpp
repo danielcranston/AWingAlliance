@@ -244,17 +244,20 @@ void Renderer::list_textures()
 
 void Renderer::render(const GameState* game_state)
 {
-    render_skybox(game_state->projMatrix, game_state->camMatrix);
-    render_terrain(game_state->projCamMatrix);
+    render_skybox(game_state->GetCamera().GetProjMatrix(), game_state->GetCamera().GetCamMatrix());
+
+    const glm::mat4 projCamMatrix =
+        game_state->GetCamera().GetProjMatrix() * game_state->GetCamera().GetCamMatrix();
+    render_terrain(projCamMatrix);
 
     UseProgram("program");
     for (const auto& ship : game_state->GetShips())
     {
-        render_actor(*ship.second, game_state->projCamMatrix);
+        render_actor(*ship.second, projCamMatrix);
     }
     for (const auto& laser : game_state->GetLasers())
     {
-        render_laser(laser, game_state->projCamMatrix);
+        render_laser(laser, projCamMatrix);
     }
 }
 
