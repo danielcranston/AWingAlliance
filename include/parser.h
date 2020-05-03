@@ -19,9 +19,11 @@ class ScenarioParser
     struct ActorEntry
     {
         explicit ActorEntry(const std::string& _type,
+                            const std::string& _team,
                             const std::vector<float>& _pos,
                             const std::vector<float>& _dir);
         const std::string type;
+        const std::string team;
         const glm::vec3 pos;
         const glm::vec3 dir;
     };

@@ -56,6 +56,7 @@ class Model
                    const BoundingBox& bbox);
 
     const BoundingBox& GetBoundingBox() const;
+    const std::string& GetName() const;
 
     void Draw() const;
     void DrawWireframe() const;

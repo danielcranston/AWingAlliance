@@ -16,9 +16,10 @@ ScenarioParser::ScenarioParser(const std::string& filename)
     skybox = "";
 }
 ScenarioParser::ActorEntry::ActorEntry(const std::string& _type,
+                                       const std::string& _team,
                                        const std::vector<float>& _pos,
                                        const std::vector<float>& _dir)
-  : type(_type), pos(glm::make_vec3(_pos.data())), dir(glm::make_vec3(_dir.data()))
+  : type(_type), team(_team), pos(glm::make_vec3(_pos.data())), dir(glm::make_vec3(_dir.data()))
 {
 }
 
@@ -67,7 +68,8 @@ void ScenarioParser::Parse()
             const std::string model_name = std::string(actor.value()["type"]);
             required_models.insert(model_name);
 
-            const ActorEntry ae(model_name, actor.value()["pos"], actor.value()["dir"]);
+            const ActorEntry ae(
+                model_name, actor.value()["team"], actor.value()["pos"], actor.value()["dir"]);
 
             actors.insert(std::make_pair(actor.key(), ae));
         }

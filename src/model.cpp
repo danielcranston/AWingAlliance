@@ -81,6 +81,11 @@ const BoundingBox& Model::GetBoundingBox() const
     return boundingbox;
 }
 
+const std::string& Model::GetName() const
+{
+    return name;
+}
+
 void Model::Draw() const
 {
     // When we just want to draw using whatever GL state has already been set up, ignoring the

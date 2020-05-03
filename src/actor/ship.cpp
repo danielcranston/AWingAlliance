@@ -41,18 +41,21 @@ namespace actor
 std::unique_ptr<Ship> Ship::Create(const glm::vec3& p,
                                    const glm::vec3& d,
                                    const Model* mdl,
+                                   const Team team,
                                    std::function<void(const Laser& Laser)> laser_func)
 {
-    return std::unique_ptr<Ship>(new Ship(p, d, mdl, laser_func));
+    return std::unique_ptr<Ship>(new Ship(p, d, mdl, team, laser_func));
 }
 
 Ship::Ship(const glm::vec3& p,
            const glm::vec3& d,
            const Model* mdl,
+           const Team team,
            std::function<void(const Laser& Laser)> laser_func)
   : Actor(p, d, mdl),
     desired_dir(d),
     RegisterLaserFunc(laser_func),
+    team(team),
     last_fired_time(std::chrono::system_clock::now())
 {
 }
@@ -61,6 +64,11 @@ void Ship::Update(const float dt)
 {
     glm::mat3 rot = glm::rotate(glm::mat4(1.0f), dt * glm::pi<float>(), glm::vec3(1.0, 0.0, 0.0));
     dir = dir * rot;
+}
+
+void Ship::SetDesiredDir(const glm::vec3& new_dir)
+{
+    desired_dir = new_dir;
 }
 
 const glm::vec3& Ship::GetDesiredDir() const
@@ -89,19 +97,47 @@ const glm::vec3& Ship::GetColor() const
 
 void Ship::Follow(const Actor& target, const float dt)
 {
-    glm::quat quat = RotationBetweenVectors(dir, target.GetPosition() - pos);
+    MoveToLocation(target.GetPosition(), dt);
+}
+
+void Ship::Follow(const float dt)
+{
+    if (target)
+    {
+        Follow(*target, dt);
+    }
+}
+
+bool Ship::IsInRange(const glm::vec3& target_pos, const float distance)
+{
+    return glm::l2Norm(pos - target_pos) < distance;
+}
+
+void Ship::MoveToLocation(glm::vec3 target_pos, const float dt)
+{
+    glm::quat quat = RotationBetweenVectors(dir, target_pos - pos);
     glm::mat3 R(quat);
     dir = glm::normalize((0.15f * quat) * dir);
 
     float closest_distance = 20.0f;
     float thresh_distance = 40.0f;
 
-    float distance = std::abs(glm::l2Norm(pos - target.GetPosition()));
+    float distance = std::abs(glm::l2Norm(pos - target_pos));
     float dist_multiplier = std::min(std::max(0.0f, distance - 20.0f), 20.0f);
 
     dist_multiplier = glm::smoothstep(0.0f, 20.0f, dist_multiplier);
 
     pos = pos + dir * max_speed * dist_multiplier * dt;  // std::min(max_speed, distance);
+}
+
+void Ship::SetTarget(Ship* const new_target)
+{
+    target = new_target;
+}
+
+void Ship::ClearTarget()
+{
+    target = nullptr;
 }
 
 void Ship::Update(const std::bitset<8>& keyboardInfo, float dt)

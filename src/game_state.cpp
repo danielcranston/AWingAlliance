@@ -28,12 +28,14 @@ void GameState::register_ships(const std::map<std::string, ScenarioParser::Actor
 void GameState::register_ship(const std::string& name, const ScenarioParser::ActorEntry& actorentry)
 {
     const Model* model_ptr = models_ptr->at(actorentry.type).get();
+    const actor::Team team = actor::team_map.at(actorentry.team);
     Ships.insert(std::make_pair(
         name,
         actor::Ship::Create(
             actorentry.pos,
             actorentry.dir,
             model_ptr,
+            team,
             std::bind(Laser::RegisterLaser, std::ref(Lasers), std::placeholders::_1))));
 }
 
@@ -97,7 +99,16 @@ void GameState::integrate(std::chrono::system_clock::time_point t,
         Ships.at("awing1")->Fire();
 
     Ships.at("awing1")->Update(keyboardInfo, dt);
-    Ships.at("tie2")->Follow(*Ships.at("awing1"), dt);
+    Ships.at("tie2")->Follow(dt);
+
+    if (Ships.at("tie2")->IsInRange(Ships.at("awing1")->GetPosition(), 21.0f))
+    {
+        Ships.at("tie2")->SetTarget(Ships.at("bomber1").get());
+    }
+    if (Ships.at("tie2")->IsInRange(Ships.at("bomber1")->GetPosition(), 21.0f))
+    {
+        Ships.at("tie2")->SetTarget(Ships.at("awing1").get());
+    }
 
     using namespace std::chrono;
     const auto repeat_time = milliseconds(5000);

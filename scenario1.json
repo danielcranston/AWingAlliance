@@ -8,36 +8,42 @@
         "awing1":
         {
             "type": "awing",
+            "team": "alliance",
             "pos": [0.0, 112.0, 0.0],
             "dir": [0.0, 0.0, -1.0]
         },
         "tie1":
         {
             "type": "tie",
+            "team": "empire",
             "pos": [0.0, 112.0, -32.0],
             "dir": [0.0, 0.0, -1.0]
         },
         "tie2":
         {
             "type": "tie",
+            "team": "empire",
             "pos": [-16.0, 112.0, -32.0],
             "dir": [0.0, 0.0, -1.0]
         },
         "interceptor1":
         {
             "type": "tie_interceptor",
+            "team": "empire",
             "pos": [-32.0, 128.0, -32.0],
             "dir": [0.0, 0.0, -1.0]
         },
         "bomber1":
         {
             "type": "tie_bomber",
+            "team": "empire",
             "pos": [-64.0, 112.0, -64.0],
             "dir": [0.0, 0.0, -1.0]
         },
         "hangar1":
         {
             "type": "hangar",
+            "team": "empire",
             "pos": [0.0, 256.0, 0.0],
             "dir": [0.0, 0.0, -1.0]
         }

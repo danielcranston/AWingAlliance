@@ -3,26 +3,42 @@
 #include <bitset>
 #include <chrono>
 #include <functional>
+#include <map>
 
 #include "actor/actor.h"
 #include "actor/laser.h"
 
 namespace actor
 {
+enum class Team : int
+{
+    ALLIANCE,
+    EMPIRE
+};
+const std::map<std::string, actor::Team> team_map = { { "alliance", actor::Team::ALLIANCE },
+                                                      { "empire", actor::Team::EMPIRE } };
+
 class Ship : public Actor
 {
   public:
     static std::unique_ptr<Ship> Create(const glm::vec3& p,
                                         const glm::vec3& d,
                                         const Model* mdl,
+                                        const Team team,
                                         std::function<void(const Laser& Laser)> laser_func);
 
     void Update(const float dt) override;
     void Update(const std::bitset<8>& keyboardInfo, float dt);
     void Update_Roaming(float t);
     void Follow(const Actor& target, const float dt);
+    void Follow(const float dt);
+    bool IsInRange(const glm::vec3& target_pos, const float distance);
+    void MoveToLocation(glm::vec3 target_pos, const float dt);
     void Fire();
 
+    void SetTarget(Ship* const new_target);
+    void ClearTarget();
+    void SetDesiredDir(const glm::vec3& new_dir);
     const glm::vec3& GetDesiredDir() const;
     const glm::vec3& GetColor() const;
 
@@ -30,6 +46,7 @@ class Ship : public Actor
     explicit Ship(const glm::vec3& p,
                   const glm::vec3& d,
                   const Model* mdl,
+                  const Team team,
                   std::function<void(const Laser& Laser)> laser_func);
     std::function<void(const Laser& laser)> RegisterLaserFunc;
 
@@ -40,6 +57,8 @@ class Ship : public Actor
     const float max_turnspeed = glm::pi<float>() / 1.5f;
 
     glm::vec3 color = glm::vec3(0.0f, 0.0f, 0.7f);
+    Team team;
+    Ship* target = nullptr;
 
     std::chrono::system_clock::time_point last_fired_time;
     std::chrono::system_clock::duration fire_recharge_time = std::chrono::milliseconds(250);
