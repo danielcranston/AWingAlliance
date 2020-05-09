@@ -119,6 +119,17 @@ bool Ship::IsColliding(const Ship& other)
     return other.model->GetBoundingBox().is_inside(model->GetBoundingBox(), pose_relative_other);
 }
 
+bool Ship::IsColliding(const Laser& laser)
+{
+    glm::mat4 pose_relative_other = glm::inverse(GetPose()) * laser.GetPose();
+    for (const auto& point : Laser::contact_points)
+    {
+        glm::vec3 transformed = pose_relative_other * glm::vec4(point, 1.0f);
+        if (model->GetBoundingBox().is_inside(transformed))
+            return true;
+    }
+    return false;
+}
 void Ship::MoveToLocation(glm::vec3 target_pos, const float dt)
 {
     glm::quat quat = RotationBetweenVectors(dir, target_pos - pos);

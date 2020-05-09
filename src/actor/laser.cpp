@@ -1,5 +1,10 @@
 #include "actor/laser.h"
 
+const std::array<glm::vec3, 2> Laser::contact_points = {
+    glm::vec3(0.0f, 0.0f, Laser::LENGTH / 2.0f),
+    glm::vec3(0.0f, 0.0f, -Laser::LENGTH / 2.0f)
+};
+
 Laser::Laser(const glm::vec3& p,
              const glm::vec3& d,
              const std::chrono::system_clock::time_point expire_time)

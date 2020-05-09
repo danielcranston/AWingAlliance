@@ -255,20 +255,32 @@ void Renderer::render(const GameState* game_state)
     {
         render_ship(*ship.second, projCamMatrix);
 
+        glm::vec3 color;
         const auto& bbox = ship.second->GetModel()->GetBoundingBox();
         glm::mat4 bbox_transform = bbox.pose * glm::scale(glm::mat4(1.0f), bbox.scale);
         glm::mat4 mvp = projCamMatrix * ship.second->GetPose() * bbox_transform;
         if (ship.second.get() != game_state->GetShips().at("interceptor1").get())
         {
-            glm::vec3 color =
-                ship.second->IsColliding(*game_state->GetShips().at("interceptor1").get()) ?
-                    glm::vec3(1.0f, 0.0f, 0.0f) :
-                    glm::vec3(0.0f, 1.0f, 0.0f);
+            color = ship.second->IsColliding(*game_state->GetShips().at("interceptor1").get()) ?
+                        glm::vec3(1.0f, 0.0f, 0.0f) :
+                        glm::vec3(0.0f, 1.0f, 0.0f);
             render_bbox(mvp, color);
         }
         else
-            render_bbox(mvp, { 0.0f, 0.0f, 1.0f });
+        {
+            color = { 0.0f, 0.0f, 1.0f };
+            for (const auto& laser : game_state->GetLasers())
+            {
+                if (ship.second->IsColliding(laser))
+                {
+                    color = { 1.0f, 0.0f, 0.0f };
+                    break;
+                }
+            }
+            render_bbox(mvp, color);
+        }
     }
+
     for (const auto& laser : game_state->GetLasers())
     {
         render_laser(laser, projCamMatrix);
