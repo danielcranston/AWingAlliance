@@ -38,6 +38,7 @@ class Renderer
 
     void render(const GameState* game_state);
     void render_ship(const actor::Ship& ship, const glm::mat4& camera_pose);
+    void render_bbox(const glm::mat4& mvp, const glm::vec3& color);
     void render_terrain(const glm::mat4& camera_pose);
     void render_skybox(const glm::mat4& proj_matrix, glm::mat4 cam_matrix);
     void render_laser(const Laser& laser, const glm::mat4& camera_pose);

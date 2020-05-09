@@ -113,6 +113,12 @@ bool Ship::IsInRange(const glm::vec3& target_pos, const float distance)
     return glm::l2Norm(pos - target_pos) < distance;
 }
 
+bool Ship::IsColliding(const Ship& other)
+{
+    glm::mat4 pose_relative_other = glm::inverse(other.GetPose()) * GetPose();
+    return other.model->GetBoundingBox().is_inside(model->GetBoundingBox(), pose_relative_other);
+}
+
 void Ship::MoveToLocation(glm::vec3 target_pos, const float dt)
 {
     glm::quat quat = RotationBetweenVectors(dir, target_pos - pos);

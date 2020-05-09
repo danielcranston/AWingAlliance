@@ -47,18 +47,44 @@ DrawObject::DrawObject(const OBJGroup& group)
 }
 
 BoundingBox::BoundingBox(const std::array<float, 3>& bmin, const std::array<float, 3>& bmax)
+  : bmin(bmin), bmax(bmax)
 {
+    corners = { glm::vec3(bmin[0], bmin[1], bmin[2]), glm::vec3(bmax[0], bmin[1], bmin[2]),
+                glm::vec3(bmin[0], bmin[1], bmax[2]), glm::vec3(bmax[0], bmin[1], bmax[2]),
+                glm::vec3(bmin[0], bmax[1], bmin[2]), glm::vec3(bmax[0], bmax[1], bmin[2]),
+                glm::vec3(bmin[0], bmax[1], bmax[2]), glm::vec3(bmax[0], bmax[1], bmax[2]) };
+
     float xscale = (bmax[0] - bmin[0]) / 2.0;
     float yscale = (bmax[1] - bmin[1]) / 2.0;
     float zscale = (bmax[2] - bmin[2]) / 2.0;
-    glm::vec3 scale = glm::vec3(xscale, yscale, zscale);
+    scale = glm::vec3(xscale, yscale, zscale);
 
     float offset_x = ((bmax[0] + bmin[0]) / 2.0);
     float offset_y = ((bmax[1] + bmin[1]) / 2.0);
     float offset_z = ((bmax[2] + bmin[2]) / 2.0);
-    glm::vec3 offset = glm::vec3(offset_x, offset_y, offset_z) / scale;
+    offset = glm::vec3(offset_x, offset_y, offset_z);
 
-    pose = glm::translate(glm::scale(glm::mat4(1.0), scale), offset);
+    pose = glm::translate(glm::mat4(1.0), offset);
+}
+
+bool BoundingBox::is_inside(const glm::vec3& point) const
+{
+    bool x_inside = bmin[0] <= point.x && point.x <= bmax[0];
+    bool y_inside = bmin[1] <= point.y && point.y <= bmax[1];
+    bool z_inside = bmin[2] <= point.z && point.z <= bmax[2];
+    return (x_inside && y_inside && z_inside);
+}
+
+bool BoundingBox::is_inside(const BoundingBox& other, const glm::mat4& relative_pose) const
+{
+    int insides = 0;
+    for (const auto& corner : other.corners)
+    {
+        const glm::vec3 pos = relative_pose * glm::vec4(corner, 1.0f);
+        if (is_inside(pos))
+            insides++;
+    }
+    return insides > 0;
 }
 
 Model::Model(const std::string& name, const std::vector<OBJGroup>& groups, const BoundingBox& bbox)

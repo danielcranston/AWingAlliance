@@ -42,6 +42,15 @@ struct BoundingBox
 {
     explicit BoundingBox(const std::array<float, 3>& bmin, const std::array<float, 3>& bmax);
 
+    bool is_inside(const glm::vec3& point) const;
+    bool is_inside(const BoundingBox& other, const glm::mat4& relative_pose) const;
+
+    std::array<float, 3> bmin;
+    std::array<float, 3> bmax;
+    std::array<glm::vec3, 8> corners;
+
+    glm::vec3 scale;
+    glm::vec3 offset;
     glm::mat4 pose;
 };
 

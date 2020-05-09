@@ -254,6 +254,20 @@ void Renderer::render(const GameState* game_state)
     for (const auto& ship : game_state->GetShips())
     {
         render_ship(*ship.second, projCamMatrix);
+
+        const auto& bbox = ship.second->GetModel()->GetBoundingBox();
+        glm::mat4 bbox_transform = bbox.pose * glm::scale(glm::mat4(1.0f), bbox.scale);
+        glm::mat4 mvp = projCamMatrix * ship.second->GetPose() * bbox_transform;
+        if (ship.second.get() != game_state->GetShips().at("interceptor1").get())
+        {
+            glm::vec3 color =
+                ship.second->IsColliding(*game_state->GetShips().at("interceptor1").get()) ?
+                    glm::vec3(1.0f, 0.0f, 0.0f) :
+                    glm::vec3(0.0f, 1.0f, 0.0f);
+            render_bbox(mvp, color);
+        }
+        else
+            render_bbox(mvp, { 0.0f, 0.0f, 1.0f });
     }
     for (const auto& laser : game_state->GetLasers())
     {
@@ -266,11 +280,13 @@ void Renderer::render_ship(const actor::Ship& ship, const glm::mat4& camera_pose
     // Construct Model Matrix from Position and Viewing Direction
     glm::mat4 mvp = camera_pose * ship.GetPose();
     ship.GetModel()->Draw(mvp, ship.GetColor(), Shaders.at("program")->GetProgram());
+}
 
-    mvp = mvp * ship.GetModel()->GetBoundingBox().pose;
+void Renderer::render_bbox(const glm::mat4& mvp, const glm::vec3& color)
+{
     Shaders.at("program")->SetUniformMatrix4fv("mvp", mvp);
     Shaders.at("program")->SetUniform1i("bUseColor", true);
-    Shaders.at("program")->SetUniform3fv("uniform_color", { 0.0f, 1.0f, 0.0f });
+    Shaders.at("program")->SetUniform3fv("uniform_color", color);
 
     Models.at("cube")->DrawWireframe();
 }

@@ -35,6 +35,7 @@ class Ship : public Actor
     bool IsInRange(const glm::vec3& target_pos, const float distance);
     void MoveToLocation(glm::vec3 target_pos, const float dt);
     void Fire();
+    bool IsColliding(const Ship& other);
 
     void SetTarget(Ship* const new_target);
     void ClearTarget();

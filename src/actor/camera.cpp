@@ -24,6 +24,11 @@ void Camera::Update(const float dt)
         const glm::vec3& player_desired_dir =
             dynamic_cast<actor::Ship*>(actor_ptr)->GetDesiredDir();
 
+        // Above
+        // glm::vec3 cam_pos = player_pos + 40.0f * glm::vec3(0.0, 1.0, 0.01);
+        // glm::vec3 cam_dir = player_pos;
+
+        // Behind
         glm::vec3 cam_pos = player_pos + 5.0f * player_desired_dir - 25.0f * player_dir +
                             5.0f * glm::vec3(0.0, 1.0, 0.0);
         glm::vec3 cam_dir = player_pos + 20.0f * player_dir;
