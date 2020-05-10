@@ -201,8 +201,9 @@ void Ship::Fire()
 
     if (seconds_since_last_fired > fire_recharge_time)
     {
-        glm::vec3 laser_pos = GetPosition();
         glm::vec3 laser_dir = GetDirection();
+        glm::vec3 laser_pos = GetPosition();
+        laser_pos += laser_dir * (Laser::LENGTH + 2.0f * model->GetBoundingBox().scale.z);
         const Laser laser{ laser_pos, laser_dir, system_clock::now() + seconds(1) };
         RegisterLaserFunc(laser);
 

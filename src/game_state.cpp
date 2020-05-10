@@ -15,6 +15,7 @@ GameState::GameState(const std::map<std::string, std::unique_ptr<Model>>* models
     spline(Spline::Waypoint({ -32.0f, 148.0f, -128.0f }, { 0.0f, 0.0f, 1.0f }, 512.0f),
            Spline::Waypoint({ 0.0f, 112.0f, 0.0f }, { -1.0f, 0.0f, .0f }, 512.0f))
 {
+    actor::Billboard::GetCameraPosFunc = std::bind(&Camera::GetPosition, std::ref(camera));
 }
 
 void GameState::register_ships(const std::map<std::string, ScenarioParser::ActorEntry>& actors)
@@ -63,6 +64,11 @@ const std::list<Laser>& GameState::GetLasers() const
     return Lasers;
 }
 
+const std::list<actor::Billboard>& GameState::GetBillboards() const
+{
+    return Billboards;
+}
+
 Camera& GameState::GetCamera() const
 {
     return camera;
@@ -77,11 +83,11 @@ void GameState::integrate(std::chrono::system_clock::time_point t,
                           std::chrono::duration<float> d_time)
 {
     ProcessKeyboardInput(keyboardInfo);
-    float dt = std::chrono::duration_cast<std::chrono::milliseconds>(d_time).count() / 1000.0f;
+    using namespace std::chrono;
+    float dt = duration_cast<milliseconds>(d_time).count() / 1000.0f;
 
     if (!Lasers.empty())
     {
-        using namespace std::chrono;
         auto time_until_expiration =
             duration_cast<seconds>(Lasers.front().expire_time - system_clock::now());
 
@@ -91,7 +97,38 @@ void GameState::integrate(std::chrono::system_clock::time_point t,
         }
         for (Laser& laser : Lasers)
         {
-            laser.Update(dt);
+            if (laser.alive)
+            {
+                laser.Update(dt);
+                for (const auto& ship : Ships)
+                {
+                    if (ship.second->IsColliding(laser))
+                    {
+                        // ship.RegisterDamage(...)
+                        Billboards.emplace_back(laser.GetPosition(),
+                                                laser.GetDirection(),
+                                                actor::Billboard::Type::CAMERA_FACING,
+                                                0);
+                        laser.alive = false;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    if (!Billboards.empty())
+    {
+        auto time_until_expiration =
+            duration_cast<milliseconds>(Billboards.front().GetExpireTime() - system_clock::now());
+
+        if (time_until_expiration < milliseconds(0))
+        {
+            Billboards.pop_front();
+        }
+        for (actor::Billboard& billboard : Billboards)
+        {
+            billboard.Update(dt);
         }
     }
 

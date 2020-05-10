@@ -25,14 +25,14 @@ void Camera::Update(const float dt)
             dynamic_cast<actor::Ship*>(actor_ptr)->GetDesiredDir();
 
         // Above
-        // glm::vec3 cam_pos = player_pos + 40.0f * glm::vec3(0.0, 1.0, 0.01);
-        // glm::vec3 cam_dir = player_pos;
+        // pos = player_pos + 40.0f * glm::vec3(0.0, 1.0, 0.01);
+        // dir = player_pos;
 
         // Behind
-        glm::vec3 cam_pos = player_pos + 5.0f * player_desired_dir - 25.0f * player_dir +
-                            5.0f * glm::vec3(0.0, 1.0, 0.0);
-        glm::vec3 cam_dir = player_pos + 20.0f * player_dir;
-        camMatrix = glm::lookAt(cam_pos, cam_dir, glm::vec3(0.0f, 1.0f, 0.0f));
+        pos = player_pos + 5.0f * player_desired_dir - 25.0f * player_dir +
+              5.0f * glm::vec3(0.0, 1.0, 0.0);
+        dir = player_pos + 20.0f * player_dir;
+        camMatrix = glm::lookAt(pos, dir, glm::vec3(0.0f, 1.0f, 0.0f));
     }
     else
     {

@@ -12,6 +12,9 @@ struct Laser
                    const glm::vec3& d,
                    const std::chrono::system_clock::time_point expire_time);
     void Update(const float dt);
+
+    const glm::vec3& GetPosition() const;
+    const glm::vec3& GetDirection() const;
     const glm::mat4 GetPose() const;
 
     // In absence of a better place to put this
@@ -20,6 +23,7 @@ struct Laser
     static constexpr float LENGTH = 4.0f;
     static const std::array<glm::vec3, 2> contact_points;
 
+    bool alive = true;
     glm::vec3 pos;
     glm::vec3 dir;
     glm::vec3 color = { 1.0f, 0.0f, 0.0f };

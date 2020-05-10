@@ -12,6 +12,7 @@
 Renderer::Renderer()
 {
     Textures[""] = 0;
+    load_model("billboard");
 }
 
 std::unique_ptr<Renderer> Renderer::Create()
@@ -283,8 +284,18 @@ void Renderer::render(const GameState* game_state)
 
     for (const auto& laser : game_state->GetLasers())
     {
-        render_laser(laser, projCamMatrix);
+        if (laser.alive)
+        {
+            render_laser(laser, projCamMatrix);
+        }
     }
+
+    glDisable(GL_CULL_FACE);
+    for (const auto& billboard : game_state->GetBillboards())
+    {
+        render_billboard(billboard, projCamMatrix);
+    }
+    glEnable(GL_CULL_FACE);
 }
 
 void Renderer::render_ship(const actor::Ship& ship, const glm::mat4& camera_pose)
@@ -313,6 +324,20 @@ void Renderer::render_laser(const Laser& laser, const glm::mat4& camera_pose)
     program->SetUniform1i("bUseColor", 1);
     program->SetUniformMatrix4fv("mvp", mvp);
     Models.at("cube")->Draw();
+}
+
+void Renderer::render_billboard(const actor::Billboard& billboard, const glm::mat4& camera_pose)
+{
+    const auto& scale = billboard.GetScale();
+    glm::mat4 mvp = camera_pose * billboard.GetPose() *
+                    glm::scale(glm::mat4(1.0f), glm::vec3(scale.x, scale.y, 0.0f));
+
+    ShaderProgram* program = Shaders.at("program").get();
+    program->Use();
+    program->SetUniform1i("bUseColor", 0);
+    program->SetUniformMatrix4fv("mvp", mvp);
+    // glBindTexture(GL_TEXTURE_2D, Textures.at(""));
+    Models.at("billboard")->Draw();
 }
 
 void Renderer::render_terrain(const glm::mat4& camera_pose)

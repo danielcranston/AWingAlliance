@@ -17,6 +17,16 @@ void Laser::Update(const float dt)
     pos += glm::vec3(dt * speed * dir);
 }
 
+const glm::vec3& Laser::GetPosition() const
+{
+    return pos;
+}
+
+const glm::vec3& Laser::GetDirection() const
+{
+    return dir;
+}
+
 const glm::mat4 Laser::GetPose() const
 {
     glm::mat4 rot = glm::lookAt(glm::vec3(0.0, 0.0, 0.0), -dir, glm::vec3(0.0, 1.0, 0.0));

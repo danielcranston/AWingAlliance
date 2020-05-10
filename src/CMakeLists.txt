@@ -1,6 +1,6 @@
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR})
 
-add_library(actors actor/actor.cpp actor/camera.cpp actor/ship.cpp actor/laser.cpp)
+add_library(actors actor/actor.cpp actor/camera.cpp actor/ship.cpp actor/laser.cpp actor/billboard.cpp)
 
 add_executable(awing main.cpp model.cpp keyboard.cpp shaders.cpp terrain.cpp spline.cpp parser.cpp renderer.cpp game_state.cpp)
 
