@@ -134,7 +134,7 @@ void Ship::MoveToLocation(glm::vec3 target_pos, const float dt)
 {
     glm::quat quat = RotationBetweenVectors(dir, target_pos - pos);
     glm::mat3 R(quat);
-    dir = glm::normalize((0.15f * quat) * dir);
+    dir = glm::normalize((50 * dt * quat) * dir);
 
     float closest_distance = 20.0f;
     float thresh_distance = 40.0f;
@@ -185,7 +185,7 @@ void Ship::Update(const std::bitset<8>& keyboardInfo, float dt)
     }
 
     glm::quat quat = RotationBetweenVectors(dir, desired_dir);
-    dir = glm::normalize((0.25f * quat) * dir);
+    dir = glm::normalize((0.1f * quat) * dir);
 
     if (keyboardInfo.test(KeyboardMapping::W))
         pos += glm::vec3(max_speed * dt * dir);

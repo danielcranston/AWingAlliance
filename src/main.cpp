@@ -34,7 +34,7 @@ constexpr float FOV_Y = glm::radians(45.0f);
 uint SCREEN_W, SCREEN_H;
 
 std::chrono::system_clock::time_point t;
-const std::chrono::system_clock::duration dt = std::chrono::milliseconds(10);
+const std::chrono::system_clock::duration dt = std::chrono::milliseconds(1);
 std::chrono::system_clock::time_point currentTime;
 std::chrono::system_clock::duration accumulator;
 
