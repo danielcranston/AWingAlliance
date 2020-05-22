@@ -34,6 +34,7 @@ class GameState
     const std::list<Laser>& GetLasers() const;
     const std::list<actor::Billboard>& GetBillboards() const;
     Camera& GetCamera() const;
+    const float GetCurrentTime() const;
 
   private:
     std::map<std::string, std::unique_ptr<actor::Ship>> Ships;
@@ -47,7 +48,5 @@ class GameState
     Spline spline;
 
     std::bitset<8> keyboardInfo = 0;
-
-    std::chrono::system_clock::time_point t;
-    const std::chrono::system_clock::duration dt = std::chrono::milliseconds(10);
+    float current_time;
 };

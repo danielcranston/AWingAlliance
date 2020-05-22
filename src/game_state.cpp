@@ -13,7 +13,8 @@ GameState::Create(const std::map<std::string, std::unique_ptr<Model>>* models_pt
 GameState::GameState(const std::map<std::string, std::unique_ptr<Model>>* models_ptr)
   : models_ptr(models_ptr),
     spline(Spline::Waypoint({ -32.0f, 148.0f, -128.0f }, { 0.0f, 0.0f, 1.0f }, 512.0f),
-           Spline::Waypoint({ 0.0f, 112.0f, 0.0f }, { -1.0f, 0.0f, .0f }, 512.0f))
+           Spline::Waypoint({ 0.0f, 112.0f, 0.0f }, { -1.0f, 0.0f, .0f }, 512.0f)),
+    current_time(0.0f)
 {
     actor::Billboard::GetCameraPosFunc = std::bind(&Camera::GetPosition, std::ref(camera));
 }
@@ -74,6 +75,11 @@ Camera& GameState::GetCamera() const
     return camera;
 }
 
+const float GameState::GetCurrentTime() const
+{
+    return current_time;
+}
+
 void GameState::register_player(const std::string& name)
 {
     player_name = name;
@@ -85,6 +91,7 @@ void GameState::integrate(std::chrono::system_clock::time_point t,
     ProcessKeyboardInput(keyboardInfo);
     using namespace std::chrono;
     float dt = duration_cast<milliseconds>(d_time).count() / 1000.0f;
+    current_time += dt;
 
     if (!Lasers.empty())
     {

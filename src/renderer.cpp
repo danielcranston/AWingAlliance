@@ -9,15 +9,29 @@
 #include "renderer.h"
 #include "tinyobj_helper.h"
 
-Renderer::Renderer()
+Renderer::Renderer(const unsigned int screen_w, const unsigned int screen_h)
+  : screen_w(screen_w),
+    screen_h(screen_h),
+    fbo(512, 512),
+    screen_billboard(glm::vec3(0.0f, 0.0f, 0.0f),
+                     glm::vec3(0.0f, 0.0f, -1.0f),
+                     actor::Billboard::Type::CAMERA_FACING,
+                     0)
 {
     Textures[""] = 0;
     load_model("billboard");
+
+    register_shader("program", "Shaders/object.vert", "Shaders/object.frag");
+    register_shader("sky", "Shaders/sky.vert", "Shaders/sky.frag");
+    register_shader("terrain", "Shaders/terrain.vert", "Shaders/terrain.frag");
+    register_shader("hyperspace", "Shaders/hyperspace.vert", "Shaders/hyperspace.frag");
+    Shaders.at("hyperspace")->Use();
+    Shaders.at("hyperspace")->SetUniform2f("resolution", 512.0f, 512.0f);
 }
 
-std::unique_ptr<Renderer> Renderer::Create()
+std::unique_ptr<Renderer> Renderer::Create(const unsigned int screen_w, const unsigned int screen_h)
 {
-    return std::make_unique<Renderer>(Renderer());
+    return std::make_unique<Renderer>(screen_w, screen_h);
 }
 
 void Renderer::register_shader(const std::string& name,
@@ -219,6 +233,12 @@ void Renderer::UseProgram(const std::string& name)
     Shaders.at(name)->Use();
 }
 
+void Renderer::SetResolution(const unsigned int width, const unsigned int height)
+{
+    screen_w = width;
+    screen_h = height;
+}
+
 const ShaderProgram* Renderer::GetShaderProgram(const std::string& name)
 {
     assert(Shaders.find(name) != Shaders.end());
@@ -291,10 +311,23 @@ void Renderer::render(const GameState* game_state)
     }
 
     glDisable(GL_CULL_FACE);
+
+    // Create hyperspace texture (stored in fbo.texid1)
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo.id);
+    glViewport(0, 0, fbo.width, fbo.height);
+    Shaders.at("hyperspace")->Use();
+    Shaders.at("hyperspace")->SetUniform1f("time", game_state->GetCurrentTime());
+    Models.at("billboard")->Draw();
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    glBindTexture(GL_TEXTURE_2D, fbo.texid1);
+    glViewport(0, 0, screen_w, screen_h);
     for (const auto& billboard : game_state->GetBillboards())
     {
         render_billboard(billboard, projCamMatrix);
     }
+
     glEnable(GL_CULL_FACE);
 }
 

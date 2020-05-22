@@ -25,7 +25,6 @@
 #include <actor/ship.h>
 #include <keyboard.h>
 #include <terrain.h>
-#include <fbo.h>
 #include <spline.h>
 #include <parser.h>
 #include <renderer.h>
@@ -50,10 +49,7 @@ void init()
     parser = std::make_unique<ScenarioParser>("scenario1.json");
     parser->Parse();
 
-    renderer = Renderer::Create();
-    renderer->register_shader("program", "Shaders/object.vert", "Shaders/object.frag");
-    renderer->register_shader("sky", "Shaders/sky.vert", "Shaders/sky.frag");
-    renderer->register_shader("terrain", "Shaders/terrain.vert", "Shaders/terrain.frag");
+    renderer = Renderer::Create(SCREEN_W, SCREEN_H);
     renderer->load_models(parser->required_models);
     renderer->register_skybox(parser->skybox);
 
@@ -112,6 +108,7 @@ void onReshape(int width, int height)
 
     game_state->GetCamera().SetProjMatrix(
         glm::perspective(FOV_Y, 1.0f * SCREEN_W / SCREEN_H, 0.1f, 8192.0f));
+    renderer->SetResolution(width, height);
 }
 
 int main(int argc, char* argv[])

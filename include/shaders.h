@@ -37,6 +37,7 @@ class ShaderProgram
     void Use() const;
     const uint GetProgram() const;
     void SetUniform1i(const std::string& name, const int value) const;
+    void SetUniform1f(const std::string& name, const float value) const;
     void SetUniform2f(const std::string& name, const float f1, const float f2) const;
     void
     SetUniform3f(const std::string& name, const float f1, const float f2, const float f3) const;
