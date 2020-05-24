@@ -26,6 +26,7 @@ Renderer::Renderer(const unsigned int screen_w, const unsigned int screen_h)
     register_shader("sky", "Shaders/sky.vert", "Shaders/sky.frag");
     register_shader("terrain", "Shaders/terrain.vert", "Shaders/terrain.frag");
     register_shader("hyperspace", "Shaders/hyperspace.vert", "Shaders/hyperspace.frag");
+    register_shader("spark", "Shaders/object.vert", "Shaders/spark.frag");
     Shaders.at("hyperspace")->Use();
     Shaders.at("hyperspace")->SetUniform2f("resolution", 512.0f, 512.0f);
 }
@@ -324,10 +325,17 @@ void Renderer::render(const GameState* game_state)
 
     glBindTexture(GL_TEXTURE_2D, fbo.texid1);
     glViewport(0, 0, screen_w, screen_h);
+
+    // Use hyperspace texture for something ...
+
+    glDepthMask(false);
+    Shaders.at("spark")->Use();
+    Shaders.at("spark")->SetUniform1f("time", game_state->GetCurrentTime());
     for (const auto& billboard : game_state->GetBillboards())
     {
         render_billboard(billboard, projCamMatrix);
     }
+    glDepthMask(true);
 
     glEnable(GL_CULL_FACE);
 }
@@ -366,11 +374,8 @@ void Renderer::render_billboard(const actor::Billboard& billboard, const glm::ma
     glm::mat4 mvp = camera_pose * billboard.GetPose() *
                     glm::scale(glm::mat4(1.0f), glm::vec3(scale.x, scale.y, 0.0f));
 
-    ShaderProgram* program = Shaders.at("program").get();
-    program->Use();
-    program->SetUniform1i("bUseColor", 0);
-    program->SetUniformMatrix4fv("mvp", mvp);
-    // glBindTexture(GL_TEXTURE_2D, Textures.at(""));
+    Shaders.at("spark")->SetUniform1f("starttime", billboard.GetTimeOfBirth());
+    Shaders.at("spark")->SetUniformMatrix4fv("mvp", mvp);
     Models.at("billboard")->Draw();
 }
 

@@ -16,7 +16,7 @@ void main(void)
     vec4 mytex = texture(tex, x_texcoord);
     if(bUseColor)
     {
-        mytex = vec4(uniform_color, 0.0);
+        mytex = vec4(uniform_color, 1.0);
     }
     out_Color = mytex;
 }
