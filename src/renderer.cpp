@@ -16,7 +16,8 @@ Renderer::Renderer(const unsigned int screen_w, const unsigned int screen_h)
     screen_billboard(glm::vec3(0.0f, 0.0f, 0.0f),
                      glm::vec3(0.0f, 0.0f, -1.0f),
                      actor::Billboard::Type::CAMERA_FACING,
-                     0)
+                     0,
+                     0.0f)
 {
     Textures[""] = 0;
     load_model("billboard");

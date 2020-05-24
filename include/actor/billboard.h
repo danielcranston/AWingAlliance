@@ -16,30 +16,28 @@ class Billboard : public Actor
         DIRECTIONAL,
         CAMERA_FACING
     };
-
-    static std::unique_ptr<Billboard>
-    Create(const glm::vec3 pos, const glm::vec3 dir, const Type& type, const unsigned int tex_id);
-
     void Update(const float dt) override;
 
     static std::function<const glm::vec3&()> GetCameraPosFunc;
     static void RegisterBillboard(std::list<Billboard>& billboard_list,
                                   const Billboard& new_billboard);
 
-    const std::chrono::system_clock::time_point GetExpireTime() const;
+    const float GetExpireTime() const;
+    const float GetTimeOfBirth() const;
     const glm::vec2& GetScale() const;
 
     explicit Billboard(const glm::vec3 pos,
                        const glm::vec3 dir,
                        const Type& type,
-                       const unsigned int tex_id);
+                       const unsigned int tex_id,
+                       const float current_time);
 
   private:
     const Type type;
     unsigned int tex_id;
-    glm::vec2 scale = { 3.0f, 3.0f };
+    glm::vec2 scale = { 6.0f, 6.0f };
 
-    std::chrono::system_clock::time_point time_of_birth;
-    std::chrono::system_clock::duration life_duration = std::chrono::milliseconds(500);
+    float time_of_birth;
+    float life_duration = 1.0f;
 };
 }  // namespace actor

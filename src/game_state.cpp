@@ -115,7 +115,8 @@ void GameState::integrate(std::chrono::system_clock::time_point t,
                         Billboards.emplace_back(laser.GetPosition(),
                                                 laser.GetDirection(),
                                                 actor::Billboard::Type::CAMERA_FACING,
-                                                0);
+                                                0,
+                                                current_time);
                         laser.alive = false;
                         break;
                     }
@@ -126,10 +127,7 @@ void GameState::integrate(std::chrono::system_clock::time_point t,
 
     if (!Billboards.empty())
     {
-        auto time_until_expiration =
-            duration_cast<milliseconds>(Billboards.front().GetExpireTime() - system_clock::now());
-
-        if (time_until_expiration < milliseconds(0))
+        if (current_time > Billboards.front().GetExpireTime())
         {
             Billboards.pop_front();
         }
