@@ -37,12 +37,14 @@ class Ship : public Actor
     void Fire();
     bool IsColliding(const Ship& other);
     bool IsColliding(const Laser& laser);
+    void TakeDamage(const int amount);
 
     void SetTarget(Ship* const new_target);
     void ClearTarget();
     void SetDesiredDir(const glm::vec3& new_dir);
     const glm::vec3& GetDesiredDir() const;
     const glm::vec3& GetColor() const;
+    const int GetHealth() const;
 
   private:
     explicit Ship(const glm::vec3& p,
@@ -61,6 +63,8 @@ class Ship : public Actor
     glm::vec3 color = glm::vec3(0.0f, 0.0f, 0.7f);
     Team team;
     Ship* target = nullptr;
+
+    int health = 100;
 
     std::chrono::system_clock::time_point last_fired_time;
     std::chrono::system_clock::duration fire_recharge_time = std::chrono::milliseconds(250);

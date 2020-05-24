@@ -62,8 +62,7 @@ Ship::Ship(const glm::vec3& p,
 
 void Ship::Update(const float dt)
 {
-    glm::mat3 rot = glm::rotate(glm::mat4(1.0f), dt * glm::pi<float>(), glm::vec3(1.0, 0.0, 0.0));
-    dir = dir * rot;
+    // TODO: offload behaviour handling to a delegate class
 }
 
 void Ship::SetDesiredDir(const glm::vec3& new_dir)
@@ -94,6 +93,16 @@ const glm::vec3& Ship::GetColor() const
 //     pos = interp.first;
 //     dir = glm::normalize(interp.second);
 // }
+
+void Ship::TakeDamage(const int amount)
+{
+    health -= amount;
+}
+
+const int Ship::GetHealth() const
+{
+    return health;
+}
 
 void Ship::Follow(const Actor& target, const float dt)
 {
@@ -159,7 +168,6 @@ void Ship::ClearTarget()
 
 void Ship::Update(const std::bitset<8>& keyboardInfo, float dt)
 {
-    // std::cout << "dt: " << dt << '\n';
     if (keyboardInfo.test(KeyboardMapping::LEFTARROW))
     {
         desired_dir =
@@ -191,6 +199,8 @@ void Ship::Update(const std::bitset<8>& keyboardInfo, float dt)
         pos += glm::vec3(max_speed * dt * dir);
     if (keyboardInfo.test(KeyboardMapping::S))
         pos -= glm::vec3(max_speed * dt * dir);
+    if (keyboardInfo.test(KeyboardMapping::SPACEBAR))
+        Fire();
 }
 
 void Ship::Fire()

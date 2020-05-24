@@ -111,7 +111,7 @@ void GameState::integrate(std::chrono::system_clock::time_point t,
                 {
                     if (ship.second->IsColliding(laser))
                     {
-                        // ship.RegisterDamage(...)
+                        ship.second->TakeDamage(25);
                         Billboards.emplace_back(laser.GetPosition(),
                                                 laser.GetDirection(),
                                                 actor::Billboard::Type::CAMERA_FACING,
