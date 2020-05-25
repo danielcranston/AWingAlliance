@@ -17,6 +17,7 @@ struct Laser
 
     const glm::vec3& GetPosition() const;
     const glm::vec3& GetDirection() const;
+    const float GetLength() const;
     const glm::mat4 GetPose() const;
 
     // In absence of a better place to put this

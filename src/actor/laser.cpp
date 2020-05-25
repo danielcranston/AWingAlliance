@@ -29,6 +29,11 @@ const glm::vec3& Laser::GetDirection() const
     return dir;
 }
 
+const float Laser::GetLength() const
+{
+    return scale.z;
+}
+
 const glm::mat4 Laser::GetPose() const
 {
     glm::mat4 rot = glm::lookAt(glm::vec3(0.0, 0.0, 0.0), -dir, glm::vec3(0.0, 1.0, 0.0));

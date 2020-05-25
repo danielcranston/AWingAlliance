@@ -116,7 +116,8 @@ void GameState::integrate(const float t, const float d_time)
                     if (ship.second->IsColliding(laser))
                     {
                         ship.second->TakeDamage(25);
-                        Billboards.emplace_back(laser.GetPosition(),
+                        Billboards.emplace_back(laser.GetPosition() +
+                                                    laser.GetDirection() * laser.GetLength(),
                                                 laser.GetDirection(),
                                                 actor::Billboard::Type::CAMERA_FACING,
                                                 0,
