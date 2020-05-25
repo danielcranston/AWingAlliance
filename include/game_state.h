@@ -27,7 +27,7 @@ class GameState
     void register_terrain(const ScenarioParser::TerrainEntry* terrainentry);
     void register_player(const std::string& name);
 
-    void integrate(std::chrono::system_clock::time_point t, std::chrono::duration<float> d_time);
+    void integrate(const float t, const float d_time);
 
     const std::map<std::string, std::unique_ptr<actor::Ship>>& GetShips() const;
     const Terrain* const GetTerrain() const;

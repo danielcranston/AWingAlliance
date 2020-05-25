@@ -85,12 +85,11 @@ void GameState::register_player(const std::string& name)
     player_name = name;
 }
 
-void GameState::integrate(std::chrono::system_clock::time_point t,
-                          std::chrono::duration<float> d_time)
+void GameState::integrate(const float t, const float d_time)
 {
     ProcessKeyboardInput(keyboardInfo);
     using namespace std::chrono;
-    float dt = duration_cast<milliseconds>(d_time).count() / 1000.0f;
+    float dt = d_time;
     current_time += dt;
 
     if (!Lasers.empty())
@@ -151,13 +150,6 @@ void GameState::integrate(std::chrono::system_clock::time_point t,
     {
         Ships.at("tie2")->SetTarget(Ships.at("awing1").get());
     }
-
-    using namespace std::chrono;
-    const auto repeat_time = milliseconds(5000);
-    const auto spline_time_d = duration_cast<milliseconds>((t.time_since_epoch() % repeat_time));
-    const auto spline_time = spline_time_d.count() / static_cast<float>(repeat_time.count());
-    const auto ret = spline(spline_time);
-    Ships.at("tie1")->SetPose(ret.first, ret.second);
 
     camera.Update(dt);
 }

@@ -7,7 +7,6 @@
 #include <map>
 #include <list>
 
-#include <chrono>
 #include <iostream>
 #include <unistd.h>
 
@@ -33,10 +32,10 @@
 constexpr float FOV_Y = glm::radians(45.0f);
 uint SCREEN_W, SCREEN_H;
 
-std::chrono::system_clock::time_point t;
-const std::chrono::system_clock::duration dt = std::chrono::milliseconds(1);
-std::chrono::system_clock::time_point currentTime;
-std::chrono::system_clock::duration accumulator;
+float t;
+const float dt = 0.001666;  // length of one update step
+float currentTime;
+float accumulator;
 
 std::unique_ptr<ScenarioParser> parser;
 std::unique_ptr<Renderer> renderer;
@@ -62,8 +61,9 @@ void init()
     renderer->register_terrain(game_state->GetTerrain(), parser->terrain->textures);
     renderer->list_textures();
 
-    currentTime = std::chrono::system_clock::now();
-    accumulator = std::chrono::milliseconds(0);
+    t = 0.0f;
+    currentTime = glutGet(GLUT_ELAPSED_TIME) / 1000.0f;
+    accumulator = 0.0f;
 
     std::cout << "Finished Init" << '\n';
 }
@@ -80,9 +80,8 @@ void onDisplay()
 
     // https://gafferongames.com/post/fix_your_timestep/
     // " the renderer produces time and the simulation consumes it in discrete dt sized steps."
-    using namespace std::chrono;
-    auto newTime = system_clock::now();
-    auto frameTime = duration_cast<milliseconds>(newTime - currentTime);
+    float newTime = glutGet(GLUT_ELAPSED_TIME) / 1000.0f;
+    float frameTime = newTime - currentTime;
     currentTime = newTime;
 
     accumulator += frameTime;
@@ -93,7 +92,6 @@ void onDisplay()
         accumulator -= dt;
         t += dt;
     }
-
     renderer->render(game_state.get());
 
     glutSwapBuffers();
@@ -115,7 +113,7 @@ int main(int argc, char* argv[])
 {
     glutInit(&argc, argv);
     glutInitContextVersion(3, 2);
-    glutInitDisplayMode(GLUT_RGBA | GLUT_ALPHA | GLUT_DEPTH);  // GLUT_DOUBLE
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_ALPHA | GLUT_DEPTH);  // GLUT_DOUBLE
     SCREEN_W = 1200;
     SCREEN_H = 900;
     glutInitWindowSize(SCREEN_W, SCREEN_H);
