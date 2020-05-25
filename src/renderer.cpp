@@ -356,7 +356,7 @@ void Renderer::render_bbox(const glm::mat4& mvp, const glm::vec3& color)
     Models.at("cube")->DrawWireframe();
 }
 
-void Renderer::render_laser(const Laser& laser, const glm::mat4& camera_pose)
+void Renderer::render_laser(const actor::Laser& laser, const glm::mat4& camera_pose)
 {
     glm::mat4 mvp = camera_pose * laser.GetPose();
 

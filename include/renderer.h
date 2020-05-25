@@ -45,7 +45,7 @@ class Renderer
     void render_bbox(const glm::mat4& mvp, const glm::vec3& color);
     void render_terrain(const glm::mat4& camera_pose);
     void render_skybox(const glm::mat4& proj_matrix, glm::mat4 cam_matrix);
-    void render_laser(const Laser& laser, const glm::mat4& camera_pose);
+    void render_laser(const actor::Laser& laser, const glm::mat4& camera_pose);
     void render_billboard(const actor::Billboard& billboard, const glm::mat4& camera_pose);
 
     explicit Renderer(const unsigned int screen_w, const unsigned int screen_h);

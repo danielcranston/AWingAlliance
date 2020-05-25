@@ -6,6 +6,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+namespace actor
+{
 struct Laser
 {
     explicit Laser(const glm::vec3& p,
@@ -31,3 +33,4 @@ struct Laser
     std::chrono::system_clock::time_point expire_time;
     const float speed = 250.0f;
 };
+}  // namespace actor

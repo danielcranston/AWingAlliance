@@ -23,7 +23,7 @@ class GameState
 
     void register_ships(const std::map<std::string, ScenarioParser::ActorEntry>& actors);
     void register_ship(const std::string& name, const ScenarioParser::ActorEntry& actorentry);
-    void register_laser(const Laser& laser);
+    void register_laser(const actor::Laser& laser);
     void register_terrain(const ScenarioParser::TerrainEntry* terrainentry);
     void register_player(const std::string& name);
 
@@ -31,7 +31,7 @@ class GameState
 
     const std::map<std::string, std::unique_ptr<actor::Ship>>& GetShips() const;
     const Terrain* const GetTerrain() const;
-    const std::list<Laser>& GetLasers() const;
+    const std::list<actor::Laser>& GetLasers() const;
     const std::list<actor::Billboard>& GetBillboards() const;
     actor::Camera& GetCamera() const;
     void SetCameraPlacementFunc(std::function<std::pair<glm::vec3, glm::vec3>()> func);
@@ -39,7 +39,7 @@ class GameState
 
   private:
     std::map<std::string, std::unique_ptr<actor::Ship>> Ships;
-    std::list<Laser> Lasers;
+    std::list<actor::Laser> Lasers;
     std::list<actor::Billboard> Billboards;
     std::unique_ptr<Terrain> terrain;
     std::string player_name;

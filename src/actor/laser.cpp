@@ -1,5 +1,7 @@
 #include "actor/laser.h"
 
+namespace actor
+{
 const std::array<glm::vec3, 2> Laser::contact_points = {
     glm::vec3(0.0f, 0.0f, Laser::LENGTH / 2.0f),
     glm::vec3(0.0f, 0.0f, -Laser::LENGTH / 2.0f)
@@ -38,3 +40,4 @@ void Laser::RegisterLaser(std::list<Laser>& laser_vec, const Laser& new_laser)
 {
     laser_vec.push_back(new_laser);
 }
+}  // namespace actor

@@ -38,10 +38,10 @@ void GameState::register_ship(const std::string& name, const ScenarioParser::Act
             actorentry.dir,
             model_ptr,
             team,
-            std::bind(Laser::RegisterLaser, std::ref(Lasers), std::placeholders::_1))));
+            std::bind(actor::Laser::RegisterLaser, std::ref(Lasers), std::placeholders::_1))));
 }
 
-void GameState::register_laser(const Laser& laser)
+void GameState::register_laser(const actor::Laser& laser)
 {
 }
 
@@ -60,7 +60,7 @@ const std::map<std::string, std::unique_ptr<actor::Ship>>& GameState::GetShips()
     return Ships;
 }
 
-const std::list<Laser>& GameState::GetLasers() const
+const std::list<actor::Laser>& GameState::GetLasers() const
 {
     return Lasers;
 }
@@ -106,7 +106,7 @@ void GameState::integrate(const float t, const float d_time)
         {
             Lasers.pop_front();
         }
-        for (Laser& laser : Lasers)
+        for (actor::Laser& laser : Lasers)
         {
             if (laser.alive)
             {
