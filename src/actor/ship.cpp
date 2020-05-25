@@ -38,25 +38,14 @@ glm::quat RotationBetweenVectors(glm::vec3 start, glm::vec3 dest)
 
 namespace actor
 {
-std::unique_ptr<Ship> Ship::Create(const glm::vec3& p,
-                                   const glm::vec3& d,
-                                   const Model* mdl,
-                                   const Team team,
-                                   std::function<void(const Laser& Laser)> laser_func)
+std::unique_ptr<Ship>
+Ship::Create(const glm::vec3& p, const glm::vec3& d, const Model* mdl, const Team team)
 {
-    return std::unique_ptr<Ship>(new Ship(p, d, mdl, team, laser_func));
+    return std::unique_ptr<Ship>(new Ship(p, d, mdl, team));
 }
 
-Ship::Ship(const glm::vec3& p,
-           const glm::vec3& d,
-           const Model* mdl,
-           const Team team,
-           std::function<void(const Laser& Laser)> laser_func)
-  : Actor(p, d, mdl),
-    desired_dir(d),
-    RegisterLaserFunc(laser_func),
-    team(team),
-    last_fired_time(std::chrono::system_clock::now())
+Ship::Ship(const glm::vec3& p, const glm::vec3& d, const Model* mdl, const Team team)
+  : Actor(p, d, mdl), desired_dir(d), team(team), last_fired_time(std::chrono::system_clock::now())
 {
 }
 
@@ -220,5 +209,9 @@ void Ship::Fire()
         last_fired_time = system_clock::now();
     }
 }
+
+std::function<void(const Laser& laser)> Ship::RegisterLaserFunc = [](const Laser& laser) {
+    throw std::runtime_error("You need to set define your own function to register lasers");
+};
 
 }  // namespace actor

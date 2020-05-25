@@ -41,8 +41,4 @@ const glm::mat4 Laser::GetPose() const
            glm::scale(glm::mat4(1.0f), scale);
 }
 
-void Laser::RegisterLaser(std::list<Laser>& laser_vec, const Laser& new_laser)
-{
-    laser_vec.push_back(new_laser);
-}
 }  // namespace actor

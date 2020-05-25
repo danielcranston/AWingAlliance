@@ -17,6 +17,9 @@ GameState::GameState(const std::map<std::string, std::unique_ptr<Model>>* models
     current_time(0.0f)
 {
     actor::Billboard::GetCameraPosFunc = std::bind(&actor::Camera::GetPosition, std::ref(camera));
+    actor::Ship::RegisterLaserFunc = [this](const actor::Laser& new_laser) {
+        this->Lasers.push_back(new_laser);
+    };
 }
 
 void GameState::register_ships(const std::map<std::string, ScenarioParser::ActorEntry>& actors)
@@ -31,14 +34,8 @@ void GameState::register_ship(const std::string& name, const ScenarioParser::Act
 {
     const Model* model_ptr = models_ptr->at(actorentry.type).get();
     const actor::Team team = actor::team_map.at(actorentry.team);
-    Ships.insert(std::make_pair(
-        name,
-        actor::Ship::Create(
-            actorentry.pos,
-            actorentry.dir,
-            model_ptr,
-            team,
-            std::bind(actor::Laser::RegisterLaser, std::ref(Lasers), std::placeholders::_1))));
+    Ships.insert(
+        std::make_pair(name, actor::Ship::Create(actorentry.pos, actorentry.dir, model_ptr, team)));
 }
 
 void GameState::register_laser(const actor::Laser& laser)

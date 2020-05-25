@@ -20,9 +20,6 @@ struct Laser
     const float GetLength() const;
     const glm::mat4 GetPose() const;
 
-    // In absence of a better place to put this
-    static void RegisterLaser(std::list<Laser>& laser_vec, const Laser& new_laser);
-
     static constexpr float LENGTH = 4.0f;
     static const std::array<glm::vec3, 2> contact_points;
 

@@ -39,5 +39,8 @@ void Billboard::RegisterBillboard(std::list<Billboard>& billboard_list,
 
 // GetCameraPosFunc will be assigned by the GameState, but first needs to be defined here else we
 // get a linker error.
-std::function<const glm::vec3&()> Billboard::GetCameraPosFunc = nullptr;
+std::function<const glm::vec3&()> Billboard::GetCameraPosFunc = []() -> const glm::vec3& {
+    throw std::runtime_error("You need to set set Billboard::GetCameraPosFunc by yourself");
+};
+;
 }  // namespace actor

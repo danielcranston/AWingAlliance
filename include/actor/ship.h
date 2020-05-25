@@ -21,11 +21,8 @@ const std::map<std::string, actor::Team> team_map = { { "alliance", actor::Team:
 class Ship : public Actor
 {
   public:
-    static std::unique_ptr<Ship> Create(const glm::vec3& p,
-                                        const glm::vec3& d,
-                                        const Model* mdl,
-                                        const Team team,
-                                        std::function<void(const Laser& Laser)> laser_func);
+    static std::unique_ptr<Ship>
+    Create(const glm::vec3& p, const glm::vec3& d, const Model* mdl, const Team team);
 
     void Update(const float dt) override;
     void Update(const std::bitset<8>& keyboardInfo, float dt);
@@ -46,13 +43,10 @@ class Ship : public Actor
     const glm::vec3& GetColor() const;
     const int GetHealth() const;
 
+    static std::function<void(const Laser& laser)> RegisterLaserFunc;
+
   private:
-    explicit Ship(const glm::vec3& p,
-                  const glm::vec3& d,
-                  const Model* mdl,
-                  const Team team,
-                  std::function<void(const Laser& Laser)> laser_func);
-    std::function<void(const Laser& laser)> RegisterLaserFunc;
+    explicit Ship(const glm::vec3& p, const glm::vec3& d, const Model* mdl, const Team team);
 
     glm::vec3 desired_dir;
     float current_speed = 0.0f;
