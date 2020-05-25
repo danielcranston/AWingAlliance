@@ -34,6 +34,7 @@ class GameState
     const std::list<Laser>& GetLasers() const;
     const std::list<actor::Billboard>& GetBillboards() const;
     Camera& GetCamera() const;
+    void SetCameraPlacementFunc(std::function<std::pair<glm::vec3, glm::vec3>()> func);
     const float GetCurrentTime() const;
 
   private:

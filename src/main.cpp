@@ -56,7 +56,14 @@ void init()
     game_state->register_ships(parser->actors);
     game_state->register_terrain(parser->terrain.get());
     game_state->register_player(parser->player);
-    game_state->GetCamera().attach_to(game_state->GetShips().at(parser->player).get());
+
+    const actor::Ship* player_ptr = game_state->GetShips().at(parser->player).get();
+    game_state->SetCameraPlacementFunc([player_ptr]() -> std::pair<glm::vec3, glm::vec3> {
+        const glm::vec3 pos = player_ptr->GetPosition() + 5.0f * player_ptr->GetDesiredDir() -
+                              25.0f * player_ptr->GetDirection() + 5.0f * glm::vec3(0.0, 1.0, 0.0);
+        const glm::vec3 dir = player_ptr->GetPosition() + 20.0f * player_ptr->GetDirection();
+        return { pos, dir };
+    });
 
     renderer->register_terrain(game_state->GetTerrain(), parser->terrain->textures);
     renderer->list_textures();

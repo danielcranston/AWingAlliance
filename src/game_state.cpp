@@ -75,6 +75,11 @@ Camera& GameState::GetCamera() const
     return camera;
 }
 
+void GameState::SetCameraPlacementFunc(std::function<std::pair<glm::vec3, glm::vec3>()> func)
+{
+    Camera::placement_func = func;
+}
+
 const float GameState::GetCurrentTime() const
 {
     return current_time;

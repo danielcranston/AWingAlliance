@@ -1,13 +1,15 @@
 #pragma once
 
 #include "actor/actor.h"
+#include <functional>
+#include <utility>
 
 class Camera : public actor::Actor
 {
   public:
     explicit Camera();
 
-    void attach_to(actor::Actor* new_ptr) const;
+    static std::function<std::pair<glm::vec3, glm::vec3>()> placement_func;
 
     void Update(const float dt) override;
     void SetProjMatrix(const glm::mat4& new_projmat);
