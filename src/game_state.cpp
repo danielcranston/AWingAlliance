@@ -16,7 +16,7 @@ GameState::GameState(const std::map<std::string, std::unique_ptr<Model>>* models
            Spline::Waypoint({ 0.0f, 112.0f, 0.0f }, { -1.0f, 0.0f, .0f }, 512.0f)),
     current_time(0.0f)
 {
-    actor::Billboard::GetCameraPosFunc = std::bind(&Camera::GetPosition, std::ref(camera));
+    actor::Billboard::GetCameraPosFunc = std::bind(&actor::Camera::GetPosition, std::ref(camera));
 }
 
 void GameState::register_ships(const std::map<std::string, ScenarioParser::ActorEntry>& actors)
@@ -70,14 +70,14 @@ const std::list<actor::Billboard>& GameState::GetBillboards() const
     return Billboards;
 }
 
-Camera& GameState::GetCamera() const
+actor::Camera& GameState::GetCamera() const
 {
     return camera;
 }
 
 void GameState::SetCameraPlacementFunc(std::function<std::pair<glm::vec3, glm::vec3>()> func)
 {
-    Camera::placement_func = func;
+    actor::Camera::placement_func = func;
 }
 
 const float GameState::GetCurrentTime() const

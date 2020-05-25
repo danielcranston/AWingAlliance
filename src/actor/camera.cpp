@@ -1,5 +1,7 @@
 #include "actor/camera.h"
 
+namespace actor
+{
 Camera::Camera()
   : Actor({ 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, -1.0f }, nullptr),
     fov_y(glm::radians(45.0f)),
@@ -37,3 +39,4 @@ std::function<std::pair<glm::vec3, glm::vec3>()> Camera::placement_func =
     []() -> std::pair<glm::vec3, glm::vec3> {
     throw std::runtime_error("You need to set define your own function to position the camera.");
 };
+}  // namespace actor

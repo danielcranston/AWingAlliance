@@ -4,6 +4,8 @@
 #include <functional>
 #include <utility>
 
+namespace actor
+{
 class Camera : public actor::Actor
 {
   public:
@@ -26,3 +28,4 @@ class Camera : public actor::Actor
 
     glm::mat4 camMatrix, projMatrix;
 };
+}  // namespace actor

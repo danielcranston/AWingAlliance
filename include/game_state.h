@@ -33,7 +33,7 @@ class GameState
     const Terrain* const GetTerrain() const;
     const std::list<Laser>& GetLasers() const;
     const std::list<actor::Billboard>& GetBillboards() const;
-    Camera& GetCamera() const;
+    actor::Camera& GetCamera() const;
     void SetCameraPlacementFunc(std::function<std::pair<glm::vec3, glm::vec3>()> func);
     const float GetCurrentTime() const;
 
@@ -44,7 +44,7 @@ class GameState
     std::unique_ptr<Terrain> terrain;
     std::string player_name;
     const std::map<std::string, std::unique_ptr<Model>>* models_ptr;
-    mutable Camera camera;
+    mutable actor::Camera camera;
 
     Spline spline;
 
