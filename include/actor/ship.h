@@ -59,6 +59,9 @@ class Ship : public Actor
     Ship* target = nullptr;
 
     int health = 100;
+    // To be offloaded to some subordinate class/state
+    float time_since_death = 0.0f;
+    glm::vec3 dying_dir;
 
     std::chrono::system_clock::time_point last_fired_time;
     std::chrono::system_clock::duration fire_recharge_time = std::chrono::milliseconds(250);

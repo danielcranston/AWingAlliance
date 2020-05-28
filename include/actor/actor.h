@@ -1,6 +1,7 @@
 #pragma once
 
 #include <glm/glm.hpp>
+#include <glm/gtc/quaternion.hpp>
 
 #include "model.h"
 
@@ -25,6 +26,7 @@ class Actor
     explicit Actor(const glm::vec3& p, const glm::vec3& d, const Model* mdl);
     glm::vec3 pos;
     glm::vec3 dir;
+    float roll = 0.0f;
     const Model* model;
 };
 }  // namespace actor

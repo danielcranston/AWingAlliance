@@ -51,7 +51,22 @@ Ship::Ship(const glm::vec3& p, const glm::vec3& d, const Model* mdl, const Team 
 
 void Ship::Update(const float dt)
 {
-    // TODO: offload behaviour handling to a delegate class
+    if (health > 0)
+    {
+        // behavior
+    }
+    else
+    {
+        if (time_since_death == 0.0f)
+            dying_dir = dir;
+
+        time_since_death += dt;
+        roll = 2.0f * time_since_death * glm::pi<float>();
+        glm::mat4 anim = glm::rotate(glm::mat4(1.0f), 0.1f * roll, glm::vec3(0, 1, 0)) *
+                         glm::rotate(glm::mat4(1.0f), 0.5f * roll, glm::vec3(1, 0, 0));
+        dir = glm::mat3(anim) * glm::vec3(0, 0, -1);
+        pos = pos + max_speed * dying_dir * dt;
+    }
 }
 
 void Ship::SetDesiredDir(const glm::vec3& new_dir)
