@@ -139,20 +139,10 @@ void GameState::integrate(const float t, const float d_time)
         }
     }
 
-    if (keyboardInfo.test(KeyboardMapping::SPACEBAR))
-        Ships.at("awing1")->Fire();
+    for (const auto& ship : Ships)
+        ship.second->Update(dt);
 
     Ships.at("awing1")->Update(keyboardInfo, dt);
-    Ships.at("tie2")->Follow(dt);
-
-    if (Ships.at("tie2")->IsInRange(Ships.at("awing1")->GetPosition(), 21.0f))
-    {
-        Ships.at("tie2")->SetTarget(Ships.at("bomber1").get());
-    }
-    if (Ships.at("tie2")->IsInRange(Ships.at("bomber1")->GetPosition(), 21.0f))
-    {
-        Ships.at("tie2")->SetTarget(Ships.at("awing1").get());
-    }
 
     camera.Update(dt);
 }
