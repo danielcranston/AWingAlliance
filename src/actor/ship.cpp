@@ -108,6 +108,11 @@ const int Ship::GetHealth() const
     return health;
 }
 
+const Team& Ship::GetTeam() const
+{
+    return team;
+}
+
 void Ship::Follow(const Actor& target, const float dt)
 {
     MoveToLocation(target.GetPosition(), dt);
@@ -174,12 +179,15 @@ void Ship::Update(const std::bitset<8>& keyboardInfo, float dt)
 {
     if (keyboardInfo.test(KeyboardMapping::LEFTARROW))
     {
+        roll = std::max(roll - 0.001f * glm::pi<float>(), -0.15f * glm::pi<float>());
+
         desired_dir =
             glm::vec3(glm::rotate(glm::mat4(1.0f), max_turnspeed * dt, glm::vec3(0, 1, 0)) *
                       glm::vec4(desired_dir, 1.0));
     }
     if (keyboardInfo.test(KeyboardMapping::RIGHTARROW))
     {
+        roll = std::min(roll + 0.001f * glm::pi<float>(), +0.15f * glm::pi<float>());
         desired_dir =
             glm::vec3(glm::rotate(glm::mat4(1.0f), -max_turnspeed * dt, glm::vec3(0, 1, 0)) *
                       glm::vec4(desired_dir, 1.0));
@@ -195,6 +203,10 @@ void Ship::Update(const std::bitset<8>& keyboardInfo, float dt)
         desired_dir = glm::vec3(glm::rotate(glm::mat4(1.0f), max_turnspeed * dt, rightVector) *
                                 glm::vec4(desired_dir, 1.0));
     }
+
+    if (!keyboardInfo.test(KeyboardMapping::RIGHTARROW) &&
+        !keyboardInfo.test(KeyboardMapping::LEFTARROW))
+        roll -= 0.003f * roll * glm::pi<float>();
 
     glm::quat quat = RotationBetweenVectors(dir, desired_dir);
     dir = glm::normalize((0.1f * quat) * dir);

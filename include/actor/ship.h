@@ -42,6 +42,7 @@ class Ship : public Actor
     const glm::vec3& GetDesiredDir() const;
     const glm::vec3& GetColor() const;
     const int GetHealth() const;
+    const Team& GetTeam() const;
 
     static std::function<void(const Laser& laser)> RegisterLaserFunc;
 
