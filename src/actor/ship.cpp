@@ -53,7 +53,7 @@ void Ship::Update(const float dt)
 {
     if (health > 0)
     {
-        // behavior
+        controller.Tick(this);
     }
     else
     {

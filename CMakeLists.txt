@@ -9,9 +9,13 @@ set(CMAKE_CXX_STANDARD 14)
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
 
-include_directories(    ${PROJECT_SOURCE_DIR}/include
-                        ${PROJECT_SOURCE_DIR}/include/external)
+include_directories(${PROJECT_SOURCE_DIR}/include
+                    ${PROJECT_SOURCE_DIR}/include/external
+                    ${PROJECT_SOURCE_DIR}/BehaviorTree.CPP/include)
 
+
+set(BEHAVIOR_TREE_LIBRARY behaviortree_cpp_v3)
+add_subdirectory(${PROJECT_SOURCE_DIR}/BehaviorTree.CPP)
 add_subdirectory(${PROJECT_SOURCE_DIR}/src)
 
 

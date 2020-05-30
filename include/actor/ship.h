@@ -8,6 +8,8 @@
 #include "actor/actor.h"
 #include "actor/laser.h"
 
+#include "ship_controller.h"
+
 namespace actor
 {
 enum class Team : int
@@ -63,6 +65,8 @@ class Ship : public Actor
     // To be offloaded to some subordinate class/state
     float time_since_death = 0.0f;
     glm::vec3 dying_dir;
+
+    ShipController controller;
 
     std::chrono::system_clock::time_point last_fired_time;
     std::chrono::system_clock::duration fire_recharge_time = std::chrono::milliseconds(250);
