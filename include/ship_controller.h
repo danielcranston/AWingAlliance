@@ -14,8 +14,8 @@ class Behavior;
 class ShipController
 {
   public:
-    explicit ShipController();
-    void Tick(const actor::Ship* ship);
+    explicit ShipController(const actor::Ship* ship);
+    void Tick();
 
   private:
     BT::Tree tree;

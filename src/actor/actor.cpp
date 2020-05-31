@@ -23,6 +23,11 @@ void Actor::SetDirection(const glm::vec3& d)
     dir = d;
 }
 
+void Actor::SetRoll(const float angle)
+{
+    roll = angle;
+}
+
 void Actor::SetPose(const glm::vec3& p, const glm::vec3& d)
 {
     pos = p;
@@ -37,6 +42,10 @@ const glm::vec3& Actor::GetPosition() const
 const glm::vec3& Actor::GetDirection() const
 {
     return dir;
+}
+const float Actor::GetRoll() const
+{
+    return roll;
 }
 
 const glm::mat4 Actor::GetPose() const

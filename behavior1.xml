@@ -1,7 +1,20 @@
- <root main_tree_to_execute = "MainTree" >
-     <BehaviorTree ID="MainTree">
-        <Sequence name="root_sequence">
-            <SayHello name="action_hello"/>
+<root main_tree_to_execute = "MainTree" >
+    <BehaviorTree ID="MainTree">
+        <Fallback name="root">
+            <SubTree ID="AliveBehavior"/>
+            <SubTree ID="DyingBehavior"/>
+        </Fallback>
+    </BehaviorTree>
+
+        <BehaviorTree ID="AliveBehavior">
+        <Sequence>
+            <Action ID="IsAlive"/>
         </Sequence>
      </BehaviorTree>
+
+     <BehaviorTree ID="DyingBehavior">
+        <Sequence>
+            <Action ID="Tumble"/>
+        </Sequence>
+    </BehaviorTree>
  </root>

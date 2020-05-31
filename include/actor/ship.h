@@ -45,6 +45,7 @@ class Ship : public Actor
     const glm::vec3& GetColor() const;
     const int GetHealth() const;
     const Team& GetTeam() const;
+    const float GetSpeed() const;
 
     static std::function<void(const Laser& laser)> RegisterLaserFunc;
 
@@ -62,9 +63,6 @@ class Ship : public Actor
     Ship* target = nullptr;
 
     int health = 100;
-    // To be offloaded to some subordinate class/state
-    float time_since_death = 0.0f;
-    glm::vec3 dying_dir;
 
     ShipController controller;
 

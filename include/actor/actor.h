@@ -12,10 +12,12 @@ class Actor
   public:
     void SetPosition(const glm::vec3& pos);
     void SetDirection(const glm::vec3& dir);
+    void SetRoll(const float angle);
     void SetPose(const glm::vec3& pos, const glm::vec3& dir);
 
     const glm::vec3& GetPosition() const;
     const glm::vec3& GetDirection() const;
+    const float GetRoll() const;
     const glm::mat4 GetPose() const;
 
     const Model* GetModel() const;
