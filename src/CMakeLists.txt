@@ -16,7 +16,8 @@ add_executable(awing main.cpp
                      renderer.cpp
                      game_state.cpp
                      fbo.cpp
-                     ship_controller.cpp)
+                     behavior/ship_controller.cpp
+                     behavior/nodes.cpp)
 
 target_link_libraries(awing actors
                             ${OPENGL_LIBRARIES}

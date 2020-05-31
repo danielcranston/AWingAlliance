@@ -8,7 +8,7 @@
 #include "actor/actor.h"
 #include "actor/laser.h"
 
-#include "ship_controller.h"
+#include "behavior/ship_controller.h"
 
 namespace actor
 {
