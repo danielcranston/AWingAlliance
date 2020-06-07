@@ -3,6 +3,7 @@
 #include "game_state.h"
 #include "actor/ship.h"
 #include "keyboard.h"
+#include "behavior/ship_controller.h"
 
 std::unique_ptr<GameState>
 GameState::Create(const std::map<std::string, std::unique_ptr<Model>>* models_ptr)
@@ -16,9 +17,20 @@ GameState::GameState(const std::map<std::string, std::unique_ptr<Model>>* models
            Spline::Waypoint({ 0.0f, 112.0f, 0.0f }, { -1.0f, 0.0f, .0f }, 512.0f)),
     current_time(0.0f)
 {
+    // Register various callbacks
     actor::Billboard::GetCameraPosFunc = std::bind(&actor::Camera::GetPosition, std::ref(camera));
     actor::Ship::RegisterLaserFunc = [this](const actor::Laser& new_laser) {
         this->Lasers.push_back(new_laser);
+    };
+    ShipController::GetTargetFunc = [this](const actor::Ship& requester) -> const actor::Ship* {
+        // Just grab the first ship that is on the enemy team for now
+        const actor::Team& team = requester.GetTeam();
+        for (const auto& item : Ships)
+        {
+            if (item.second.get()->GetTeam() != team)
+                return item.second.get();
+        }
+        return nullptr;
     };
 }
 
@@ -140,7 +152,10 @@ void GameState::integrate(const float t, const float d_time)
     }
 
     for (const auto& ship : Ships)
-        ship.second->Update(dt);
+    {
+        if (ship.second.get() != Ships.at("awing1").get())
+            ship.second->Update(dt);
+    }
 
     Ships.at("awing1")->Update(keyboardInfo, dt);
 

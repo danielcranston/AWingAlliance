@@ -7,9 +7,12 @@
     </BehaviorTree>
 
         <BehaviorTree ID="AliveBehavior">
-        <Sequence>
+        <ReactiveSequence>
             <Action ID="IsAlive"/>
-        </Sequence>
+            <!-- Should have some IsTargetSet to avoid setting each tick, but this'll do for now -->
+            <Action ID="SetTarget" target="{target}"/>
+            <Action ID="FaceTarget" target="{target}"/>
+        </ReactiveSequence>
      </BehaviorTree>
 
      <BehaviorTree ID="DyingBehavior">

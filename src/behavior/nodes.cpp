@@ -1,5 +1,6 @@
-#include <behavior/nodes.h>
-#include <actor/ship.h>
+#include "behavior/nodes.h"
+#include "actor/ship.h"
+#include "behavior/ship_controller.h"
 
 RunnableActionNode::RunnableActionNode(const std::string& name, const BT::NodeConfiguration& config)
   : BT::ActionNodeBase(name, config)
@@ -25,6 +26,53 @@ BT::NodeStatus IsAlive::tick()
     else
         return BT::NodeStatus::FAILURE;
 };
+
+SetTarget::SetTarget(const std::string& name,
+                     const BT::NodeConfiguration& config,
+                     const actor::Ship* ship)
+  : BT::SyncActionNode(name, config), ship(ship)
+{
+}
+
+BT::PortsList SetTarget::providedPorts()
+{
+    return { BT::OutputPort<const actor::Ship*>("target") };
+}
+
+BT::NodeStatus SetTarget::tick()
+{
+    BT::TreeNode::setOutput("target", ShipController::GetTargetFunc(*ship));
+    return BT::NodeStatus::SUCCESS;
+}
+
+FaceTarget::FaceTarget(const std::string& name,
+                       const BT::NodeConfiguration& config,
+                       actor::Ship* ship)
+  : RunnableActionNode(name, config), ship(ship)
+{
+}
+
+BT::PortsList FaceTarget::providedPorts()
+{
+    return { BT::InputPort<const actor::Ship*>("target") };
+}
+
+BT::NodeStatus FaceTarget::tick()
+{
+    BT::Optional<const actor::Ship*> msg = getInput<const actor::Ship*>("target");
+    if (msg)
+    {
+        const auto target = msg.value();
+        if (target != ship)
+            ship->SetDirection(glm::normalize(target->GetPosition() - ship->GetPosition()));
+    }
+    else
+    {
+        throw BT::RuntimeError(msg.error());
+    }
+
+    return BT::NodeStatus::RUNNING;
+}
 
 Tumble::Tumble(const std::string& name, const BT::NodeConfiguration& config, actor::Ship* ship)
   : RunnableActionNode(name, config), ship(ship), dt(0.001666f)
