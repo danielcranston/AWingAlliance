@@ -21,7 +21,8 @@ ShipController::ShipController(const actor::Ship* ship)
     };
     BT::NodeBuilder builder_SetTarget = [non_const_ship](const std::string& name,
                                                          const BT::NodeConfiguration& config) {
-        return std::make_unique<SetTarget>(name, config, non_const_ship);
+        return std::make_unique<SetTarget>(
+            name, config, non_const_ship, ShipController::GetTargetFunc);
     };
 
     BT::NodeBuilder builder_FaceTarget = [non_const_ship](const std::string& name,

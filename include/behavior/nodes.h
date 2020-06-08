@@ -33,14 +33,17 @@ class IsAlive : public BT::ConditionNode
 class SetTarget : public BT::SyncActionNode
 {
   public:
-    SetTarget(const std::string& name,
-              const BT::NodeConfiguration& config,
-              const actor::Ship* ship);
+    SetTarget(
+        const std::string& name,
+        const BT::NodeConfiguration& config,
+        const actor::Ship* ship,
+        const std::function<const actor::Ship*(const actor::Ship& requester)> get_target_func);
     static BT::PortsList providedPorts();
     virtual BT::NodeStatus tick() override final;
 
   private:
     const actor::Ship* ship;
+    const std::function<const actor::Ship*(const actor::Ship& requester)> get_target_func;
 };
 
 class FaceTarget : public RunnableActionNode

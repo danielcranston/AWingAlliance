@@ -1,6 +1,5 @@
 #include "behavior/nodes.h"
 #include "actor/ship.h"
-#include "behavior/ship_controller.h"
 
 RunnableActionNode::RunnableActionNode(const std::string& name, const BT::NodeConfiguration& config)
   : BT::ActionNodeBase(name, config)
@@ -27,10 +26,12 @@ BT::NodeStatus IsAlive::tick()
         return BT::NodeStatus::FAILURE;
 };
 
-SetTarget::SetTarget(const std::string& name,
-                     const BT::NodeConfiguration& config,
-                     const actor::Ship* ship)
-  : BT::SyncActionNode(name, config), ship(ship)
+SetTarget::SetTarget(
+    const std::string& name,
+    const BT::NodeConfiguration& config,
+    const actor::Ship* ship,
+    const std::function<const actor::Ship*(const actor::Ship& requester)> get_target_func)
+  : BT::SyncActionNode(name, config), ship(ship), get_target_func(get_target_func)
 {
 }
 
@@ -41,7 +42,7 @@ BT::PortsList SetTarget::providedPorts()
 
 BT::NodeStatus SetTarget::tick()
 {
-    BT::TreeNode::setOutput("target", ShipController::GetTargetFunc(*ship));
+    BT::TreeNode::setOutput("target", get_target_func(*ship));
     return BT::NodeStatus::SUCCESS;
 }
 
