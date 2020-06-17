@@ -22,14 +22,23 @@ class Spline
     };
     explicit Spline(const Waypoint start, const Waypoint end);
 
-    std::pair<glm::vec3, glm::vec3> operator()(float u);
+    std::pair<glm::vec3, glm::vec3> operator()(float u) const;
+    float GetLength() const;
+    float GetTravelDuration() const;
 
   private:
     Waypoint start;
     Waypoint end;
 
     glm::mat4 MP, MpP;
-    glm::vec4 U;
+    mutable glm::vec4 U;
 
     void Update();
+    float EstimateLength() const;
+    float EstimateTravelDuration() const;
+
+    mutable bool length_calculated = false;
+    mutable bool travel_duration_calculated = false;
+    mutable float approximate_length;
+    mutable float approximate_travel_duration;
 };

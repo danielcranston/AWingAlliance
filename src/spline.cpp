@@ -16,6 +16,8 @@ Spline::Waypoint::Waypoint(const glm::vec3& pos, const glm::vec3 dir, const floa
 Spline::Spline(const Waypoint start, const Waypoint end) : start(start), end(end)
 {
     Update();
+    approximate_length = EstimateLength();
+    approximate_travel_duration = EstimateTravelDuration();
 }
 
 void Spline::Update()
@@ -38,8 +40,51 @@ void Spline::Update()
     MpP = P * Mp;
 }
 
-std::pair<glm::vec3, glm::vec3> Spline::operator()(float u)
+std::pair<glm::vec3, glm::vec3> Spline::operator()(float u) const
 {
     U = { u * u * u, u * u, u, 1.0 };
     return std::make_pair(MP * U, glm::normalize(MpP * U));
+}
+
+float Spline::GetLength() const
+{
+    if (!length_calculated)
+    {
+        approximate_length = EstimateLength();
+        length_calculated = true;
+    }
+
+    return approximate_length;
+}
+
+float Spline::GetTravelDuration() const
+{
+    if (!travel_duration_calculated)
+    {
+        approximate_travel_duration = EstimateTravelDuration();
+        travel_duration_calculated = true;
+    }
+
+    return approximate_travel_duration;
+}
+
+float Spline::EstimateLength() const
+{
+    // There's probably some exact way, but this'll do
+    float length = 0;
+    glm::vec3 last_pos = this->operator()(0.0f).first;
+    for (float u = 0.1f; u <= 1.0f; u += 0.1f)
+    {
+        glm::vec3 this_pos = this->operator()(u).first;
+        length += std::abs(glm::distance(last_pos, this_pos));
+        last_pos = this_pos;
+    }
+    return length;
+}
+
+float Spline::EstimateTravelDuration() const
+{
+    const float length = GetLength();
+    const float avg_speed = (start.speed + end.speed) / 2.0f;
+    return length / avg_speed;
 }
