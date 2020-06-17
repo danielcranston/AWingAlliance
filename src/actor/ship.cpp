@@ -38,14 +38,22 @@ glm::quat RotationBetweenVectors(glm::vec3 start, glm::vec3 dest)
 
 namespace actor
 {
-std::unique_ptr<Ship>
-Ship::Create(const glm::vec3& p, const glm::vec3& d, const Model* mdl, const Team team)
+std::unique_ptr<Ship> Ship::Create(const glm::vec3& p,
+                                   const glm::vec3& d,
+                                   const std::string& name,
+                                   const Model* mdl,
+                                   const Team team)
 {
-    return std::unique_ptr<Ship>(new Ship(p, d, mdl, team));
+    return std::unique_ptr<Ship>(new Ship(p, d, name, mdl, team));
 }
 
-Ship::Ship(const glm::vec3& p, const glm::vec3& d, const Model* mdl, const Team team)
+Ship::Ship(const glm::vec3& p,
+           const glm::vec3& d,
+           const std::string& name,
+           const Model* mdl,
+           const Team team)
   : Actor(p, d, mdl),
+    name(name),
     desired_dir(d),
     team(team),
     controller(this),
@@ -105,6 +113,11 @@ const Team& Ship::GetTeam() const
 const float Ship::GetSpeed() const
 {
     return max_speed;
+}
+
+const std::string& Ship::GetName() const
+{
+    return name;
 }
 
 void Ship::Follow(const Actor& target, const float dt)

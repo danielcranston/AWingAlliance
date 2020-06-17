@@ -46,8 +46,8 @@ void GameState::register_ship(const std::string& name, const ScenarioParser::Act
 {
     const Model* model_ptr = models_ptr->at(actorentry.type).get();
     const actor::Team team = actor::team_map.at(actorentry.team);
-    Ships.insert(
-        std::make_pair(name, actor::Ship::Create(actorentry.pos, actorentry.dir, model_ptr, team)));
+    Ships.insert(std::make_pair(
+        name, actor::Ship::Create(actorentry.pos, actorentry.dir, name, model_ptr, team)));
 }
 
 void GameState::register_laser(const actor::Laser& laser)
