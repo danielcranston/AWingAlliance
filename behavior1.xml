@@ -1,23 +1,24 @@
-<root main_tree_to_execute = "MainTree" >
+<root main_tree_to_execute="MainTree">
     <BehaviorTree ID="MainTree">
         <Fallback name="root">
-            <SubTree ID="AliveBehavior"/>
-            <SubTree ID="DyingBehavior"/>
+            <SubTree ID="AliveBehavior" />
+            <SubTree ID="DyingBehavior" />
         </Fallback>
     </BehaviorTree>
 
-        <BehaviorTree ID="AliveBehavior">
+    <BehaviorTree ID="AliveBehavior">
         <ReactiveSequence>
-            <Action ID="IsAlive"/>
-            <!-- Should have some IsTargetSet to avoid setting each tick, but this'll do for now -->
-            <Action ID="SetTarget" target="{target}"/>
-            <Action ID="FaceTarget" target="{target}"/>
+            <Action ID="IsAlive" />
+            <Sequence>
+                <Action ID="SetTarget" target="{target}" />
+                <Action ID="FaceTarget" target="{target}" />
+            </Sequence>
         </ReactiveSequence>
-     </BehaviorTree>
+    </BehaviorTree>
 
-     <BehaviorTree ID="DyingBehavior">
+    <BehaviorTree ID="DyingBehavior">
         <Sequence>
-            <Action ID="Tumble"/>
+            <Action ID="Tumble" />
         </Sequence>
     </BehaviorTree>
- </root>
+</root>

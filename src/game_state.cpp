@@ -23,14 +23,25 @@ GameState::GameState(const std::map<std::string, std::unique_ptr<Model>>* models
         this->Lasers.push_back(new_laser);
     };
     ShipController::GetTargetFunc = [this](const actor::Ship& requester) -> const actor::Ship* {
-        // Just grab the first ship that is on the enemy team for now
+        // Go through all Ships and choose the closest enemy ship
         const actor::Team& team = requester.GetTeam();
+
+        float closest_dist = std::numeric_limits<float>::max();
+        actor::Ship* closest_ship = nullptr;
         for (const auto& item : Ships)
         {
-            if (item.second.get()->GetTeam() != team)
-                return item.second.get();
+            if (item.second->GetTeam() != team)
+            {
+                const float dist =
+                    std::abs(glm::distance(item.second->GetPosition(), requester.GetPosition()));
+                if (dist < closest_dist)
+                {
+                    closest_dist = dist;
+                    closest_ship = item.second.get();
+                }
+            }
         }
-        return nullptr;
+        return closest_ship;
     };
 }
 
