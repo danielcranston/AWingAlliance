@@ -17,6 +17,8 @@ class Tumble : public RunnableActionNode
     Tumble(const std::string& name, const BT::NodeConfiguration& config, actor::Ship* ship);
     virtual BT::NodeStatus tick() override final;
 
+    static BT::NodeBuilder Builder(actor::Ship* ship);
+
   private:
     actor::Ship* ship;
     glm::vec3 dying_dir;

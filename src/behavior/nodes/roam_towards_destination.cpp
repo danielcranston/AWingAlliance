@@ -42,3 +42,10 @@ BT::NodeStatus RoamTowardsDestination::tick()
         return BT::NodeStatus::SUCCESS;
     }
 }
+
+BT::NodeBuilder RoamTowardsDestination::Builder(actor::Ship* ship, Spline* spline)
+{
+    return [ship, spline](const std::string& name, const BT::NodeConfiguration& config) {
+        return std::make_unique<RoamTowardsDestination>(name, config, ship, spline);
+    };
+}

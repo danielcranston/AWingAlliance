@@ -14,6 +14,8 @@ class IsAlive : public BT::ConditionNode
     IsAlive(const std::string& name, const BT::NodeConfiguration& config, const actor::Ship* ship);
     virtual BT::NodeStatus tick() override final;
 
+    static BT::NodeBuilder Builder(actor::Ship* ship);
+
   private:
     const actor::Ship* ship;
 };

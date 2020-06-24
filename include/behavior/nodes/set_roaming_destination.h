@@ -23,6 +23,12 @@ class SetRoamingDestination : public BT::SyncActionNode
                                                   const glm::vec3& area_size)> random_vec_func);
     virtual BT::NodeStatus tick() override final;
 
+    static BT::NodeBuilder
+    Builder(actor::Ship* ship,
+            Spline* spline,
+            std::function<glm::vec3(const glm::vec3& center, const glm::vec3& area_size)>
+                random_vec_func);
+
   private:
     const actor::Ship* ship;
     Spline& spline;

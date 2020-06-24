@@ -21,6 +21,8 @@ class RoamTowardsDestination : public RunnableActionNode
                            Spline* spline);
     virtual BT::NodeStatus tick() override final;
 
+    static BT::NodeBuilder Builder(actor::Ship* ship, Spline* spline);
+
   private:
     actor::Ship* ship;
     Spline& spline;

@@ -14,43 +14,16 @@ ShipController::ShipController(const actor::Ship* ship)
     actor::Ship* non_const_ship = const_cast<actor::Ship*>(ship);
 
     BT::BehaviorTreeFactory factory;
-    BT::NodeBuilder builder_IsAlive = [non_const_ship](const std::string& name,
-                                                       const BT::NodeConfiguration& config) {
-        return std::make_unique<IsAlive>(name, config, non_const_ship);
-    };
-    BT::NodeBuilder builder_Tumble = [non_const_ship](const std::string& name,
-                                                      const BT::NodeConfiguration& config) {
-        return std::make_unique<Tumble>(name, config, non_const_ship);
-    };
-    BT::NodeBuilder builder_SetTarget = [non_const_ship](const std::string& name,
-                                                         const BT::NodeConfiguration& config) {
-        return std::make_unique<SetTarget>(
-            name, config, non_const_ship, ShipController::GetTargetFunc);
-    };
-    BT::NodeBuilder builder_SetRoamingDestination =
-        [this, non_const_ship](const std::string& name, const BT::NodeConfiguration& config) {
-            return std::make_unique<SetRoamingDestination>(
-                name, config, non_const_ship, spline.get(), RandomVecFunc);
-        };
-    BT::NodeBuilder builder_RoamTowardsDestination = [this, non_const_ship](
-                                                         const std::string& name,
-                                                         const BT::NodeConfiguration& config) {
-        return std::make_unique<RoamTowardsDestination>(name, config, non_const_ship, spline.get());
-    };
 
-    BT::NodeBuilder builder_FaceTarget = [non_const_ship](const std::string& name,
-                                                          const BT::NodeConfiguration& config) {
-        return std::make_unique<FaceTarget>(name, config, non_const_ship);
-    };
-
-    factory.registerBuilder<IsAlive>("IsAlive", builder_IsAlive);
-    factory.registerBuilder<SetTarget>("SetTarget", builder_SetTarget);
-    factory.registerBuilder<SetRoamingDestination>("SetRoamingDestination",
-                                                   builder_SetRoamingDestination);
-    factory.registerBuilder<RoamTowardsDestination>("RoamTowardsDestination",
-                                                    builder_RoamTowardsDestination);
-    factory.registerBuilder<FaceTarget>("FaceTarget", builder_FaceTarget);
-    factory.registerBuilder<Tumble>("Tumble", builder_Tumble);
+    factory.registerBuilder<IsAlive>("IsAlive", IsAlive::Builder(non_const_ship));
+    factory.registerBuilder<SetTarget>("SetTarget", IsAlive::Builder(non_const_ship));
+    factory.registerBuilder<SetRoamingDestination>(
+        "SetRoamingDestination",
+        SetRoamingDestination::Builder(non_const_ship, spline.get(), RandomVecFunc));
+    factory.registerBuilder<RoamTowardsDestination>(
+        "RoamTowardsDestination", RoamTowardsDestination::Builder(non_const_ship, spline.get()));
+    factory.registerBuilder<FaceTarget>("FaceTarget", FaceTarget::Builder(non_const_ship));
+    factory.registerBuilder<Tumble>("Tumble", Tumble::Builder(non_const_ship));
     tree = factory.createTreeFromFile("./behavior1.xml");
 }
 

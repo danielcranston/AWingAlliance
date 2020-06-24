@@ -19,6 +19,10 @@ class SetTarget : public BT::SyncActionNode
     static BT::PortsList providedPorts();
     virtual BT::NodeStatus tick() override final;
 
+    static BT::NodeBuilder
+    Builder(actor::Ship* ship,
+            std::function<const actor::Ship*(const actor::Ship& requester)> get_target_func);
+
   private:
     const actor::Ship* ship;
     const std::function<const actor::Ship*(const actor::Ship& requester)> get_target_func;

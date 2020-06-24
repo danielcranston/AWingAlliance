@@ -29,3 +29,10 @@ BT::NodeStatus FaceTarget::tick()
 
     return BT::NodeStatus::RUNNING;
 }
+
+BT::NodeBuilder FaceTarget::Builder(actor::Ship* ship)
+{
+    return [ship](const std::string& name, const BT::NodeConfiguration& config) {
+        return std::make_unique<FaceTarget>(name, config, ship);
+    };
+}

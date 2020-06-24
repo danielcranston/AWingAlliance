@@ -15,3 +15,10 @@ BT::NodeStatus IsAlive::tick()
     else
         return BT::NodeStatus::FAILURE;
 };
+
+BT::NodeBuilder IsAlive::Builder(actor::Ship* ship)
+{
+    return [ship](const std::string& name, const BT::NodeConfiguration& config) {
+        return std::make_unique<IsAlive>(name, config, ship);
+    };
+}

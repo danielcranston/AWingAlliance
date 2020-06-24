@@ -41,3 +41,14 @@ BT::NodeStatus SetRoamingDestination::tick()
 
     return BT::NodeStatus::SUCCESS;
 }
+
+BT::NodeBuilder SetRoamingDestination::Builder(
+    actor::Ship* ship,
+    Spline* spline,
+    std::function<glm::vec3(const glm::vec3& center, const glm::vec3& area_size)> random_vec_func)
+{
+    return [ship, spline, random_vec_func](const std::string& name,
+                                           const BT::NodeConfiguration& config) {
+        return std::make_unique<SetRoamingDestination>(name, config, ship, spline, random_vec_func);
+    };
+}

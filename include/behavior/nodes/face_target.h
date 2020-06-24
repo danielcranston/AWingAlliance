@@ -17,6 +17,8 @@ class FaceTarget : public RunnableActionNode
     static BT::PortsList providedPorts();
     virtual BT::NodeStatus tick() override final;
 
+    static BT::NodeBuilder Builder(actor::Ship* ship);
+
   private:
     actor::Ship* ship;
 };

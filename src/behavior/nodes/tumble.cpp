@@ -21,3 +21,10 @@ BT::NodeStatus Tumble::tick()
 
     return BT::NodeStatus::RUNNING;
 }
+
+BT::NodeBuilder Tumble::Builder(actor::Ship* ship)
+{
+    return [ship](const std::string& name, const BT::NodeConfiguration& config) {
+        return std::make_unique<Tumble>(name, config, ship);
+    };
+}
