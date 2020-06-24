@@ -1,13 +1,5 @@
 #include <spline.h>
 
-glm::vec3 randomVec3(float xMax, float yMax, float zMax)
-{
-    float x = 2 * xMax * (std::rand() / (1.0 * RAND_MAX)) - xMax;
-    float y = 2 * yMax * (std::rand() / (1.0 * RAND_MAX)) - yMax;
-    float z = 2 * zMax * (std::rand() / (1.0 * RAND_MAX)) - zMax;
-    return glm::vec3(x, y, z);
-}
-
 Spline::Waypoint::Waypoint(const glm::vec3& pos, const glm::vec3 dir, const float speed)
   : pos(pos), dir(dir), speed(speed)
 {
@@ -22,10 +14,10 @@ Spline::Spline(const Waypoint start, const Waypoint end) : start(start), end(end
 
 void Spline::Update()
 {
-    const glm::vec3 p0 = start.pos - (start.dir * start.speed);
+    const glm::vec3 p0 = start.pos - (start.dir * SPEED_MULTIPLIER * start.speed);
     const glm::vec3 p1 = start.pos;
     const glm::vec3 p2 = end.pos;
-    const glm::vec3 p3 = end.pos + (end.dir * end.speed);
+    const glm::vec3 p3 = end.pos + (end.dir * SPEED_MULTIPLIER * end.speed);
 
     const glm::mat4 P = { p0.x, p0.y, p0.z, 1.0, p1.x, p1.y, p1.z, 1.0,
                           p2.x, p2.y, p2.z, 1.0, p3.x, p3.y, p3.z, 1.0 };

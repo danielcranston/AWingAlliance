@@ -5,6 +5,8 @@
 #include <behaviortree_cpp_v3/behavior_tree.h>
 #include <glm/glm.hpp>
 
+#include "spline.h"
+
 namespace actor
 {
 class Ship;
@@ -44,6 +46,40 @@ class SetTarget : public BT::SyncActionNode
   private:
     const actor::Ship* ship;
     const std::function<const actor::Ship*(const actor::Ship& requester)> get_target_func;
+};
+
+class SetRoamingDestination : public BT::SyncActionNode
+{
+  public:
+    SetRoamingDestination(const std::string& name,
+                          const BT::NodeConfiguration& config,
+                          const actor::Ship* ship,
+                          Spline* spline,
+                          std::function<glm::vec3(const glm::vec3& center,
+                                                  const glm::vec3& area_size)> random_vec_func);
+    virtual BT::NodeStatus tick() override final;
+
+  private:
+    const actor::Ship* ship;
+    Spline& spline;
+    std::function<glm::vec3(const glm::vec3& center, const glm::vec3& area_size)> random_vec_func;
+};
+
+class RoamTowardsDestination : public RunnableActionNode
+{
+  public:
+    RoamTowardsDestination(const std::string& name,
+                           const BT::NodeConfiguration& config,
+                           actor::Ship* ship,
+                           Spline* spline);
+    virtual BT::NodeStatus tick() override final;
+
+  private:
+    actor::Ship* ship;
+    Spline& spline;
+
+    float dt;
+    float time_since_start;
 };
 
 class FaceTarget : public RunnableActionNode

@@ -37,6 +37,9 @@ class Spline
     float EstimateLength() const;
     float EstimateTravelDuration() const;
 
+    // Used to "drag out" the 0th and 3rd control point to make smoother trajectory
+    static constexpr float SPEED_MULTIPLIER = 10.0f;
+
     mutable bool length_calculated = false;
     mutable bool travel_duration_calculated = false;
     mutable float approximate_length;
