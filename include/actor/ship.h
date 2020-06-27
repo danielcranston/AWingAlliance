@@ -31,9 +31,7 @@ class Ship : public Actor
 
     void Update(const float dt) override;
     void Update(const std::bitset<8>& keyboardInfo, float dt);
-    void Update_Roaming(float t);
     void Follow(const Actor& target, const float dt);
-    void Follow(const float dt);
     bool IsInRange(const glm::vec3& target_pos, const float distance);
     void MoveToLocation(glm::vec3 target_pos, const float dt);
     void Fire();
@@ -41,8 +39,6 @@ class Ship : public Actor
     bool IsColliding(const Laser& laser);
     void TakeDamage(const int amount);
 
-    void SetTarget(Ship* const new_target);
-    void ClearTarget();
     void SetDesiredDir(const glm::vec3& new_dir);
     const glm::vec3& GetDesiredDir() const;
     const glm::vec3& GetColor() const;
@@ -69,7 +65,6 @@ class Ship : public Actor
 
     glm::vec3 color = glm::vec3(0.0f, 0.0f, 0.7f);
     Team team;
-    Ship* target = nullptr;
 
     int health = 100;
 

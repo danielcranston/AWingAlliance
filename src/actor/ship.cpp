@@ -81,20 +81,6 @@ const glm::vec3& Ship::GetColor() const
     return color;
 }
 
-// void Ship::Update_Roaming(float t)
-// {
-//     if (t - s.start_time > s.duration)
-//     {
-//         s.UpdateRandom(pos, dir);
-//         s.UploadPoints();
-//     }
-
-//     float u = (t - s.start_time) / s.duration;  // [0, 1]
-//     std::pair<glm::vec3, glm::vec3> interp = s(u);
-//     pos = interp.first;
-//     dir = glm::normalize(interp.second);
-// }
-
 void Ship::TakeDamage(const int amount)
 {
     health -= amount;
@@ -123,14 +109,6 @@ const std::string& Ship::GetName() const
 void Ship::Follow(const Actor& target, const float dt)
 {
     MoveToLocation(target.GetPosition(), dt);
-}
-
-void Ship::Follow(const float dt)
-{
-    if (target)
-    {
-        Follow(*target, dt);
-    }
 }
 
 bool Ship::IsInRange(const glm::vec3& target_pos, const float distance)
@@ -171,17 +149,6 @@ void Ship::MoveToLocation(glm::vec3 target_pos, const float dt)
 
     pos = pos + dir * max_speed * dist_multiplier * dt;  // std::min(max_speed, distance);
 }
-
-void Ship::SetTarget(Ship* const new_target)
-{
-    target = new_target;
-}
-
-void Ship::ClearTarget()
-{
-    target = nullptr;
-}
-
 void Ship::Update(const std::bitset<8>& keyboardInfo, float dt)
 {
     if (keyboardInfo.test(KeyboardMapping::LEFTARROW))
