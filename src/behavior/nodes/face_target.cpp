@@ -24,7 +24,7 @@ BT::NodeStatus FaceTarget::tick()
     }
     else
     {
-        throw BT::RuntimeError(msg.error());
+        throw BT::RuntimeError("FaceTarget: " + msg.error());
     }
 
     return BT::NodeStatus::RUNNING;

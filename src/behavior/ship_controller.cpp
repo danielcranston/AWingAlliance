@@ -16,7 +16,8 @@ ShipController::ShipController(const actor::Ship* ship)
     BT::BehaviorTreeFactory factory;
 
     factory.registerBuilder<IsAlive>("IsAlive", IsAlive::Builder(non_const_ship));
-    factory.registerBuilder<SetTarget>("SetTarget", IsAlive::Builder(non_const_ship));
+    factory.registerBuilder<SetTarget>("SetTarget",
+                                       SetTarget::Builder(non_const_ship, GetTargetFunc));
     factory.registerBuilder<SetRoamingDestination>(
         "SetRoamingDestination",
         SetRoamingDestination::Builder(non_const_ship, spline.get(), RandomVecFunc));
