@@ -1,5 +1,6 @@
 #include <keyboard.h>
 #include "actor/ship.h"
+#include "geometry.h"
 #include <chrono>
 
 #define GLM_ENABLE_EXPERIMENTAL
@@ -9,32 +10,6 @@
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtx/string_cast.hpp>
-
-namespace
-{
-glm::quat RotationBetweenVectors(glm::vec3 start, glm::vec3 dest)
-{
-    using namespace glm;
-    start = normalize(start);
-    dest = normalize(dest);
-
-    float cosTheta = dot(start, dest);
-    vec3 rotationAxis;
-
-    if (cosTheta < -1 + 0.001f)
-    {
-        // special case when vectors in opposite directions
-        return quat(0.0f, 0.0f, 0.0f, 1.0f);
-    }
-
-    rotationAxis = cross(start, dest);
-
-    float s = sqrt((1 + cosTheta) * 2);
-    float invs = 1 / s;
-
-    return quat(s * 0.5f, rotationAxis.x * invs, rotationAxis.y * invs, rotationAxis.z * invs);
-}
-}  // namespace
 
 namespace actor
 {
@@ -135,7 +110,7 @@ bool Ship::IsColliding(const Laser& laser)
 }
 void Ship::MoveToLocation(glm::vec3 target_pos, const float dt)
 {
-    glm::quat quat = RotationBetweenVectors(dir, target_pos - pos);
+    glm::quat quat = geometry::RotationBetweenVectors(dir, target_pos - pos);
     glm::mat3 R(quat);
     dir = glm::normalize((50 * dt * quat) * dir);
 
@@ -182,7 +157,7 @@ void Ship::Update(const std::bitset<8>& keyboardInfo, float dt)
         !keyboardInfo.test(KeyboardMapping::LEFTARROW))
         roll -= 0.003f * roll * glm::pi<float>();
 
-    glm::quat quat = RotationBetweenVectors(dir, desired_dir);
+    glm::quat quat = geometry::RotationBetweenVectors(dir, desired_dir);
     dir = glm::normalize((0.1f * quat) * dir);
 
     if (keyboardInfo.test(KeyboardMapping::W))

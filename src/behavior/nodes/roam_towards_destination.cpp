@@ -24,13 +24,6 @@ BT::NodeStatus RoamTowardsDestination::tick()
 
     ship->SetPose(pos, glm::normalize(pos - ship->GetPosition()));
 
-    if (ship->GetName() == "awing2")
-    {
-        std::cout << std::fixed << std::setprecision(3);
-        std::cout << ship->GetName() << " RoamTowardsDestination: [" << time_since_start << " / "
-                  << travel_duration << "]\n";
-    }
-
     if (time_since_start <= travel_duration)
     {
         time_since_start += dt;

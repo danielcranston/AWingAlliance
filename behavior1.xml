@@ -1,7 +1,7 @@
 <root main_tree_to_execute="MainTree">
     <BehaviorTree ID="MainTree">
         <Fallback name="root">
-            <SubTree ID="RoamingBehavior" />
+            <SubTree ID="AliveBehavior" />
             <SubTree ID="DyingBehavior" />
         </Fallback>
     </BehaviorTree>
@@ -10,18 +10,10 @@
         <ReactiveSequence>
             <Action ID="IsAlive" />
             <Sequence>
-                <Action ID="SetTarget" target="{target}" />
-                <Action ID="FaceTarget" target="{target}" />
-            </Sequence>
-        </ReactiveSequence>
-    </BehaviorTree>
-
-    <BehaviorTree ID="RoamingBehavior">
-        <ReactiveSequence>
-            <Action ID="IsAlive" />
-            <Sequence>
                 <Action ID="SetRoamingDestination" />
                 <Action ID="RoamTowardsDestination" />
+                <Action ID="SetTarget" />
+                <Action ID="FaceTarget" />
             </Sequence>
         </ReactiveSequence>
     </BehaviorTree>

@@ -13,12 +13,21 @@ class Ship;
 class FaceTarget : public RunnableActionNode
 {
   public:
-    FaceTarget(const std::string& name, const BT::NodeConfiguration& config, actor::Ship* ship);
-    static BT::PortsList providedPorts();
+    FaceTarget(const std::string& name,
+               const BT::NodeConfiguration& config,
+               actor::Ship* ship,
+               const std::function<const actor::Ship*()> get_target_func);
     virtual BT::NodeStatus tick() override final;
 
-    static BT::NodeBuilder Builder(actor::Ship* ship);
+    static BT::NodeBuilder Builder(actor::Ship* ship,
+                                   const std::function<const actor::Ship*()> get_target_func);
 
   private:
     actor::Ship* ship;
+    float dt;
+    float start_time = 0.0f;
+    float time_now;
+    float max_time = 10.0f;
+    const actor::Ship* target;
+    const std::function<const actor::Ship*()> get_target_func;
 };

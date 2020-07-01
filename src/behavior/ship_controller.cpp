@@ -16,14 +16,22 @@ ShipController::ShipController(const actor::Ship* ship)
     BT::BehaviorTreeFactory factory;
 
     factory.registerBuilder<IsAlive>("IsAlive", IsAlive::Builder(non_const_ship));
-    factory.registerBuilder<SetTarget>("SetTarget",
-                                       SetTarget::Builder(non_const_ship, GetTargetFunc));
+
+    std::function<void(const actor::Ship*)> set_target_func = [this](const actor::Ship* new_ship) {
+        this->SetTarget(new_ship);
+    };
+
+    BT::NodeBuilder builder =
+        behavior_nodes::SetTarget::Builder(non_const_ship, GetNewTargetFunc, set_target_func);
+    factory.registerBuilder<behavior_nodes::SetTarget>("SetTarget", builder);
     factory.registerBuilder<SetRoamingDestination>(
         "SetRoamingDestination",
         SetRoamingDestination::Builder(non_const_ship, spline.get(), RandomVecFunc));
     factory.registerBuilder<RoamTowardsDestination>(
         "RoamTowardsDestination", RoamTowardsDestination::Builder(non_const_ship, spline.get()));
-    factory.registerBuilder<FaceTarget>("FaceTarget", FaceTarget::Builder(non_const_ship));
+    factory.registerBuilder<FaceTarget>(
+        "FaceTarget",
+        FaceTarget::Builder(non_const_ship, std::bind(&ShipController::GetTarget, this)));
     factory.registerBuilder<Tumble>("Tumble", Tumble::Builder(non_const_ship));
     tree = factory.createTreeFromFile("./behavior1.xml");
 }
@@ -33,7 +41,17 @@ void ShipController::Tick()
     tree.tickRoot();
 }
 
-std::function<const actor::Ship*(const actor::Ship& requester)> ShipController::GetTargetFunc =
+const actor::Ship* ShipController::GetTarget()
+{
+    return target;
+}
+
+void ShipController::SetTarget(const actor::Ship* new_target)
+{
+    target = new_target;
+}
+
+std::function<const actor::Ship*(const actor::Ship& requester)> ShipController::GetNewTargetFunc =
     [](const actor::Ship& requester) -> actor::Ship* {
     throw std::runtime_error("This function needs to be overwritten by the user.");
 };
@@ -41,7 +59,8 @@ std::function<const actor::Ship*(const actor::Ship& requester)> ShipController::
 std::function<glm::vec3(const glm::vec3& center, const glm::vec3& area_size)>
     ShipController::RandomVecFunc =
         [](const glm::vec3& center, const glm::vec3& area_size) -> glm::vec3 {
-    // Ideally we'd want something like std::uniform_real_distribution, but this will do for now.
+    // Ideally we'd want something like std::uniform_real_distribution, but this will do for
+    // now.
     glm::vec3 random = { std::rand() / (1.0f * RAND_MAX),
                          std::rand() / (1.0f * RAND_MAX),
                          std::rand() / (1.0f * RAND_MAX) };

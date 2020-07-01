@@ -22,7 +22,7 @@ GameState::GameState(const std::map<std::string, std::unique_ptr<Model>>* models
     actor::Ship::RegisterLaserFunc = [this](const actor::Laser& new_laser) {
         this->Lasers.push_back(new_laser);
     };
-    ShipController::GetTargetFunc = [this](const actor::Ship& requester) -> const actor::Ship* {
+    ShipController::GetNewTargetFunc = [this](const actor::Ship& requester) -> const actor::Ship* {
         // Go through all Ships and choose the closest enemy ship
         const actor::Team& team = requester.GetTeam();
 

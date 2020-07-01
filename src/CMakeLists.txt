@@ -26,7 +26,8 @@ add_executable(awing main.cpp
                      parser.cpp
                      renderer.cpp
                      game_state.cpp
-                     fbo.cpp)
+                     fbo.cpp
+                     geometry.cpp)
 
 target_link_libraries(awing actors
                             behavior
