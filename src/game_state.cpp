@@ -164,11 +164,23 @@ void GameState::integrate(const float t, const float d_time)
 
     for (const auto& ship : Ships)
     {
-        if (ship.second.get() != Ships.at("awing1").get())
+        if (ship.second.get() != Ships.at(player_name).get())
             ship.second->Update(dt);
+
+        for (const auto& ship2 : Ships)
+        {
+            if (ship.second.get() != ship2.second.get())
+            {
+                if (ship.second->IsColliding(*ship2.second.get()))
+                {
+                    ship.second->TakeDamage(100);
+                    ship2.second->TakeDamage(100);
+                }
+            }
+        }
     }
 
-    Ships.at("awing1")->Update(keyboardInfo, dt);
+    Ships.at(player_name)->Update(keyboardInfo, dt);
 
     camera.Update(dt);
 }
