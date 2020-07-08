@@ -23,5 +23,6 @@ class Tumble : public RunnableActionNode
     actor::Ship* ship;
     glm::vec3 dying_dir;
     float time_since_death = 0.0f;
+    float tumble_duration;
     float dt;
 };
