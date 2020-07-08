@@ -16,8 +16,9 @@ glm::mat3 rotation_between_two_unit_vecs(const glm::vec3& a, const glm::vec3& b)
 FaceTarget::FaceTarget(const std::string& name,
                        const BT::NodeConfiguration& config,
                        actor::Ship* ship,
+                       const float dt,
                        const std::function<const actor::Ship*()> get_target_func)
-  : RunnableActionNode(name, config), ship(ship), dt(0.001666f), get_target_func(get_target_func)
+  : RunnableActionNode(name, config), ship(ship), dt(dt), get_target_func(get_target_func)
 {
 }
 
@@ -53,9 +54,11 @@ BT::NodeStatus FaceTarget::tick()
 }
 
 BT::NodeBuilder FaceTarget::Builder(actor::Ship* ship,
+                                    const float dt,
                                     const std::function<const actor::Ship*()> get_target_func)
 {
-    return [ship, get_target_func](const std::string& name, const BT::NodeConfiguration& config) {
-        return std::make_unique<FaceTarget>(name, config, ship, get_target_func);
-    };
+    return
+        [ship, dt, get_target_func](const std::string& name, const BT::NodeConfiguration& config) {
+            return std::make_unique<FaceTarget>(name, config, ship, dt, get_target_func);
+        };
 }

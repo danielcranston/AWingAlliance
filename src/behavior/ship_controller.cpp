@@ -28,11 +28,13 @@ ShipController::ShipController(const actor::Ship* ship)
         "SetRoamingDestination",
         SetRoamingDestination::Builder(non_const_ship, spline.get(), RandomVecFunc));
     factory.registerBuilder<RoamTowardsDestination>(
-        "RoamTowardsDestination", RoamTowardsDestination::Builder(non_const_ship, spline.get()));
+        "RoamTowardsDestination",
+        RoamTowardsDestination::Builder(non_const_ship, GetTimeStepFunc(), spline.get()));
     factory.registerBuilder<FaceTarget>(
         "FaceTarget",
-        FaceTarget::Builder(non_const_ship, std::bind(&ShipController::GetTarget, this)));
-    factory.registerBuilder<Tumble>("Tumble", Tumble::Builder(non_const_ship));
+        FaceTarget::Builder(
+            non_const_ship, GetTimeStepFunc(), std::bind(&ShipController::GetTarget, this)));
+    factory.registerBuilder<Tumble>("Tumble", Tumble::Builder(non_const_ship, GetTimeStepFunc()));
     tree = factory.createTreeFromFile("./behavior1.xml");
 }
 
@@ -65,4 +67,9 @@ std::function<glm::vec3(const glm::vec3& center, const glm::vec3& area_size)>
                          std::rand() / (1.0f * RAND_MAX),
                          std::rand() / (1.0f * RAND_MAX) };
     return center + (random - 0.5f) * area_size;
+};
+
+std::function<float()> ShipController::GetTimeStepFunc = []() -> float {
+    throw std::runtime_error("ShipController::GetTimeStepFunc needs to be overwritten by the "
+                             "user.");
 };

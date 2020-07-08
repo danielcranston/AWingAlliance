@@ -1,8 +1,11 @@
 #include "behavior/nodes/tumble.h"
 #include "actor/ship.h"
 
-Tumble::Tumble(const std::string& name, const BT::NodeConfiguration& config, actor::Ship* ship)
-  : RunnableActionNode(name, config), ship(ship), dt(0.001666f)
+Tumble::Tumble(const std::string& name,
+               const BT::NodeConfiguration& config,
+               actor::Ship* ship,
+               const float dt)
+  : RunnableActionNode(name, config), ship(ship), dt(dt)
 {
 }
 
@@ -33,9 +36,9 @@ BT::NodeStatus Tumble::tick()
     }
 }
 
-BT::NodeBuilder Tumble::Builder(actor::Ship* ship)
+BT::NodeBuilder Tumble::Builder(actor::Ship* ship, const float dt)
 {
-    return [ship](const std::string& name, const BT::NodeConfiguration& config) {
-        return std::make_unique<Tumble>(name, config, ship);
+    return [ship, dt](const std::string& name, const BT::NodeConfiguration& config) {
+        return std::make_unique<Tumble>(name, config, ship, dt);
     };
 }

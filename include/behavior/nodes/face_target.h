@@ -16,10 +16,12 @@ class FaceTarget : public RunnableActionNode
     FaceTarget(const std::string& name,
                const BT::NodeConfiguration& config,
                actor::Ship* ship,
+               const float dt,
                const std::function<const actor::Ship*()> get_target_func);
     virtual BT::NodeStatus tick() override final;
 
     static BT::NodeBuilder Builder(actor::Ship* ship,
+                                   const float dt,
                                    const std::function<const actor::Ship*()> get_target_func);
 
   private:

@@ -6,12 +6,9 @@
 RoamTowardsDestination::RoamTowardsDestination(const std::string& name,
                                                const BT::NodeConfiguration& config,
                                                actor::Ship* ship,
+                                               const float dt,
                                                Spline* spline)
-  : RunnableActionNode(name, config),
-    ship(ship),
-    spline(*spline),
-    dt(0.001666f),
-    time_since_start(0.0f)
+  : RunnableActionNode(name, config), ship(ship), spline(*spline), dt(dt), time_since_start(0.0f)
 {
 }
 
@@ -36,9 +33,9 @@ BT::NodeStatus RoamTowardsDestination::tick()
     }
 }
 
-BT::NodeBuilder RoamTowardsDestination::Builder(actor::Ship* ship, Spline* spline)
+BT::NodeBuilder RoamTowardsDestination::Builder(actor::Ship* ship, const float dt, Spline* spline)
 {
-    return [ship, spline](const std::string& name, const BT::NodeConfiguration& config) {
-        return std::make_unique<RoamTowardsDestination>(name, config, ship, spline);
+    return [ship, dt, spline](const std::string& name, const BT::NodeConfiguration& config) {
+        return std::make_unique<RoamTowardsDestination>(name, config, ship, dt, spline);
     };
 }

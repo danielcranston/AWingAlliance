@@ -52,6 +52,10 @@ void init()
     renderer->load_models(parser->required_models);
     renderer->register_skybox(parser->skybox);
 
+    // Needs to be set before Ships (ShipControllers) are instantiated
+    // Ideally this'd be set in GameState, but we're not committed to a fixed timestep yet.
+    ShipController::GetTimeStepFunc = []() -> float { return dt; };
+
     game_state = GameState::Create(renderer->GetModels());
     game_state->register_ships(parser->actors);
     game_state->register_terrain(parser->terrain.get());

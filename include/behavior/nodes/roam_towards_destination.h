@@ -18,10 +18,11 @@ class RoamTowardsDestination : public RunnableActionNode
     RoamTowardsDestination(const std::string& name,
                            const BT::NodeConfiguration& config,
                            actor::Ship* ship,
+                           const float dt,
                            Spline* spline);
     virtual BT::NodeStatus tick() override final;
 
-    static BT::NodeBuilder Builder(actor::Ship* ship, Spline* spline);
+    static BT::NodeBuilder Builder(actor::Ship* ship, const float dt, Spline* spline);
 
   private:
     actor::Ship* ship;

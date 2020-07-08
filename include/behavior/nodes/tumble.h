@@ -14,10 +14,13 @@ class Ship;
 class Tumble : public RunnableActionNode
 {
   public:
-    Tumble(const std::string& name, const BT::NodeConfiguration& config, actor::Ship* ship);
+    Tumble(const std::string& name,
+           const BT::NodeConfiguration& config,
+           actor::Ship* ship,
+           const float dt);
     virtual BT::NodeStatus tick() override final;
 
-    static BT::NodeBuilder Builder(actor::Ship* ship);
+    static BT::NodeBuilder Builder(actor::Ship* ship, const float dt);
 
   private:
     actor::Ship* ship;

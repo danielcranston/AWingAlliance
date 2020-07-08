@@ -23,6 +23,8 @@ class ShipController
     static std::function<glm::vec3(const glm::vec3& center, const glm::vec3& area_size)>
         RandomVecFunc;
 
+    static std::function<float()> GetTimeStepFunc;
+
     const actor::Ship* GetTarget();
     void SetTarget(const actor::Ship* new_target);
 
