@@ -32,13 +32,6 @@ BT::NodeStatus SetRoamingDestination::tick()
 
     spline = Spline(start, end);
 
-    if (ship->GetName() == "awing2")
-    {
-        std::cout << std::fixed << std::setprecision(3);
-        std::cout << ship->GetName()
-                  << " SetRoamingDestination: " << glm::to_string(random_destination) << std::endl;
-    }
-
     return BT::NodeStatus::SUCCESS;
 }
 
