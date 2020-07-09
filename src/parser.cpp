@@ -101,6 +101,8 @@ void ScenarioParser::Parse()
     if (!(scenario.find("player") != scenario.end()))
         throw std::runtime_error("player not specified in scenario file!");
     player = scenario["player"];
+    if (actors.find(player) == actors.end())
+        throw std::runtime_error("player does not exist in list of actors");
     std::cout << "  Player ID: " << player << std::endl;
 
     if (scenario.find("squadrons") != scenario.end())
