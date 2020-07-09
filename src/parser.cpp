@@ -90,7 +90,7 @@ void ScenarioParser::Parse()
     if (terrain)
         std::cout << "Yes\n";
     else
-        std::cout << "Yes\n";
+        std::cout << "No\n";
 
     if (scenario.find("skybox") != scenario.end())
     {

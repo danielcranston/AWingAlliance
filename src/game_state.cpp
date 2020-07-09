@@ -67,7 +67,8 @@ void GameState::register_laser(const actor::Laser& laser)
 
 void GameState::register_terrain(const ScenarioParser::TerrainEntry* terrainentry)
 {
-    terrain = std::make_unique<Terrain>(terrainentry);
+    if (terrainentry)
+        terrain = std::make_unique<Terrain>(terrainentry);
 }
 
 const Terrain* const GameState::GetTerrain() const

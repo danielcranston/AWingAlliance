@@ -46,6 +46,9 @@ void Renderer::register_shader(const std::string& name,
 void Renderer::register_terrain(const Terrain* terrain,
                                 const std::vector<std::string>& texture_names)
 {
+    if (!terrain)
+        return;
+
     std::vector<uint> texture_ids;
     for (const auto& tex_name : texture_names)
     {
