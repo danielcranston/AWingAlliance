@@ -24,12 +24,17 @@ FaceTarget::FaceTarget(const std::string& name,
 
 BT::NodeStatus FaceTarget::tick()
 {
-    if (start_time == 0.0f)
+    std::cout << "entering" << std::endl;
+
+    if (time_now == 0.0f)
         target = get_target_func();
 
     time_now += dt;
     if (time_now > max_time)
+    {
+        time_now = 0.0f;
         return BT::NodeStatus::SUCCESS;
+    }
 
     if (target)
     {
@@ -42,10 +47,15 @@ BT::NodeStatus FaceTarget::tick()
         ship->SetPosition(pos + dir * ship->GetSpeed() * dt);
 
         float distance = glm::l2Norm(pos - target->GetPosition());
-        if (distance < 20.0f)
+        if (distance < 50.0f)
+        {
+            time_now = 0.0f;
             return BT::NodeStatus::SUCCESS;
+        }
         else
+        {
             return BT::NodeStatus::RUNNING;
+        }
     }
     else
     {

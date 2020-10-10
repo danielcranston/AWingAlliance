@@ -27,8 +27,7 @@ class FaceTarget : public RunnableActionNode
   private:
     actor::Ship* ship;
     float dt;
-    float start_time = 0.0f;
-    float time_now;
+    float time_now = 0.0f;
     float max_time = 10.0f;
     const actor::Ship* target;
     const std::function<const actor::Ship*()> get_target_func;
