@@ -23,7 +23,7 @@ sudo apt-get install build-essential cmake freeglut3-dev libglew-dev libglm-dev
 Cloning the repository, building the project and running the executable:
 
 ```
-git clone https://github.com/danielcranston/AWingAlliance
+git clone --recurse-submodules https://github.com/danielcranston/AWingAlliance
 cd AWingAlliance
 mkdir build
 ./run.sh
@@ -31,9 +31,10 @@ mkdir build
 
 ## Acknowledgments
 
-The following header-only libraries are used:
+The following (mostly header-only) libraries are used:
 
 * https://github.com/syoyo/tinyobjloader for loading models.
 * https://github.com/nothings/stb for loading textures.
 * https://github.com/Reputeless/PerlinNoise for generating random terrain.
 * https://github.com/nlohmann/json for parsing scenario config files.
+* https://github.com/BehaviorTree/BehaviorTree.CPP for AI behavior
