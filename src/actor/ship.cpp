@@ -53,8 +53,6 @@ void Ship::update_input_states(const InputStates& req)
         fire_control.toggle_fire_mode();
     }
 
-    std::cout << motion_control.get_states() << std::endl;
-
     for (int i = 0; i < req.motion_control_states.size(); ++i)
     {
         const auto& state = req.motion_control_states[i];
