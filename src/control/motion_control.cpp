@@ -13,9 +13,15 @@ void MotionControl::turn_off(States s)
 {
     bitset.reset(static_cast<int>(s));
 }
-std::bitset<static_cast<int>(MotionControl::States::count)> MotionControl::get_bitset() const
+
+MotionControl::StateMap MotionControl::get_states() const
 {
     return bitset;
+}
+
+void MotionControl::set_states(const MotionControl::StateMap& states)
+{
+    bitset = states;
 }
 
 }  // namespace control

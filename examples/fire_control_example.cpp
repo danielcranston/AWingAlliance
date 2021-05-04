@@ -112,7 +112,7 @@ int main(int argc, char* argv[])
                     key_mapping.find(event.key.keysym.sym) != key_mapping.end())
                 {
                     motion_control.turn_on(key_mapping.at(event.key.keysym.sym));
-                    std::cout << motion_control.get_bitset() << std::endl;
+                    std::cout << motion_control.get_states() << std::endl;
                 }
             }
             if (event.type == SDL_KEYUP)
@@ -126,7 +126,7 @@ int main(int argc, char* argv[])
                     key_mapping.find(event.key.keysym.sym) != key_mapping.end())
                 {
                     motion_control.turn_off(key_mapping.at(event.key.keysym.sym));
-                    std::cout << motion_control.get_bitset() << std::endl;
+                    std::cout << motion_control.get_states() << std::endl;
                 }
             }
         }

@@ -17,6 +17,9 @@ Ship::Ship(const std::string& name,
 
 void Ship::tick(float current_time_s, float dt)
 {
+    set_pose(motion_model.update(
+        motion_control.get_states(), get_position(), get_orientation(), current_time_s, dt));
+
     if (is_firing)
     {
         auto dispatches = fire_control.fire(current_time_s);
@@ -38,6 +41,38 @@ void Ship::toggle_fire_mode()
     fire_control.toggle_fire_mode();
 }
 
+void Ship::update_input_states(const InputStates& req)
+{
+    if (req.is_firing.has_value())
+    {
+        is_firing = *req.is_firing ? true : false;
+    }
+
+    if (req.changed_fire_mode)
+    {
+        fire_control.toggle_fire_mode();
+    }
+
+    std::cout << motion_control.get_states() << std::endl;
+
+    for (int i = 0; i < req.motion_control_states.size(); ++i)
+    {
+        const auto& state = req.motion_control_states[i];
+
+        if (state.has_value())
+        {
+            if (*state)
+            {
+                motion_control.turn_on(static_cast<control::MotionControl::States>(i));
+            }
+            else
+            {
+                motion_control.turn_off(static_cast<control::MotionControl::States>(i));
+            }
+        }
+    }
+}
+
 void Ship::set_on_fire_cb(
     std::function<void(const Ship& ship, const Eigen::Isometry3f relative_pose)> cb)
 {
@@ -48,4 +83,5 @@ std::function<void(const Ship& ship, const Eigen::Isometry3f relative_pose)> Shi
     [](const Ship& ship, const Eigen::Isometry3f relative_pose) {
         throw std::runtime_error("You need to overwrite Ship::on_fire_cb");
     };
+
 }  // namespace actor

@@ -9,6 +9,8 @@
 
 #include "actor/actor.h"
 #include "control/fire_control.h"
+#include "control/motion_model.h"
+#include "control/motion_control.h"
 #include "resources/description_data.h"
 
 namespace actor
@@ -16,6 +18,22 @@ namespace actor
 class Ship : public Actor
 {
   public:
+    struct InputStates
+    {
+        InputStates()
+        {
+            for (auto& state : motion_control_states)
+            {
+                state = std::nullopt;
+            }
+        }
+
+        std::array<std::optional<bool>, static_cast<int>(control::MotionControl::States::count)>
+            motion_control_states;
+        bool changed_fire_mode = false;
+        std::optional<bool> is_firing = std::nullopt;
+    };
+
     Ship(const std::string& name,
          const resources::ActorDescription& description,
          const Eigen::Vector3f& position,
@@ -30,8 +48,13 @@ class Ship : public Actor
     bool is_firing;
     void toggle_fire_mode();
 
+    void update_input_states(const InputStates& req);
+
   private:
     static std::function<void(const Ship& ship, const Eigen::Isometry3f relative_pose)> on_fire_cb;
     control::FireControl fire_control;
+
+    control::MotionControl motion_control;
+    control::MotionModel motion_model;
 };
 }  // namespace actor

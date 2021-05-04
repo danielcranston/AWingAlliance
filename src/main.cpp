@@ -25,8 +25,6 @@
 #include "actor/ship.h"
 #include "actor/camera.h"
 #include "actor/laser.h"
-#include "control/motion_control.h"
-#include "control/motion_model.h"
 #include "environment/environment.h"
 
 const std::unordered_map<int, control::MotionControl::States> key_mapping = {
@@ -39,6 +37,38 @@ const std::unordered_map<int, control::MotionControl::States> key_mapping = {
     { SDLK_w, control::MotionControl::States::ACC_INCREASE },
     { SDLK_s, control::MotionControl::States::ACC_DECREASE }
 };
+
+void update_input_request(SDL_Event& event, actor::Ship::InputStates& req)
+{
+    if (event.type == SDL_KEYDOWN)
+    {
+        if (event.key.keysym.sym == SDLK_SPACE && !event.key.repeat)
+        {
+            req.is_firing = true;
+        }
+        if (event.key.keysym.sym == SDLK_x)
+        {
+            req.changed_fire_mode = true;
+        }
+        if (!event.key.repeat && key_mapping.find(event.key.keysym.sym) != key_mapping.end())
+        {
+            req.motion_control_states[static_cast<int>(key_mapping.at(event.key.keysym.sym))] =
+                true;
+        }
+    }
+    else if (event.type == SDL_KEYUP)
+    {
+        if (event.key.keysym.sym == SDLK_SPACE)
+        {
+            req.is_firing = false;
+        }
+        else if (!event.key.repeat && key_mapping.find(event.key.keysym.sym) != key_mapping.end())
+        {
+            req.motion_control_states[static_cast<int>(key_mapping.at(event.key.keysym.sym))] =
+                false;
+        }
+    }
+}
 
 class StatfulKalmanPositioner
 {
@@ -128,8 +158,8 @@ int main(int argc, char* argv[])
 
     auto desc = resources::load_descriptions();
 
-    environment.register_actor(actor::Ship(
-        "actor", desc.at("awing"), { 0.0f, -5.0f, -30.0f }, { 1.0f, 0.0f, 0.0f, 0.0f }));
+    environment.register_actor(
+        actor::Ship("ship", desc.at("awing"), { 0.0f, -5.0f, -30.0f }, { 1.0f, 0.0f, 0.0f, 0.0f }));
     environment.register_actor(
         actor::Actor("sd", { 0.0f, -0.0f, -100.0f }, { 0.0f, 0.0f, 1.0f, 0.0f }, "sd.obj"));
     environment.register_actor(actor::Actor(
@@ -137,11 +167,11 @@ int main(int argc, char* argv[])
     environment.register_actor(
         actor::Camera("camera", { 0.0f, -0.0f, 0.0f }, { 1.0f, 0.0f, 0.0f, 0.0f }, perspective));
 
-    actor::Ship& actor = environment.get_actor<actor::Ship>("actor");
+    actor::Ship& ship = environment.get_actor<actor::Ship>("ship");
     actor::Actor& sd = environment.get_actor<actor::Actor>("sd");
     actor::Camera& camera = environment.get_actor<actor::Camera>("camera");
 
-    std::reference_wrapper<actor::Actor> controlled_actor = actor;
+    std::reference_wrapper<actor::Actor> controlled_actor = ship;
 
     // TODO: Replace this abomination with LQR controller
     auto skp = StatfulKalmanPositioner();
@@ -180,7 +210,7 @@ int main(int argc, char* argv[])
     rendering_manager.register_model(rendering::primitives::box());
 
     rendering_manager.register_models(
-        { environment.get_actor<actor::Ship>("actor").get_visual_name(),
+        { environment.get_actor<actor::Ship>("ship").get_visual_name(),
           environment.get_actor<actor::Actor>("sd").get_visual_name(),
           environment.get_actor<actor::Actor>("medfrigate").get_visual_name() },
         [](const std::string& filename) { return resources::load_model(filename); });
@@ -190,20 +220,7 @@ int main(int argc, char* argv[])
     rendering_manager.register_unloaded_textures(
         [](const std::string& filename) { return resources::load_texture(filename); });
 
-    static_assert(std::is_move_constructible_v<rendering::Mesh>);
-    static_assert(!std::is_trivially_move_constructible_v<rendering::Mesh>);
-
-    static_assert(std::is_move_constructible_v<rendering::Texture>);
-    static_assert(!std::is_trivially_move_constructible_v<rendering::Texture>);
-
-    static_assert(std::is_move_constructible_v<rendering::Model>);
-    static_assert(!std::is_trivially_move_constructible_v<rendering::Model>);
-
-    SDL_Event event;
     bool should_shutdown = false;
-
-    auto motion_control = control::MotionControl();
-    auto motion_model = control::MotionModel();
 
     float current_time = SDL_GetTicks() / 1000.0f;
     const float dt = 1.0f / 60.f;
@@ -220,9 +237,6 @@ int main(int argc, char* argv[])
 
         while (accumulator >= dt)
         {
-            auto pose = motion_model.update(
-                motion_control.get_bitset(), actor.get_position(), actor.get_orientation(), t, dt);
-            actor.set_pose(pose);
             environment.integrate(t, dt);
             accumulator -= dt;
             t += dt;
@@ -296,65 +310,20 @@ int main(int argc, char* argv[])
 
         SDL_GL_SwapWindow(context_manager.window);
 
+        actor::Ship::InputStates input_request;
+
+        SDL_Event event;
         while (SDL_PollEvent(&event))
         {
-            if (event.type == SDL_QUIT)
+            if (event.type == SDL_QUIT ||
+                (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE))
             {
                 should_shutdown = true;
             }
-            else if (event.type == SDL_KEYDOWN)
-            {
-                if (event.key.keysym.sym == SDLK_ESCAPE)
-                {
-                    should_shutdown = true;
-                }
-                if (event.key.keysym.sym == SDLK_SPACE && !event.key.repeat)
-                {
-                    actor.is_firing = true;
-                }
-                if (event.key.keysym.sym == SDLK_x)
-                {
-                    actor.toggle_fire_mode();
-                }
-                if (event.key.keysym.sym == SDLK_c)
-                {
-                    auto p = camera.get_fwd_dir();
-                    std::cout << "camera.get_fwd_dir(): " << p.x() << " " << p.y() << " " << p.z()
-                              << std::endl;
-                }
-                if (event.key.keysym.sym == SDLK_r)
-                {
-                    controlled_actor = camera;
-                    camera.set_tick_behavior([&camera]() { return camera.get_pose(); });
-                }
-                if (event.key.keysym.sym == SDLK_t)
-                {
-                    controlled_actor = actor;
-                    camera.set_tick_behavior(roaming_3d_positioning_fn);
-                }
-                if (event.key.keysym.sym == SDLK_t)
-                {
-                    std::cout << environment.get_actor<actor::Ship>("actor").get_position()
-                              << std::endl;
-                }
-                if (!event.key.repeat &&
-                    key_mapping.find(event.key.keysym.sym) != key_mapping.end())
-                {
-                    motion_control.turn_on(key_mapping.at(event.key.keysym.sym));
-                }
-            }
-            else if (event.type == SDL_KEYUP)
-            {
-                if (event.key.keysym.sym == SDLK_SPACE)
-                {
-                    actor.is_firing = false;
-                }
-                else if (!event.key.repeat &&
-                         key_mapping.find(event.key.keysym.sym) != key_mapping.end())
-                {
-                    motion_control.turn_off(key_mapping.at(event.key.keysym.sym));
-                }
-            }
+
+            update_input_request(event, input_request);
+
+            /*
             else if (event.type == SDL_MOUSEMOTION)
             {
                 int x, y;
@@ -374,8 +343,10 @@ int main(int argc, char* argv[])
                 {
                     std::cout << "  yep" << std::endl;
                 }
-            }
+            } */
         }
+
+        ship.update_input_states(input_request);
     }
 
     return 0;

@@ -28,7 +28,9 @@ class MotionControl
 
     using StateMap = std::bitset<static_cast<int>(States::count)>;
 
-    StateMap get_bitset() const;
+    StateMap get_states() const;
+
+    void set_states(const StateMap& states);
 
   private:
     StateMap bitset;
