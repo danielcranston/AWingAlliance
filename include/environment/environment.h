@@ -75,6 +75,7 @@ class Environment
     std::map<std::string, actor::Ship>& get_ships();
     std::map<std::string, actor::Camera>& get_cameras();
     std::list<actor::Laser>& get_lasers();
+    std::vector<std::string> get_visuals();
 
     void integrate(float current_time_s, float dt);
 

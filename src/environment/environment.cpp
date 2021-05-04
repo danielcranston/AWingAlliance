@@ -23,6 +23,23 @@ std::list<actor::Laser>& Environment::get_lasers()
     return lasers;
 }
 
+std::vector<std::string> Environment::get_visuals()
+{
+    std::vector<std::string> out;
+
+    for (const auto& [name, actor] : actors)
+    {
+        out.push_back(actor.get_visual_name());
+    }
+
+    for (const auto& [name, ship] : ships)
+    {
+        out.push_back(ship.get_visual_name());
+    }
+
+    return out;
+}
+
 void Environment::integrate(float current_time_s, float dt)
 {
     for (auto& actor : actors)

@@ -209,11 +209,9 @@ int main(int argc, char* argv[])
     rendering_manager.register_model(rendering::primitives::bounding_box());
     rendering_manager.register_model(rendering::primitives::box());
 
-    rendering_manager.register_models(
-        { environment.get_actor<actor::Ship>("ship").get_visual_name(),
-          environment.get_actor<actor::Actor>("sd").get_visual_name(),
-          environment.get_actor<actor::Actor>("medfrigate").get_visual_name() },
-        [](const std::string& filename) { return resources::load_model(filename); });
+    rendering_manager.register_models(environment.get_visuals(), [](const std::string& filename) {
+        return resources::load_model(filename);
+    });
 
     rendering_manager.register_skybox(skybox_tex, resources::load_cubemap_texture(skybox_tex));
 
