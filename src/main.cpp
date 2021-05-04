@@ -185,25 +185,18 @@ int main(int argc, char* argv[])
     camera.set_tick_behavior(roaming_3d_positioning_fn);
 
     auto rendering_manager = rendering::RenderingManager();
-    rendering_manager.register_shader_program(
-        "model", "model.vert", "model.frag", [&perspective](rendering::ShaderProgram* program) {
-            program->use();
-            program->setUniform1i("tex", 0);
-            program->setUniformMatrix4fv("perspective", perspective);
-            program->setUniformMatrix4fv("model_scale", Eigen::Matrix4f::Identity());
-        });
+
+    auto shader_setup_fn = [&perspective](rendering::ShaderProgram* program) {
+        program->use();
+        program->setUniform1i("tex", 0);
+        program->setUniformMatrix4fv("perspective", perspective);
+        program->setUniformMatrix4fv("model_scale", Eigen::Matrix4f::Identity());
+    };
+
+    rendering_manager.register_shader_program("model", "model.vert", "model.frag", shader_setup_fn);
     auto& shader_model = rendering_manager.get_shader_program("model");
 
-    rendering_manager.register_shader_program(
-        "skybox",
-        "sky.vert",
-        "sky.frag",
-        [FOV_Y, aspect, &camera](rendering::ShaderProgram* program) {
-            program->use();
-            program->setUniform1i("tex", 0);
-            program->setUniformMatrix4fv("perspective",
-                                         geometry::perspective(FOV_Y, aspect, 0.5f, 8192.0f));
-        });
+    rendering_manager.register_shader_program("skybox", "sky.vert", "sky.frag", shader_setup_fn);
     auto& shader_skybox = rendering_manager.get_shader_program("skybox");
 
     rendering_manager.register_model(rendering::primitives::bounding_box());
