@@ -1,0 +1,10 @@
+#pragma once
+
+namespace resources::locator
+{
+constexpr const char* ROOT_PATH = "@CMAKE_ABSOLUTE_DATA_DIR@/";
+constexpr const char* SHADERS_PATH = "@CMAKE_ABSOLUTE_DATA_DIR@/shaders/";
+constexpr const char* MODELS_PATH = "@CMAKE_ABSOLUTE_DATA_DIR@/models/";
+constexpr const char* TEXTURES_PATH = "@CMAKE_ABSOLUTE_DATA_DIR@/textures/";
+constexpr const char* SOUNDS_PATH = "@CMAKE_ABSOLUTE_DATA_DIR@/sounds/";
+}  // namespace resources::locator

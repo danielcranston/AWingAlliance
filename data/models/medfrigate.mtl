@@ -1,0 +1,46 @@
+# Blender MTL File: 'None'
+# Material Count: 4
+
+newmtl Nebulon-B_MedicalFrigate_Details
+Ns 1000.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.480000 0.480000 0.480000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 1
+map_Kd Nebulon-B_Details_DIFF.png
+
+newmtl Nebulon-B_MedicalFrigate_Material
+Ns 1000.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.480000 0.480000 0.480000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 1
+map_Kd Nebulon-B_DIFF.png
+
+newmtl Nebulon-B_MedicalFrigate_Plating
+Ns 1000.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.480000 0.480000 0.480000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 1
+map_Kd Nebulon-B_DIFF.png
+
+newmtl Nebulon-B_MedicalFrigate_PlatingColour
+Ns 1000.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.480000 0.480000 0.480000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 1
+map_Kd Nebulon-B_DIFF.png
