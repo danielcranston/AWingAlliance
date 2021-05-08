@@ -119,32 +119,38 @@ int main(int argc, char* argv[])
 
     // CONTROL RELATED
     auto pos = awing.get_position();
-    auto x_goal = Eigen::Matrix<float, 6, 1>();
-    x_goal << pos.x(), pos.y(), pos.z(), 0.0f, 0.0f, 0.0f;
+    auto x_goal = Eigen::Matrix<float, 9, 1>();
+    x_goal << pos.x(), pos.y(), pos.z(), 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f;
 
-    auto A = Eigen::Matrix<float, 6, 6>();
-    A.row(0) << 0, 0, 0, 1, 0, 0;
-    A.row(1) << 0, 0, 0, 0, 1, 0;
-    A.row(2) << 0, 0, 0, 0, 0, 1;
-    A.row(3) << 0, 0, 0, 1, 0, 0;
-    A.row(4) << 0, 0, 0, 0, 1, 0;
-    A.row(5) << 0, 0, 0, 0, 0, 1;
+    auto A = Eigen::Matrix<float, 9, 9>();
+    A.row(0) << 0, 0, 0, 1, 0, 0, 0, 0, 0;
+    A.row(1) << 0, 0, 0, 0, 1, 0, 0, 0, 0;
+    A.row(2) << 0, 0, 0, 0, 0, 1, 0, 0, 0;
+    A.row(3) << 0, 0, 0, 0, 0, 0, 1, 0, 0;
+    A.row(4) << 0, 0, 0, 0, 0, 0, 0, 1, 0;
+    A.row(5) << 0, 0, 0, 0, 0, 0, 0, 0, 1;
+    A.row(6) << 0, 0, 0, 0, 0, 0, 1, 0, 0;
+    A.row(7) << 0, 0, 0, 0, 0, 0, 0, 1, 0;
+    A.row(8) << 0, 0, 0, 0, 0, 0, 0, 0, 1;
 
-    auto B = Eigen::Matrix<float, 6, 3>();
+    auto B = Eigen::Matrix<float, 9, 3>();
     B.row(0) << 0, 0, 0;
     B.row(1) << 0, 0, 0;
     B.row(2) << 0, 0, 0;
-    B.row(3) << 1, 0, 0;
-    B.row(4) << 0, 1, 0;
-    B.row(5) << 0, 0, 1;
+    B.row(3) << 0, 0, 0;
+    B.row(4) << 0, 0, 0;
+    B.row(5) << 0, 0, 0;
+    B.row(6) << 1, 0, 0;
+    B.row(7) << 0, 1, 0;
+    B.row(8) << 0, 0, 1;
 
-    control::System<float, 6, 3> system(A, B);
+    control::System<float, 9, 3> system(A, B);
     system.set_state_vector(x_goal);
 
-    auto Q = Eigen::DiagonalMatrix<float, 6>();
-    Q.diagonal() << 1, 1, 1, 0, 0, 0;
+    auto Q = Eigen::DiagonalMatrix<float, 9>();
+    Q.diagonal() << 1, 1, 1, 2, 2, 2, 1, 1, 1;
     auto R = Eigen::Vector3f(1, 1, 1).asDiagonal();
-    control::LQRController<float, 6, 3> controller(system.get_A(), system.get_B(), Q, R);
+    control::LQRController<float, 9, 3> controller(system.get_A(), system.get_B(), Q, R);
 
     std::cout << "system.get_state()" << std::endl;
     std::cout << system.get_state().transpose() << std::endl;
