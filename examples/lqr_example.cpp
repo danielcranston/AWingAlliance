@@ -33,6 +33,51 @@ Eigen::Isometry3f make_pose(const Eigen::Vector3f& pos, const Eigen::Quaternionf
     return pose;
 }
 
+std::pair<control::System<float, 9, 3>, control::LQRController<float, 9, 3>>
+make_pos_controller(Eigen::Ref<Eigen::Matrix<float, 9, 1>> x_goal)
+{
+    auto A = Eigen::Matrix<float, 9, 9>();
+    A.row(0) << 0, 0, 0, 1, 0, 0, 0, 0, 0;
+    A.row(1) << 0, 0, 0, 0, 1, 0, 0, 0, 0;
+    A.row(2) << 0, 0, 0, 0, 0, 1, 0, 0, 0;
+    A.row(3) << 0, 0, 0, 0, 0, 0, 1, 0, 0;
+    A.row(4) << 0, 0, 0, 0, 0, 0, 0, 1, 0;
+    A.row(5) << 0, 0, 0, 0, 0, 0, 0, 0, 1;
+    A.row(6) << 0, 0, 0, 0, 0, 0, 1, 0, 0;
+    A.row(7) << 0, 0, 0, 0, 0, 0, 0, 1, 0;
+    A.row(8) << 0, 0, 0, 0, 0, 0, 0, 0, 1;
+
+    auto B = Eigen::Matrix<float, 9, 3>();
+    B.row(0) << 0, 0, 0;
+    B.row(1) << 0, 0, 0;
+    B.row(2) << 0, 0, 0;
+    B.row(3) << 0, 0, 0;
+    B.row(4) << 0, 0, 0;
+    B.row(5) << 0, 0, 0;
+    B.row(6) << 1, 0, 0;
+    B.row(7) << 0, 1, 0;
+    B.row(8) << 0, 0, 1;
+
+    control::System<float, 9, 3> system(A, B);
+    system.set_state_vector(x_goal);
+
+    auto Q = Eigen::DiagonalMatrix<float, 9>();
+    Q.diagonal() << 1, 1, 1, 2, 2, 2, 1, 1, 1;
+    auto R = Eigen::Vector3f(1, 1, 1).asDiagonal();
+    control::LQRController<float, 9, 3> controller(system.get_A(), system.get_B(), Q, R);
+
+    std::cout << "system.get_state()" << std::endl;
+    std::cout << system.get_state().transpose() << std::endl;
+    std::cout << "x_goal " << x_goal.rows() << " " << x_goal.cols() << std::endl;
+    std::cout << "A " << A.rows() << " " << A.cols() << std::endl;
+    std::cout << "B " << B.rows() << " " << B.cols() << std::endl;
+    std::cout << "Q " << Q.rows() << " " << Q.cols() << std::endl;
+    std::cout << "R " << R.rows() << " " << R.cols() << std::endl;
+    std::cout << "K " << controller.get_K().rows() << " " << controller.get_K().cols() << std::endl;
+
+    return { system, controller };
+}
+
 int main(int argc, char* argv[])
 {
     int screen_w = 1200;
@@ -121,45 +166,7 @@ int main(int argc, char* argv[])
     auto pos = awing.get_position();
     auto x_goal = Eigen::Matrix<float, 9, 1>();
     x_goal << pos.x(), pos.y(), pos.z(), 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f;
-
-    auto A = Eigen::Matrix<float, 9, 9>();
-    A.row(0) << 0, 0, 0, 1, 0, 0, 0, 0, 0;
-    A.row(1) << 0, 0, 0, 0, 1, 0, 0, 0, 0;
-    A.row(2) << 0, 0, 0, 0, 0, 1, 0, 0, 0;
-    A.row(3) << 0, 0, 0, 0, 0, 0, 1, 0, 0;
-    A.row(4) << 0, 0, 0, 0, 0, 0, 0, 1, 0;
-    A.row(5) << 0, 0, 0, 0, 0, 0, 0, 0, 1;
-    A.row(6) << 0, 0, 0, 0, 0, 0, 1, 0, 0;
-    A.row(7) << 0, 0, 0, 0, 0, 0, 0, 1, 0;
-    A.row(8) << 0, 0, 0, 0, 0, 0, 0, 0, 1;
-
-    auto B = Eigen::Matrix<float, 9, 3>();
-    B.row(0) << 0, 0, 0;
-    B.row(1) << 0, 0, 0;
-    B.row(2) << 0, 0, 0;
-    B.row(3) << 0, 0, 0;
-    B.row(4) << 0, 0, 0;
-    B.row(5) << 0, 0, 0;
-    B.row(6) << 1, 0, 0;
-    B.row(7) << 0, 1, 0;
-    B.row(8) << 0, 0, 1;
-
-    control::System<float, 9, 3> system(A, B);
-    system.set_state_vector(x_goal);
-
-    auto Q = Eigen::DiagonalMatrix<float, 9>();
-    Q.diagonal() << 1, 1, 1, 2, 2, 2, 1, 1, 1;
-    auto R = Eigen::Vector3f(1, 1, 1).asDiagonal();
-    control::LQRController<float, 9, 3> controller(system.get_A(), system.get_B(), Q, R);
-
-    std::cout << "system.get_state()" << std::endl;
-    std::cout << system.get_state().transpose() << std::endl;
-    std::cout << "x_goal " << x_goal.rows() << " " << x_goal.cols() << std::endl;
-    std::cout << "A " << A.rows() << " " << A.cols() << std::endl;
-    std::cout << "B " << B.rows() << " " << B.cols() << std::endl;
-    std::cout << "Q " << Q.rows() << " " << Q.cols() << std::endl;
-    std::cout << "R " << R.rows() << " " << R.cols() << std::endl;
-    std::cout << "K " << controller.get_K().rows() << " " << controller.get_K().cols() << std::endl;
+    auto [system, controller] = make_pos_controller(x_goal);
 
     // BEGIN LOOP
     SDL_Event event;
@@ -189,7 +196,7 @@ int main(int argc, char* argv[])
             t += dt;
         }
         auto x = system.get_state();
-        awing.set_pose(make_pose({ x.x(), x.y(), x.z() }, awing.get_orientation()));
+        awing.set_position({ x.x(), x.y(), x.z() });
 
         // Render
         glEnable(GL_CULL_FACE);
