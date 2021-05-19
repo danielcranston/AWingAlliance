@@ -3,9 +3,6 @@
 #include <array>
 #include <vector>
 
-#include <ryml_std.hpp>
-#include <ryml.hpp>
-
 #include <external/json.hpp>
 
 #include "resources/locator.h"
@@ -13,73 +10,44 @@
 
 #include "resources/load_descriptions.h"
 
+#include "yaml-cpp/yaml.h"
+
 using resources::locator::ROOT_PATH;
 
 namespace resources
 {
-namespace
-{
-std::string to_string(const c4::csubstr& substr)
-{
-    return std::string(substr.str, substr.len);
-}
-}  // namespace
-
 std::map<std::string, ActorDescription> load_descriptions()
 {
-    std::string src = resources::load_textfile("descriptions.yaml", ROOT_PATH);
-
-    c4::substr srcview = c4::to_substr(src.data());
-    ryml::Tree tree = ryml::parse(srcview);
-    ryml::NodeRef rootref = tree.rootref();
-
-    std::cout << "rootref num children: " << rootref.num_children() << std::endl;
+    YAML::Node description = YAML::LoadFile(ROOT_PATH + std::string("descriptions.yaml"));
 
     std::map<std::string, ActorDescription> ret;
-    for (ryml::NodeRef c : rootref.children())
+    for (YAML::const_iterator it = description.begin(); it != description.end(); ++it)
     {
-        std::cout << "---" << c.key() << "\n";
-
-        assert(c.has_child("type"));
-        assert(c.has_child("visual"));
-        assert(c.has_child("fire_control"));
-
-        // Fire Control
-        ryml::NodeRef fire_control_node = c["fire_control"];
-
-        assert(fire_control_node.has_child("offsets"));
-        assert(fire_control_node.has_child("modes"));
+        const auto name = it->first.as<std::string>();
+        YAML::Node fire_control_node = it->second["fire_control"];
 
         std::vector<std::array<float, 3>> offsets;
-        for (int i = 0; i < fire_control_node["offsets"].num_children(); ++i)
+        for (const auto& offset : fire_control_node["offsets"])
         {
-            offsets.push_back({ std::stof(fire_control_node["offsets"].child(i)[0].val().str),
-                                std::stof(fire_control_node["offsets"].child(i)[1].val().str),
-                                std::stof(fire_control_node["offsets"].child(i)[2].val().str) });
+            offsets.push_back(
+                { offset[0].as<float>(), offset[1].as<float>(), offset[2].as<float>() });
         }
-
-        assert(fire_control_node["modes"].num_children() ==
-               fire_control_node["recharge_times_s"].num_children());
 
         std::vector<int> modes;
         std::vector<float> recharge_times_s;
-        for (int i = 0; i < fire_control_node["modes"].num_children(); ++i)
+        for (int i = 0; i < fire_control_node["modes"].size(); ++i)
         {
-            int a = std::stoi(fire_control_node["modes"].child(i).val().str);
-            float b = std::stof(fire_control_node["recharge_times_s"].child(i).val().str);
-
-            modes.push_back(a);
-            recharge_times_s.push_back(b);
+            modes.push_back(fire_control_node["modes"][i].as<int>());
+            recharge_times_s.push_back(fire_control_node["recharge_times_s"][i].as<float>());
         }
 
-        ret.insert(std::make_pair(
-            to_string(c.key()),
-            ActorDescription(to_string(c.key()),
-                             to_string(c["type"].val()),
-                             to_string(c["visual"].val()),
-                             ActorDescription::FireControl(std::move(offsets),
-                                                           std::move(modes),
-                                                           std::move(recharge_times_s)))));
+        ret.insert({ name,
+                     ActorDescription(
+                         name,
+                         it->second["type"].as<std::string>(),
+                         it->second["visual"].as<std::string>(),
+                         ActorDescription::FireControl(
+                             std::move(offsets), std::move(modes), std::move(recharge_times_s))) });
     }
     return ret;
 }

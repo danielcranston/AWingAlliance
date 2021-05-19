@@ -33,7 +33,8 @@ find_package(assimp REQUIRED)
 find_package(SDL2 REQUIRED)
 include_directories(${SDL2_INCLUDE_DIRS})
 
-add_subdirectory(external/rapidyaml ryml)
+find_package(yaml-cpp REQUIRED)
+include_directories(${YAML_INCLUDE_DIRS})
 
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
@@ -50,7 +51,7 @@ add_library(resources src/resources/load_model.cpp
                       src/resources/load_texture.cpp
                       src/resources/load_textfile.cpp
                       src/resources/load_descriptions.cpp)
-target_link_libraries(resources ${ASSIMP_LIBRARIES} ryml)
+target_link_libraries(resources ${ASSIMP_LIBRARIES} ${YAML_CPP_LIBRARIES})
 
 add_library(rendering src/rendering/mesh.cpp
                       src/rendering/texture.cpp
