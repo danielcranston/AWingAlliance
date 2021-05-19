@@ -24,58 +24,14 @@
 #include "actor/ship.h"
 #include "actor/camera.h"
 #include "actor/laser.h"
-#include "control/lqr.h"
+#include "control/position_controller.h"
+#include "control/orientation_controller.h"
 
 Eigen::Isometry3f make_pose(const Eigen::Vector3f& pos, const Eigen::Quaternionf& quat)
 {
     auto pose = Eigen::Isometry3f(quat);
     pose.translation() = pos;
     return pose;
-}
-
-std::pair<control::System<float, 9, 3>, control::LQRController<float, 9, 3>>
-make_pos_controller(Eigen::Ref<Eigen::Matrix<float, 9, 1>> x_goal)
-{
-    auto A = Eigen::Matrix<float, 9, 9>();
-    A.row(0) << 0, 0, 0, 1, 0, 0, 0, 0, 0;
-    A.row(1) << 0, 0, 0, 0, 1, 0, 0, 0, 0;
-    A.row(2) << 0, 0, 0, 0, 0, 1, 0, 0, 0;
-    A.row(3) << 0, 0, 0, 0, 0, 0, 1, 0, 0;
-    A.row(4) << 0, 0, 0, 0, 0, 0, 0, 1, 0;
-    A.row(5) << 0, 0, 0, 0, 0, 0, 0, 0, 1;
-    A.row(6) << 0, 0, 0, 0, 0, 0, 1, 0, 0;
-    A.row(7) << 0, 0, 0, 0, 0, 0, 0, 1, 0;
-    A.row(8) << 0, 0, 0, 0, 0, 0, 0, 0, 1;
-
-    auto B = Eigen::Matrix<float, 9, 3>();
-    B.row(0) << 0, 0, 0;
-    B.row(1) << 0, 0, 0;
-    B.row(2) << 0, 0, 0;
-    B.row(3) << 0, 0, 0;
-    B.row(4) << 0, 0, 0;
-    B.row(5) << 0, 0, 0;
-    B.row(6) << 1, 0, 0;
-    B.row(7) << 0, 1, 0;
-    B.row(8) << 0, 0, 1;
-
-    control::System<float, 9, 3> system(A, B);
-    system.set_state_vector(x_goal);
-
-    auto Q = Eigen::DiagonalMatrix<float, 9>();
-    Q.diagonal() << 1, 1, 1, 2, 2, 2, 1, 1, 1;
-    auto R = Eigen::Vector3f(1, 1, 1).asDiagonal();
-    control::LQRController<float, 9, 3> controller(system.get_A(), system.get_B(), Q, R);
-
-    std::cout << "system.get_state()" << std::endl;
-    std::cout << system.get_state().transpose() << std::endl;
-    std::cout << "x_goal " << x_goal.rows() << " " << x_goal.cols() << std::endl;
-    std::cout << "A " << A.rows() << " " << A.cols() << std::endl;
-    std::cout << "B " << B.rows() << " " << B.cols() << std::endl;
-    std::cout << "Q " << Q.rows() << " " << Q.cols() << std::endl;
-    std::cout << "R " << R.rows() << " " << R.cols() << std::endl;
-    std::cout << "K " << controller.get_K().rows() << " " << controller.get_K().cols() << std::endl;
-
-    return { system, controller };
 }
 
 int main(int argc, char* argv[])
@@ -124,7 +80,7 @@ int main(int argc, char* argv[])
 
     // ACTORS
     auto awing =
-        actor::Ship("awing", desc.at("awing"), { 0.0f, -5.0f, -30.0f }, { 1.0f, 0.0f, 0.0f, 0.0f });
+        actor::Ship("awing", desc.at("awing"), { 0.0f, -5.0f, -30.0f }, { 0.0f, 0.0f, 0.0f, 1.0f });
     auto camera =
         actor::Camera("camera", { 0.0f, 0.0f, 0.0f }, { 1.0f, 0.0f, 0.0f, 0.0f }, perspective);
 
@@ -152,7 +108,7 @@ int main(int argc, char* argv[])
         });
     auto& shader_skybox = rendering_manager.get_shader_program("skybox");
 
-    const std::string skybox_tex = "skybox/new";
+    const std::string skybox_tex = "skybox/lightblue/512";
     rendering_manager.register_skybox(skybox_tex, resources::load_cubemap_texture(skybox_tex));
 
     rendering_manager.register_models({ awing.get_visual_name() }, [](const std::string& filename) {
@@ -163,10 +119,14 @@ int main(int argc, char* argv[])
         [](const std::string& filename) { return resources::load_texture(filename); });
 
     // CONTROL RELATED
-    auto pos = awing.get_position();
-    auto x_goal = Eigen::Matrix<float, 9, 1>();
-    x_goal << pos.x(), pos.y(), pos.z(), 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f;
-    auto [system, controller] = make_pos_controller(x_goal);
+    auto controller = control::PositionController(awing.get_position());
+
+    auto ori_controller = control::OrientationController(
+        { awing.get_orientation(), Eigen::Vector3f(1.0f, 1.0f, 0.0f) },
+        { Eigen::Quaternionf(1.0, 0.0, 0.0, 0.0), Eigen::Vector3f::Zero() },
+        { 150.0f, 150.0f, 150.0f },
+        { 30.0f, 30.0f, 30.0f },
+        Eigen::Matrix3f::Identity());
 
     // BEGIN LOOP
     SDL_Event event;
@@ -188,15 +148,14 @@ int main(int argc, char* argv[])
         // Integrate
         while (accumulator >= dt)
         {
-            auto x = system.get_state();
-            auto u = controller.compute_control(x, x_goal);
-            system.integrate(u, 0.1);
+            controller.update(dt);
+            ori_controller.update(dt);
 
             accumulator -= dt;
             t += dt;
         }
-        auto x = system.get_state();
-        awing.set_position({ x.x(), x.y(), x.z() });
+        awing.set_position(controller.get_position());
+        awing.set_orientation(ori_controller.get_state_quaternion());
 
         // Render
         glEnable(GL_CULL_FACE);
@@ -223,12 +182,13 @@ int main(int argc, char* argv[])
                         GL_TRIANGLES);
         glEnable(GL_BLEND);
 
-        rendering::draw(shader_model,
-                        rendering_manager.get_model(awing.get_visual_name()),
-                        make_pose({ x_goal.x(), x_goal.y(), x_goal.z() }, awing.get_orientation()),
-                        { 1.0f, 0.0f, 0.0f },
-                        rendering_manager.get_textures(),
-                        GL_TRIANGLES);
+        rendering::draw(
+            shader_model,
+            rendering_manager.get_model(awing.get_visual_name()),
+            make_pose(controller.get_goal_position(), ori_controller.get_goal_quaternion()),
+            { 1.0f, 0.0f, 0.0f },
+            rendering_manager.get_textures(),
+            GL_TRIANGLES);
 
         SDL_GL_SwapWindow(context_manager.window);
 
@@ -247,33 +207,51 @@ int main(int argc, char* argv[])
                 }
                 else if (!event.key.repeat && event.key.keysym.sym == SDLK_w)
                 {
-                    x_goal.z() -= 10.0f;
+                    controller.update_goal_position(Eigen::Vector3f(0.0f, 0.0f, -10.0f));
                 }
                 else if (!event.key.repeat && event.key.keysym.sym == SDLK_s)
                 {
-                    x_goal.z() += 10.0f;
+                    controller.update_goal_position(Eigen::Vector3f(0.0f, 0.0f, 10.0f));
                 }
                 else if (!event.key.repeat && event.key.keysym.sym == SDLK_a)
                 {
-                    x_goal.x() -= 10.0f;
+                    controller.update_goal_position(Eigen::Vector3f(-10.0f, 0.0f, 0.0f));
                 }
                 else if (!event.key.repeat && event.key.keysym.sym == SDLK_d)
                 {
-                    x_goal.x() += 10.0f;
+                    controller.update_goal_position(Eigen::Vector3f(10.0f, 0.0f, 0.0f));
                 }
                 else if (!event.key.repeat && event.key.keysym.sym == SDLK_LCTRL)
                 {
-                    x_goal.y() -= 10.0f;
+                    controller.update_goal_position(Eigen::Vector3f(0.0f, -10.0f, 0.0f));
                 }
                 else if (!event.key.repeat && event.key.keysym.sym == SDLK_SPACE)
                 {
-                    x_goal.y() += 10.0f;
+                    controller.update_goal_position(Eigen::Vector3f(0.0f, 10.0f, 0.0f));
+                }
+                else if (!event.key.repeat && event.key.keysym.sym == SDLK_LEFT)
+                {
+                    ori_controller.update_goal_quaternion(Eigen::Quaternionf(
+                        Eigen::AngleAxis<float>(M_PI / 4.0f, Eigen::Vector3f::UnitZ())));
+                }
+                else if (!event.key.repeat && event.key.keysym.sym == SDLK_RIGHT)
+                {
+                    ori_controller.update_goal_quaternion(Eigen::Quaternionf(
+                        Eigen::AngleAxis<float>(-M_PI / 4.0f, Eigen::Vector3f::UnitZ())));
+                }
+                else if (!event.key.repeat && event.key.keysym.sym == SDLK_DOWN)
+                {
+                    ori_controller.update_goal_quaternion(Eigen::Quaternionf(
+                        Eigen::AngleAxis<float>(M_PI / 4.0f, Eigen::Vector3f::UnitX())));
+                }
+                else if (!event.key.repeat && event.key.keysym.sym == SDLK_UP)
+                {
+                    ori_controller.update_goal_quaternion(Eigen::Quaternionf(
+                        Eigen::AngleAxis<float>(-M_PI / 4.0f, Eigen::Vector3f::UnitX())));
                 }
                 else if (!event.key.repeat && event.key.keysym.sym == SDLK_r)
                 {
-                    auto q = awing.get_orientation();
-                    q = Eigen::AngleAxis<float>(-M_PI * 0.5f, Eigen::Vector3f::UnitZ()) * q;
-                    awing.set_orientation(q);
+                    ori_controller.set_goal_quaternion(Eigen::Quaternionf::Identity());
                 }
             }
         }
