@@ -26,6 +26,7 @@
 #include "actor/laser.h"
 #include "control/position_controller.h"
 #include "control/orientation_controller.h"
+#include "control/camera_controller.h"
 
 Eigen::Isometry3f make_pose(const Eigen::Vector3f& pos, const Eigen::Quaternionf& quat)
 {
@@ -128,6 +129,19 @@ int main(int argc, char* argv[])
         { 30.0f, 30.0f, 30.0f },
         Eigen::Matrix3f::Identity());
 
+    auto camera_controller = control::CameraController();
+    camera.set_tick_behavior([&awing, &camera_controller]() {
+        auto target_pose = awing.get_pose();
+
+        target_pose.translation() -= awing.get_fwd_dir() * 15.0f;
+        target_pose.translation() += awing.get_up_dir() * 5.0f;
+
+        camera_controller.set_target_pose(target_pose);
+        camera_controller.update(0.0f, 1.0f / 60.0f);  //
+
+        return camera_controller.get_pose();
+    });
+
     // BEGIN LOOP
     SDL_Event event;
     bool should_shutdown = false;
@@ -156,6 +170,7 @@ int main(int argc, char* argv[])
         }
         awing.set_position(controller.get_position());
         awing.set_orientation(ori_controller.get_state_quaternion());
+        camera.tick(t, dt);
 
         // Render
         glEnable(GL_CULL_FACE);
@@ -207,27 +222,27 @@ int main(int argc, char* argv[])
                 }
                 else if (!event.key.repeat && event.key.keysym.sym == SDLK_w)
                 {
-                    controller.update_goal_position(Eigen::Vector3f(0.0f, 0.0f, -10.0f));
+                    controller.update_goal_position(+10.0f * awing.get_fwd_dir());
                 }
                 else if (!event.key.repeat && event.key.keysym.sym == SDLK_s)
                 {
-                    controller.update_goal_position(Eigen::Vector3f(0.0f, 0.0f, 10.0f));
+                    controller.update_goal_position(-10.0f * awing.get_fwd_dir());
                 }
                 else if (!event.key.repeat && event.key.keysym.sym == SDLK_a)
                 {
-                    controller.update_goal_position(Eigen::Vector3f(-10.0f, 0.0f, 0.0f));
+                    controller.update_goal_position(-10.0f * awing.get_right_dir());
                 }
                 else if (!event.key.repeat && event.key.keysym.sym == SDLK_d)
                 {
-                    controller.update_goal_position(Eigen::Vector3f(10.0f, 0.0f, 0.0f));
+                    controller.update_goal_position(+10.0f * awing.get_right_dir());
                 }
                 else if (!event.key.repeat && event.key.keysym.sym == SDLK_LCTRL)
                 {
-                    controller.update_goal_position(Eigen::Vector3f(0.0f, -10.0f, 0.0f));
+                    controller.update_goal_position(-10.0f * awing.get_up_dir());
                 }
                 else if (!event.key.repeat && event.key.keysym.sym == SDLK_SPACE)
                 {
-                    controller.update_goal_position(Eigen::Vector3f(0.0f, 10.0f, 0.0f));
+                    controller.update_goal_position(+10.0f * awing.get_up_dir());
                 }
                 else if (!event.key.repeat && event.key.keysym.sym == SDLK_LEFT)
                 {
