@@ -31,6 +31,8 @@
 *.app
 
 build/*
+cmake/*
+include/resources/locator.h
 awing
-Textures/
-Models/
+run.sh
+*_example
