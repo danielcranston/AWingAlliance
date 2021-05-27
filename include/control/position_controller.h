@@ -20,8 +20,9 @@ class PositionController
     void update(const float dt);
 
     Eigen::Vector3f get_position() const;
+    Eigen::Vector3f get_velocity() const;
     void set_position(const Eigen::Vector3f& pos);
-    Eigen::Vector3f get_goal_position();
+    Eigen::Vector3f get_goal_position() const;
     void set_goal_position(const Eigen::Vector3f& pos);
     void update_goal_position(const Eigen::Vector3f& relative_pos);
 

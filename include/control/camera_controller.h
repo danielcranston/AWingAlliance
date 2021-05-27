@@ -8,8 +8,15 @@ class CameraController
 {
   public:
     CameraController();
+    CameraController(const Eigen::Vector3f& start_pose, const Eigen::Quaternionf& start_quat);
+    CameraController(const Eigen::Vector3f& start_pos,
+                     const Eigen::Quaternionf& start_quat,
+                     const float pos_blend_ratio,
+                     const float quat_blend_ratio);
 
-    void set_target_pose(Eigen::Isometry3f& target);
+    void set_target_pose(const Eigen::Isometry3f& target);
+    void set_pos_blend_ratio(const float ratio);
+    void set_quat_blend_ratio(const float ratio);
 
     void update(const float t, const float dt);
 
@@ -18,5 +25,8 @@ class CameraController
   private:
     PositionController position_controller;
     OrientationController orientation_controller;
+
+    float pos_blend_ratio = 0.5f;
+    float quat_blend_ratio = 0.9f;
 };
 }  // namespace control

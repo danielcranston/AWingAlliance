@@ -28,12 +28,7 @@
 #include "control/orientation_controller.h"
 #include "control/camera_controller.h"
 
-Eigen::Isometry3f make_pose(const Eigen::Vector3f& pos, const Eigen::Quaternionf& quat)
-{
-    auto pose = Eigen::Isometry3f(quat);
-    pose.translation() = pos;
-    return pose;
-}
+using geometry::make_pose;
 
 int main(int argc, char* argv[])
 {
@@ -122,22 +117,13 @@ int main(int argc, char* argv[])
     // CONTROL RELATED
     auto controller = control::PositionController(awing.get_position());
 
-    auto ori_controller = control::OrientationController(
-        { awing.get_orientation(), Eigen::Vector3f(1.0f, 1.0f, 0.0f) },
-        { Eigen::Quaternionf(1.0, 0.0, 0.0, 0.0), Eigen::Vector3f::Zero() },
-        { 150.0f, 150.0f, 150.0f },
-        { 30.0f, 30.0f, 30.0f },
-        Eigen::Matrix3f::Identity());
+    auto ori_controller = control::OrientationController(awing.get_orientation());
 
-    auto camera_controller = control::CameraController();
-    camera.set_tick_behavior([&awing, &camera_controller]() {
-        auto target_pose = awing.get_pose();
-
-        target_pose.translation() -= awing.get_fwd_dir() * 15.0f;
-        target_pose.translation() += awing.get_up_dir() * 5.0f;
-
-        camera_controller.set_target_pose(target_pose);
-        camera_controller.update(0.0f, 1.0f / 60.0f);  //
+    auto camera_controller =
+        control::CameraController(awing.get_position(), awing.get_orientation());
+    camera.set_tick_behavior([&awing, &ori_controller, &camera_controller]() {
+        camera_controller.set_target_pose(awing.get_pose() * make_pose({ 0.0f, 5.0f, 15.0f }));
+        camera_controller.update(0.0f, 1.0f / 60.0f);
 
         return camera_controller.get_pose();
     });
@@ -165,12 +151,13 @@ int main(int argc, char* argv[])
             controller.update(dt);
             ori_controller.update(dt);
 
+            awing.set_pose(
+                make_pose(controller.get_position(), ori_controller.get_state_quaternion()));
+            camera.tick(t, dt);
+
             accumulator -= dt;
             t += dt;
         }
-        awing.set_position(controller.get_position());
-        awing.set_orientation(ori_controller.get_state_quaternion());
-        camera.tick(t, dt);
 
         // Render
         glEnable(GL_CULL_FACE);
@@ -206,6 +193,8 @@ int main(int argc, char* argv[])
             GL_TRIANGLES);
 
         SDL_GL_SwapWindow(context_manager.window);
+
+        controller.set_goal_position(awing.get_position() + 10.0f * awing.get_fwd_dir());
 
         // Process input
         while (SDL_PollEvent(&event))

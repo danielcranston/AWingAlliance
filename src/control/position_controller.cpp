@@ -67,6 +67,12 @@ Eigen::Vector3f PositionController::get_position() const
     return Eigen::Vector3f(x.x(), x.y(), x.z());
 }
 
+Eigen::Vector3f PositionController::get_velocity() const
+{
+    auto x = lqr_controller.get_state();
+    return x.segment<3>(3);
+}
+
 void PositionController::set_position(const Eigen::Vector3f& pos)
 {
     auto x = lqr_controller.get_state();
@@ -76,7 +82,7 @@ void PositionController::set_position(const Eigen::Vector3f& pos)
     lqr_controller.set_state(x);
 }
 
-Eigen::Vector3f PositionController::get_goal_position()
+Eigen::Vector3f PositionController::get_goal_position() const
 {
     auto x_goal = lqr_controller.get_goal_state();
     return Eigen::Vector3f(x_goal.x(), x_goal.y(), x_goal.z());

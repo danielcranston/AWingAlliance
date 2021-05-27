@@ -1,21 +1,38 @@
 #include "control/orientation_controller.h"
 
+#include "geometry.h"
+
 #include <Eigen/Dense>
 #include <Eigen/Geometry>
 
 namespace control
 {
-OrientationController::OrientationController(const OrientationController::StatePair& state,
-                                             const OrientationController::StatePair& goal,
+OrientationController::State::State(const Eigen::Quaternionf& q, const Eigen::Vector3f& w)
+  : q(q), w(w)
+{
+}
+
+OrientationController::OrientationController()
+  : OrientationController::OrientationController(Eigen::Quaternionf::Identity())
+{
+}
+
+OrientationController::OrientationController(const Eigen::Quaternionf& start_quat)
+  : OrientationController::OrientationController({ start_quat, { 0.0f, 0.0f, 0.0f } },
+                                                 { start_quat, { 0.0f, 0.0f, 0.0f } },
+                                                 { 150.0f, 150.0f, 150.0f },
+                                                 { 30.0f, 30.0f, 30.0f },
+                                                 Eigen::Matrix3f::Identity())
+{
+}
+
+OrientationController::OrientationController(const OrientationController::State& state,
+                                             const OrientationController::State& goal,
                                              const Eigen::Vector3f& Kp,
                                              const Eigen::Vector3f& Kd,
                                              const Eigen::Matrix3f& inertia_matrix)
   //@TODO: Should add max torque/w
-  : state{ state.first, state.second },
-    goal{ goal.first, goal.second },
-    Kp(Kp),
-    Kd(Kd),
-    inertia_matrix(inertia_matrix){};
+  : state(state), goal(goal), Kp(Kp), Kd(Kd), inertia_matrix(inertia_matrix){};
 
 void OrientationController::set_state(const Eigen::Quaternionf& q, const Eigen::Vector3f& w)
 {
@@ -44,9 +61,9 @@ void OrientationController::update_goal_quaternion(const Eigen::Quaternionf& rel
     goal.q = goal.q * relative_q;
 }
 
-OrientationController::StatePair OrientationController::get_state() const
+OrientationController::State OrientationController::get_state() const
 {
-    return { state.q, state.w };
+    return state;
 }
 
 Eigen::Quaternionf OrientationController::get_state_quaternion() const
@@ -54,9 +71,9 @@ Eigen::Quaternionf OrientationController::get_state_quaternion() const
     return state.q;
 }
 
-OrientationController::StatePair OrientationController::get_goal() const
+OrientationController::State OrientationController::get_goal() const
 {
-    return { goal.q, goal.w };
+    return goal;
 }
 
 Eigen::Quaternionf OrientationController::get_goal_quaternion() const
@@ -70,9 +87,7 @@ void OrientationController::update(const float dt)
     Eigen::Matrix3f inertia_world = state.q * inertia_matrix * state.q.inverse();
     angular_momentum = inertia_world * state.w;
     auto w_body = state.q.inverse() * state.w;
-    auto angle = state.w.norm();
-    auto axis = state.w.normalized();
-    auto dq = Eigen::Quaternionf(Eigen::AngleAxisf(angle * dt, axis));
+    auto dq = geometry::angular_velocity_to_quat(state.w, dt);
 
     // Compute PD Control (torque)
     Eigen::AngleAxisf q_err_rotvec;
