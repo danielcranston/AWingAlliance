@@ -8,7 +8,7 @@ class CameraController
 {
   public:
     CameraController();
-    CameraController(const Eigen::Vector3f& start_pose, const Eigen::Quaternionf& start_quat);
+    CameraController(const Eigen::Vector3f& start_pos, const Eigen::Quaternionf& start_quat);
     CameraController(const Eigen::Vector3f& start_pos,
                      const Eigen::Quaternionf& start_quat,
                      const float pos_blend_ratio,
