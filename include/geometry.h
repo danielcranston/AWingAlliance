@@ -27,4 +27,15 @@ Eigen::Quaternionf look_at(const Eigen::Vector3f& from,
                            const Eigen::Vector3f& right);
 
 Eigen::Quaternionf angular_velocity_to_quat(const Eigen::Vector3f& w, const float dt);
+
+float map(const Eigen::Vector2f& in_bounds, const Eigen::Vector2f& out_bounds, float x);
+
+Eigen::Vector3f map_vector(const Eigen::Matrix<float, 3, 2>& input_bounds,
+                           const Eigen::Matrix<float, 3, 2>& output_bounds,
+                           const Eigen::Vector3f v);
+
+Eigen::Vector3f clamp(const Eigen::Vector3f& v,
+                      const Eigen::Vector3f& lb,
+                      const Eigen::Vector3f& ub);
+
 }  // namespace geometry

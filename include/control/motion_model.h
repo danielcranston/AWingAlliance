@@ -19,7 +19,7 @@ class MotionModel
     // https://gafferongames.com/post/integration_basics/
     // https://gafferongames.com/post/physics_in_3d/
   public:
-    MotionModel() = default;
+    MotionModel();
 
     Eigen::Isometry3f update(const MotionControl::StateMap& state_map,
                              const Eigen::Vector3f& position,
@@ -31,14 +31,20 @@ class MotionModel
     Eigen::Vector3f position;
     Eigen::Quaternionf orientation;
 
-    float speed = 0.0f;
-    float yaw = 0.0f;
-    float roll = 0.0f;
-    float pitch = 0.0f;
+    Eigen::Vector3f attitude_inputs;  // between [-1, 1]
+    Eigen::Vector3f attitude_windup_times;
 
+    Eigen::Vector3f max_angular_velocity;
+
+    Eigen::Matrix<float, 3, 2> attitude_input_bounds;
+    Eigen::Matrix<float, 3, 2> attitude_output_bounds;
+
+    Eigen::Vector2f speed_input_bounds;
+
+    float speed = 0.0f;
+    float speed_windup_time = 0.25f;
     float max_speed = 130.0f;
-    float max_pitch_speed = 2.0f;
-    float max_yaw_speed = 1.0f;
-    float max_roll_speed = 2.0f;
+
+    float input_falloff_rate = 0.9f;
 };
 }  // namespace control

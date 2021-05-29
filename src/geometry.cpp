@@ -82,4 +82,37 @@ Eigen::Quaternionf angular_velocity_to_quat(const Eigen::Vector3f& w, const floa
     auto axis = w.normalized();
     return Eigen::Quaternionf(Eigen::AngleAxisf(angle * dt, axis));
 }
+
+float map(const Eigen::Vector2f& in_bounds, const Eigen::Vector2f& out_bounds, float x)
+{
+    float a1 = in_bounds.x();
+    float b1 = in_bounds.y() - in_bounds.x();
+    float a2 = out_bounds.x();
+    float b2 = out_bounds.y() - out_bounds.x();
+
+    float A = b2 / b1;
+    float b = -a1 * b2 / b1 + a2;
+
+    return A * x + b;
+}
+
+Eigen::Vector3f map_vector(const Eigen::Matrix<float, 3, 2>& input_bounds,
+                           const Eigen::Matrix<float, 3, 2>& output_bounds,
+                           const Eigen::Vector3f v)
+{
+    Eigen::Vector3f ret = Eigen::Vector3f::Zero();
+    for (int i = 0; i < v.rows(); ++i)
+    {
+        ret(i) = map(input_bounds.row(i), output_bounds.row(i), v(i));
+    }
+    return ret;
+}
+
+Eigen::Vector3f clamp(const Eigen::Vector3f& v,
+                      const Eigen::Vector3f& lb,
+                      const Eigen::Vector3f& ub)
+{
+    return v.cwiseMin(ub).cwiseMax(lb);
+}
+
 }  // namespace geometry
