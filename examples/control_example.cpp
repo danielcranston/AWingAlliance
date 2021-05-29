@@ -10,6 +10,7 @@
 
 #include <SDL2/SDL.h>
 
+#include "convenience.h"
 #include "resources/load_model.h"
 #include "resources/load_texture.h"
 #include "resources/load_descriptions.h"
