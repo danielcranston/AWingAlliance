@@ -26,7 +26,7 @@ class CameraController
     PositionController position_controller;
     OrientationController orientation_controller;
 
-    float pos_blend_ratio = 0.5f;
-    float quat_blend_ratio = 0.9f;
+    float pos_blend_ratio;
+    float quat_blend_ratio;
 };
 }  // namespace control

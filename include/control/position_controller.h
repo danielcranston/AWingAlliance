@@ -27,7 +27,9 @@ class PositionController
     void update_goal_position(const Eigen::Vector3f& relative_pos);
 
   private:
-    LQRController<float, STATE_DIM, CONTROL_DIM> lqr_controller;
+    Eigen::Matrix<float, STATE_DIM, 1> x;
+    Eigen::Matrix<float, STATE_DIM, 1> x_goal;
+    Eigen::Matrix<float, CONTROL_DIM, STATE_DIM> K;
 };
 
 }  // namespace control

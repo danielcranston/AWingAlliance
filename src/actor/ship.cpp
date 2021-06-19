@@ -17,8 +17,17 @@ Ship::Ship(const std::string& name,
 
 void Ship::tick(float current_time_s, float dt)
 {
-    set_pose(motion_model.update(
-        motion_control.get_states(), get_position(), get_orientation(), current_time_s, dt));
+    auto normalized_actuation = motion_control.get_normalized_actuation();
+
+    ship_controller.set_goal_pose(motion_model.update(normalized_actuation.d_v,
+                                                      normalized_actuation.d_w,
+                                                      get_position(),
+                                                      get_orientation(),
+                                                      current_time_s,
+                                                      dt));
+    ship_controller.update(current_time_s, dt);
+
+    pose = ship_controller.get_pose();
 
     if (is_firing)
     {
@@ -34,6 +43,12 @@ void Ship::tick(float current_time_s, float dt)
             }
         }
     }
+}
+
+Eigen::Isometry3f Ship::get_goal_pose() const
+{
+    // TODO: move to Actor when Actor::MotionState is complete
+    return ship_controller.get_goal_pose();
 }
 
 void Ship::toggle_fire_mode()

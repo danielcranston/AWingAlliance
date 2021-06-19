@@ -25,7 +25,9 @@
 #include "actor/ship.h"
 #include "actor/camera.h"
 #include "actor/laser.h"
+#include "control/camera_controller.h"
 #include "environment/environment.h"
+#include "convenience.h"
 
 const std::unordered_map<int, control::MotionControl::States> key_mapping = {
     { SDLK_UP, control::MotionControl::States::TURN_UP },
@@ -107,36 +109,9 @@ int main(int argc, char* argv[])
     int screen_w = 1200;
     int screen_h = 900;
 
-    if (SDL_Init(SDL_INIT_EVERYTHING | SDL_VIDEO_OPENGL) != 0)
-        throw std::runtime_error(std::string("SDL_Init failed: ") + SDL_GetError());
-
-    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-    SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
-
-    const auto context_flags = SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG | SDL_GL_CONTEXT_DEBUG_FLAG;
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 5);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, context_flags);
-    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
-
+    convenience::init_sdl();
     rendering::ContextManager context_manager{ "Main Window", screen_w, screen_h };
-
-    GLenum glew_status = glewInit();
-    if (glew_status != GLEW_OK)
-    {
-        std::stringstream ss;
-        ss << "Error initializing GLEW: " << glewGetErrorString(glew_status);
-        throw std::runtime_error(ss.str());
-    }
-    else
-        std::cout << "GLEW Initialized: " << glewGetErrorString(glew_status) << std::endl;
-
-    glViewport(0, 0, screen_w, screen_h);
-    glClearColor(0, 0, 0, 1);
-
-    SDL_ShowCursor(false);
-    SDL_SetRelativeMouseMode(SDL_TRUE);
+    convenience::init_glew(screen_w, screen_h);
 
     float FOV_Y = 60.0f * M_PI / 180.0f;
     float aspect = 1.0f * screen_w / screen_h;
@@ -173,17 +148,14 @@ int main(int argc, char* argv[])
 
     std::reference_wrapper<actor::Actor> controlled_actor = ship;
 
-    // TODO: Replace this abomination with LQR controller
-    auto skp = StatfulKalmanPositioner();
-    auto roaming_3d_positioning_fn = [&controlled_actor, &skp]() {
-        auto p = controlled_actor.get().get_pose();
-        p.translation() -= controlled_actor.get().get_fwd_dir() * 13.0;
-        p.translation() += controlled_actor.get().get_up_dir() * 2.5;
-        return skp.update(
-            p.translation(), Eigen::Quaternionf(p.linear()), SDL_GetTicks() / 1000.0f);
-    };
-    camera.set_tick_behavior(roaming_3d_positioning_fn);
-
+    auto camera_controller = control::CameraController(controlled_actor.get().get_position(),
+                                                       controlled_actor.get().get_orientation());
+    camera.set_tick_behavior([&controlled_actor, &camera_controller]() {
+        camera_controller.set_target_pose(controlled_actor.get().get_pose() *
+                                          geometry::make_pose({ 0.0f, 5.0f, 15.0f }));
+        camera_controller.update(0.0f, 1.0f / 60.0f);
+        return camera_controller.get_pose();
+    });
     auto rendering_manager = rendering::RenderingManager();
 
     auto shader_setup_fn = [&perspective](rendering::ShaderProgram* program) {

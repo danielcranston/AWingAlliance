@@ -21,7 +21,8 @@ class MotionModel
   public:
     MotionModel();
 
-    Eigen::Isometry3f update(const MotionControl::StateMap& state_map,
+    Eigen::Isometry3f update(const float d_v,
+                             const Eigen::Vector3f& d_w,
                              const Eigen::Vector3f& position,
                              const Eigen::Quaternionf& orientation,
                              const float t,
@@ -39,10 +40,12 @@ class MotionModel
     Eigen::Matrix<float, 3, 2> attitude_input_bounds;
     Eigen::Matrix<float, 3, 2> attitude_output_bounds;
 
-    Eigen::Vector2f speed_input_bounds;
+    Eigen::Vector2f throttle_input_bounds;
+    Eigen::Vector2f throttle_output_bounds;
 
     float speed = 0.0f;
-    float speed_windup_time = 0.25f;
+    float throttle_input;
+    float throttle_windup_time;
     float max_speed = 130.0f;
 
     float input_falloff_rate = 0.9f;

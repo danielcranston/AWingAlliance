@@ -12,9 +12,9 @@ static const Eigen::Matrix<float, STATE_DIM, STATE_DIM> A = []() {
     A.row(0) << 0, 0, 0, 1, 0, 0, 0, 0, 0;
     A.row(1) << 0, 0, 0, 0, 1, 0, 0, 0, 0;
     A.row(2) << 0, 0, 0, 0, 0, 1, 0, 0, 0;
-    A.row(3) << 0, 0, 0, 0, 0, 0, 1, 0, 0;
-    A.row(4) << 0, 0, 0, 0, 0, 0, 0, 1, 0;
-    A.row(5) << 0, 0, 0, 0, 0, 0, 0, 0, 1;
+    A.row(3) << 0, 0, 0, 0, 0, 0, 10, 0, 0;
+    A.row(4) << 0, 0, 0, 0, 0, 0, 0, 10, 0;
+    A.row(5) << 0, 0, 0, 0, 0, 0, 0, 0, 10;
     A.row(6) << 0, 0, 0, 0, 0, 0, 1, 0, 0;
     A.row(7) << 0, 0, 0, 0, 0, 0, 0, 1, 0;
     A.row(8) << 0, 0, 0, 0, 0, 0, 0, 0, 1;
@@ -37,7 +37,7 @@ static const Eigen::Matrix<float, STATE_DIM, CONTROL_DIM> B = []() {
 
 static const Eigen::Matrix<float, STATE_DIM, STATE_DIM> Q = []() {
     auto Q = Eigen::DiagonalMatrix<float, STATE_DIM>();
-    Q.diagonal() << 1000, 1000, 1000, 1000, 1000, 1000, 1, 1, 1;
+    Q.diagonal() << 1000, 1000, 1000, 1, 1, 1, 1, 1, 1;
     return Q;
 }();
 
@@ -46,64 +46,44 @@ static const Eigen::Matrix<float, CONTROL_DIM, CONTROL_DIM> R =
 
 }  // namespace
 
-PositionController::PositionController(const Eigen::Vector3f& pos) : lqr_controller(A, B, Q, R)
+PositionController::PositionController(const Eigen::Vector3f& pos)
+  : x(), x_goal(), K(LQR(A, B, Q, R))
 {
-    Eigen::Matrix<float, STATE_DIM, 1> x = Eigen::Matrix<float, STATE_DIM, 1>::Zero();
-    x.x() = pos.x();
-    x.y() = pos.y();
-    x.z() = pos.z();
-    lqr_controller.set_state(x);
-    lqr_controller.set_goal_state(x);
+    x = x.Zero();
+    x_goal = x_goal.Zero();
+    x.head<3>() = pos;
+    x_goal.head<3>() = pos;
 };
 
 void PositionController::update(const float dt)
 {
-    lqr_controller.update(dt);
+    auto u = -K * (x - x_goal);
+    auto xdot = A * x + B * u;
+    x = x + dt * xdot;
 }
 
 Eigen::Vector3f PositionController::get_position() const
 {
-    auto x = lqr_controller.get_state();
-    return Eigen::Vector3f(x.x(), x.y(), x.z());
+    return x.head<3>();
 }
 
 Eigen::Vector3f PositionController::get_velocity() const
 {
-    auto x = lqr_controller.get_state();
     return x.segment<3>(3);
 }
 
 void PositionController::set_position(const Eigen::Vector3f& pos)
 {
-    auto x = lqr_controller.get_state();
-    x.x() = pos.x();
-    x.y() = pos.y();
-    x.z() = pos.z();
-    lqr_controller.set_state(x);
+    x.head<3>() = pos;
 }
 
 Eigen::Vector3f PositionController::get_goal_position() const
 {
-    auto x_goal = lqr_controller.get_goal_state();
-    return Eigen::Vector3f(x_goal.x(), x_goal.y(), x_goal.z());
+    return x_goal.head<3>();
 }
 
 void PositionController::set_goal_position(const Eigen::Vector3f& pos)
 {
-    auto x_goal = lqr_controller.get_goal_state();
-    x_goal.x() = pos.x();
-    x_goal.y() = pos.y();
-    x_goal.z() = pos.z();
-    lqr_controller.set_goal_state(x_goal);
+    x_goal.head<3>() = pos;
 }
-
-void PositionController::update_goal_position(const Eigen::Vector3f& relative_pos)
-{
-    auto x_goal = lqr_controller.get_goal_state();
-    x_goal.x() += relative_pos.x();
-    x_goal.y() += relative_pos.y();
-    x_goal.z() += relative_pos.z();
-    lqr_controller.set_goal_state(x_goal);
-}
-
 }  // namespace control

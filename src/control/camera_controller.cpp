@@ -11,7 +11,7 @@ CameraController::CameraController()
 
 CameraController::CameraController(const Eigen::Vector3f& start_pos,
                                    const Eigen::Quaternionf& start_quat)
-  : CameraController::CameraController(start_pos, start_quat, 0.1f, 0.9f)
+  : CameraController::CameraController(start_pos, start_quat, 0.5f, 0.8f)
 {
 }
 

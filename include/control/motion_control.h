@@ -3,6 +3,8 @@
 #include <iostream>
 #include <bitset>
 
+#include <Eigen/Geometry>
+
 namespace control
 {
 class MotionControl
@@ -37,6 +39,14 @@ class MotionControl
     };
 
     StateMap get_states() const;
+
+    struct Actuation
+    {
+        Eigen::Vector3f d_w;  // normalized instantaneous angular velocity in body frame
+        float d_v;            // normalized instantaneous linear velocity in body frame
+    };
+
+    Actuation get_normalized_actuation() const;
 
     void set_states(const StateMap& states);
 

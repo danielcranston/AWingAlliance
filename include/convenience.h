@@ -19,6 +19,7 @@ void init_sdl()
     SDL_ShowCursor(false);
     SDL_SetRelativeMouseMode(SDL_TRUE);
 }
+
 void init_glew(const int screen_w, const int screen_h)
 {
     GLenum glew_status = glewInit();
@@ -34,6 +35,5 @@ void init_glew(const int screen_w, const int screen_h)
     glViewport(0, 0, screen_w, screen_h);
     glClearColor(0, 0, 0, 1);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glEnable(GL_BLEND);
 }
 }  // namespace convenience

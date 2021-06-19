@@ -11,6 +11,7 @@
 #include "control/fire_control.h"
 #include "control/motion_model.h"
 #include "control/motion_control.h"
+#include "control/ship_controller.h"
 #include "resources/description_data.h"
 
 namespace actor
@@ -39,6 +40,7 @@ class Ship : public Actor
          const Eigen::Vector3f& position,
          const Eigen::Quaternionf& orientation,
          const std::string& geometry = "");
+    ~Ship() = default;
 
     static void
     set_on_fire_cb(std::function<void(const Ship& ship, const Eigen::Isometry3f relative_pose)> cb);
@@ -50,10 +52,13 @@ class Ship : public Actor
 
     void update_input_states(const InputStates& req);
 
+    Eigen::Isometry3f get_goal_pose() const;
+
   private:
     static std::function<void(const Ship& ship, const Eigen::Isometry3f relative_pose)> on_fire_cb;
     control::FireControl fire_control;
 
+    control::ShipController ship_controller;
     control::MotionControl motion_control;
     control::MotionModel motion_model;
 };

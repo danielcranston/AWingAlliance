@@ -77,7 +77,8 @@ add_library(control src/control/fire_control.cpp
                     src/control/lqr.cpp
                     src/control/position_controller.cpp
                     src/control/orientation_controller.cpp
-                    src/control/camera_controller.cpp)
+                    src/control/camera_controller.cpp
+                    src/control/ship_controller.cpp)
 target_link_libraries(control geometry Eigen3::Eigen)
 
 add_library(actors src/actor/actor.cpp

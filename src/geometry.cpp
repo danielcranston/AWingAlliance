@@ -54,7 +54,7 @@ Eigen::Isometry3f make_pose(const Eigen::Vector3f& pos)
 
 Eigen::Vector3f lerp(const Eigen::Vector3f& v1, const Eigen::Vector3f& v2, const float t)
 {
-    return t * v1 + (1.0f - t) * v2;
+    return (1.0f - t) * v1 + t * v2;
 }
 
 Eigen::Quaternionf slerp(const Eigen::Quaternionf& q1, const Eigen::Quaternionf& q2, const float t)
