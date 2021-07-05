@@ -2,6 +2,8 @@
 #include "control/position_controller.h"
 #include "control/orientation_controller.h"
 
+#include "geometry.h"
+
 namespace control
 {
 class CameraController
@@ -18,11 +20,14 @@ class CameraController
     void set_pos_blend_ratio(const float ratio);
     void set_quat_blend_ratio(const float ratio);
 
-    void update(const float t, const float dt);
-
-    Eigen::Isometry3f get_pose() const;
+    geometry::MotionState update(const geometry::MotionState& state,
+                                 const Eigen::Isometry3f& target_pose,
+                                 const float t,
+                                 const float dt);
 
   private:
+    Eigen::Isometry3f target_pose;
+
     PositionController position_controller;
     OrientationController orientation_controller;
 

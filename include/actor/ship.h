@@ -52,9 +52,12 @@ class Ship : public Actor
 
     void update_input_states(const InputStates& req);
 
-    Eigen::Isometry3f get_goal_pose() const;
+    void set_target_pose(const Eigen::Isometry3f& target_pose) override final;
+    const Eigen::Isometry3f get_target_pose() const override final;
 
   private:
+    Eigen::Isometry3f target_pose;
+
     static std::function<void(const Ship& ship, const Eigen::Isometry3f relative_pose)> on_fire_cb;
     control::FireControl fire_control;
 

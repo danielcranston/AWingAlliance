@@ -2,6 +2,8 @@
 
 #include "actor/actor.h"
 
+#include "control/camera_controller.h"
+
 namespace actor
 {
 class Camera : public Actor
@@ -29,6 +31,7 @@ class Camera : public Actor
     // float aspect_ratio;
     // float near_distance;
     // float far_distance;
+    control::CameraController camera_controller;
 
     Eigen::Matrix4f perspective;
 

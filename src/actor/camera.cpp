@@ -33,8 +33,7 @@ void Camera::tick(float current_time_s, float dt)
 {
     auto target_pose = tick_behavior_fn();
 
-    // TODO: Use LQR control to guide camera pose to target pose
-    pose = target_pose;
+    motion_state = camera_controller.update(motion_state, target_pose, current_time_s, dt);
 }
 
 }  // namespace actor

@@ -29,9 +29,6 @@ class MotionModel
                              const float dt);
 
   private:
-    Eigen::Vector3f position;
-    Eigen::Quaternionf orientation;
-
     Eigen::Vector3f attitude_inputs;  // between [-1, 1]
     Eigen::Vector3f attitude_windup_times;
 

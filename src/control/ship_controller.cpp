@@ -34,47 +34,29 @@ static const Eigen::Matrix<float, CONTROL_DIM, CONTROL_DIM> R = Eigen::Matrix<fl
 
 }  // namespace
 
-ShipController::ShipController()
-  : ShipController(Eigen::Vector3f::Zero(), 0.0f, Eigen::Quaternionf::Identity())
+ShipController::ShipController() : ShipController(0.0f)
 {
 }
 
-ShipController::ShipController(const Eigen::Vector3f& start_pos,
-                               const float speed,
-                               const Eigen::Quaternionf& start_quat)
-  : position(start_pos), speed(speed), orientation_controller(start_quat)
+ShipController::ShipController(const float speed) : speed(speed)
 {
 }
 
-Eigen::Isometry3f ShipController::get_pose() const
+geometry::MotionState ShipController::update(const geometry::MotionState& state,
+                                             const Eigen::Isometry3f& target_pose,
+                                             const float t,
+                                             const float dt)
 {
-    return geometry::make_pose(position, orientation_controller.get_state_quaternion());
-}
+    auto target_state = geometry::MotionState();
+    target_state.orientation = Eigen::Quaternionf(target_pose.linear());
 
-Eigen::Isometry3f ShipController::get_goal_pose() const
-{
-    return geometry::make_pose(target_position, orientation_controller.get_goal_quaternion());
-}
+    auto out = orientation_controller.update(state, target_state, dt);
 
-void ShipController::set_pose(const Eigen::Isometry3f& pose)
-{
-    orientation_controller.set_state_quaternion(Eigen::Quaternionf(pose.linear()));
-    position = pose.translation();
-}
+    speed = (target_pose.translation() - state.position)
+                .dot(out.orientation * -Eigen::Vector3f::UnitZ());
+    out.position += out.orientation * Eigen::Vector3f(0.0f, 0.0f, -speed * dt);
 
-void ShipController::set_goal_pose(const Eigen::Isometry3f& target)
-{
-    orientation_controller.set_goal_quaternion(Eigen::Quaternionf(target.linear()));
-    target_position = target.translation();
-}
-
-void ShipController::update(const float t, const float dt)
-{
-    orientation_controller.update(dt);
-    speed = (target_position - position)
-                .dot(orientation_controller.get_state_quaternion() * -Eigen::Vector3f::UnitZ());
-    position +=
-        orientation_controller.get_state_quaternion() * Eigen::Vector3f(0.0f, 0.0f, -speed * dt);
+    return out;
 }
 
 }  // namespace control

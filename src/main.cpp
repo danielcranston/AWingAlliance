@@ -151,10 +151,7 @@ int main(int argc, char* argv[])
     auto camera_controller = control::CameraController(controlled_actor.get().get_position(),
                                                        controlled_actor.get().get_orientation());
     camera.set_tick_behavior([&controlled_actor, &camera_controller]() {
-        camera_controller.set_target_pose(controlled_actor.get().get_pose() *
-                                          geometry::make_pose({ 0.0f, 5.0f, 15.0f }));
-        camera_controller.update(0.0f, 1.0f / 60.0f);
-        return camera_controller.get_pose();
+        return controlled_actor.get().get_pose() * geometry::make_pose({ 0.0f, 5.0f, 15.0f });
     });
     auto rendering_manager = rendering::RenderingManager();
 

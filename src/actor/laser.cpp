@@ -20,7 +20,7 @@ Laser::Laser(const std::string& name,
 
 void Laser::tick(float current_time_s, float dt)
 {
-    pose.translation() += get_fwd_dir() * speed * dt;
+    motion_state.position += get_fwd_dir() * speed * dt;
 }
 
 const Eigen::Vector3f& Laser::get_color()

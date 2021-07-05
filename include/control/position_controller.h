@@ -3,6 +3,7 @@
 #include <Eigen/Dense>
 #include <Eigen/Geometry>
 
+#include "geometry.h"
 #include "control/lqr.h"
 
 namespace control
@@ -17,18 +18,11 @@ class PositionController
 
     PositionController(const Eigen::Vector3f& pos);
 
-    void update(const float dt);
-
-    Eigen::Vector3f get_position() const;
-    Eigen::Vector3f get_velocity() const;
-    void set_position(const Eigen::Vector3f& pos);
-    Eigen::Vector3f get_goal_position() const;
-    void set_goal_position(const Eigen::Vector3f& pos);
-    void update_goal_position(const Eigen::Vector3f& relative_pos);
+    geometry::MotionState update(const geometry::MotionState& state,
+                                 const geometry::MotionState& goal,
+                                 const float dt);
 
   private:
-    Eigen::Matrix<float, STATE_DIM, 1> x;
-    Eigen::Matrix<float, STATE_DIM, 1> x_goal;
     Eigen::Matrix<float, CONTROL_DIM, STATE_DIM> K;
 };
 

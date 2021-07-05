@@ -1,5 +1,7 @@
 #include "control/position_controller.h"
 
+#include <iostream>
+
 namespace control
 {
 namespace
@@ -46,44 +48,31 @@ static const Eigen::Matrix<float, CONTROL_DIM, CONTROL_DIM> R =
 
 }  // namespace
 
-PositionController::PositionController(const Eigen::Vector3f& pos)
-  : x(), x_goal(), K(LQR(A, B, Q, R))
-{
-    x = x.Zero();
-    x_goal = x_goal.Zero();
-    x.head<3>() = pos;
-    x_goal.head<3>() = pos;
-};
+PositionController::PositionController(const Eigen::Vector3f& pos) : K(LQR(A, B, Q, R)){};
 
-void PositionController::update(const float dt)
+geometry::MotionState PositionController::update(const geometry::MotionState& state,
+                                                 const geometry::MotionState& goal,
+                                                 const float dt)
 {
+    Eigen::Matrix<float, STATE_DIM, 1> x;
+    x.head<3>() = state.position;
+    x.segment<3>(3) = state.velocity;
+    x.tail<3>() = state.acceleration;
+
+    Eigen::Matrix<float, STATE_DIM, 1> x_goal;
+    x_goal.head<3>() = goal.position;
+    x_goal.segment<3>(3) = goal.velocity;
+    x_goal.tail<3>() = goal.acceleration;
+
     auto u = -K * (x - x_goal);
     auto xdot = A * x + B * u;
     x = x + dt * xdot;
-}
 
-Eigen::Vector3f PositionController::get_position() const
-{
-    return x.head<3>();
-}
+    geometry::MotionState out = state;
+    out.position = x.head<3>();
+    out.velocity = x.segment<3>(3);
+    out.acceleration = x.tail<3>(3);
 
-Eigen::Vector3f PositionController::get_velocity() const
-{
-    return x.segment<3>(3);
-}
-
-void PositionController::set_position(const Eigen::Vector3f& pos)
-{
-    x.head<3>() = pos;
-}
-
-Eigen::Vector3f PositionController::get_goal_position() const
-{
-    return x_goal.head<3>();
-}
-
-void PositionController::set_goal_position(const Eigen::Vector3f& pos)
-{
-    x_goal.head<3>() = pos;
+    return out;
 }
 }  // namespace control

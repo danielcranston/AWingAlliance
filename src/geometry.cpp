@@ -16,19 +16,19 @@ perspective(const float fov_y, const float aspect, const float z_near, const flo
     return res.transpose();
 }
 
-Eigen::Vector3f get_right_dir(const Eigen::Matrix4f& matrix)
+Eigen::Vector3f get_right_dir(const Eigen::Matrix3f& matrix)
 {
     // x: first col
     return matrix.col(0).head<3>();
 }
 
-Eigen::Vector3f get_up_dir(const Eigen::Matrix4f& matrix)
+Eigen::Vector3f get_up_dir(const Eigen::Matrix3f& matrix)
 {
     // y: second col
     return matrix.col(1).head<3>();
 }
 
-Eigen::Vector3f get_fwd_dir(const Eigen::Matrix4f& matrix)
+Eigen::Vector3f get_fwd_dir(const Eigen::Matrix3f& matrix)
 {
     // -z: third col (negated)
     return -matrix.col(2).head<3>();

@@ -11,8 +11,8 @@ Actor::Actor(const std::string& name,
              const std::string& geometry)
   : name(name), visual(visual), geometry(geometry)
 {
-    pose = Eigen::Isometry3f(orientation.matrix());
-    pose.translation() = position;
+    set_position(position);
+    set_orientation(orientation);
 }
 
 Actor::~Actor(){};
@@ -23,34 +23,44 @@ void Actor::tick(float current_time_s, float dt)
 
 void Actor::set_position(const Eigen::Vector3f& pos)
 {
-    pose.translation() = pos;
+    motion_state.position = pos;
 }
 
 void Actor::set_orientation(const Eigen::Quaternionf& quat)
 {
-    pose.linear() = quat.matrix();
+    motion_state.orientation = quat;
 }
 
 void Actor::set_pose(const Eigen::Isometry3f& p)
 {
-    pose.translation() = p.translation();
-    pose.linear() = p.linear();
+    set_position(p.translation());
+    set_orientation(Eigen::Quaternionf(p.linear()));
+}
+
+void Actor::set_target_pose(const Eigen::Isometry3f& target)
+{
+    // To be overloaded with something more interesting
 }
 
 const Eigen::Vector3f Actor::get_position() const
 {
-    return pose.translation();
+    return motion_state.position;
 }
 
 const Eigen::Quaternionf Actor::get_orientation() const
 {
-    return Eigen::Quaternionf(pose.linear());  // TODO: surely there are better
-                                               // conversions
+    return motion_state.orientation;
 }
 
-const Eigen::Isometry3f& Actor::get_pose() const
+const Eigen::Isometry3f Actor::get_pose() const
 {
-    return pose;
+    return geometry::make_pose(motion_state.position, motion_state.orientation);
+}
+
+const Eigen::Isometry3f Actor::get_target_pose() const
+{
+    // To be overloaded with something more interesting
+    return get_pose();
 }
 
 std::string Actor::get_name() const
@@ -60,17 +70,17 @@ std::string Actor::get_name() const
 
 Eigen::Vector3f Actor::get_right_dir() const
 {
-    return geometry::get_right_dir(pose.matrix());
+    return geometry::get_right_dir(motion_state.orientation.toRotationMatrix());
 }
 
 Eigen::Vector3f Actor::get_up_dir() const
 {
-    return geometry::get_up_dir(pose.matrix());
+    return geometry::get_up_dir(motion_state.orientation.toRotationMatrix());
 }
 
 Eigen::Vector3f Actor::get_fwd_dir() const
 {
-    return geometry::get_fwd_dir(pose.matrix());
+    return geometry::get_fwd_dir(motion_state.orientation.toRotationMatrix());
 }
 
 bool Actor::has_visual() const

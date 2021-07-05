@@ -135,10 +135,7 @@ int main(int argc, char* argv[])
     auto camera_controller =
         control::CameraController(awing.get_position(), awing.get_orientation());
     camera.set_tick_behavior([&awing, &camera_controller]() {
-        camera_controller.set_target_pose(awing.get_pose() * make_pose({ 0.0f, 5.0f, 15.0f }));
-        camera_controller.update(0.0f, 1.0f / 60.0f);
-
-        return camera_controller.get_pose();
+        return awing.get_pose() * make_pose({ 0.0f, 5.0f, 15.0f });
     });
 
     // BEGIN LOOP
@@ -195,7 +192,7 @@ int main(int argc, char* argv[])
 
         rendering::draw(shader_model,
                         rendering_manager.get_model(awing.get_visual_name()),
-                        awing.get_goal_pose(),
+                        awing.get_target_pose(),
                         { 1.0f, 0.0f, 0.0f },
                         rendering_manager.get_textures(),
                         GL_TRIANGLES);
