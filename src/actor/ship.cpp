@@ -45,16 +45,6 @@ void Ship::tick(float current_time_s, float dt)
     }
 }
 
-const Eigen::Isometry3f Ship::get_target_pose() const
-{
-    return target_pose;
-}
-
-void Ship::set_target_pose(const Eigen::Isometry3f& target)
-{
-    target_pose = target;
-}
-
 void Ship::toggle_fire_mode()
 {
     fire_control.toggle_fire_mode();

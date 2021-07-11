@@ -52,9 +52,6 @@ class Ship : public Actor
 
     void update_input_states(const InputStates& req);
 
-    void set_target_pose(const Eigen::Isometry3f& target_pose) override final;
-    const Eigen::Isometry3f get_target_pose() const override final;
-
   private:
     Eigen::Isometry3f target_pose;
 

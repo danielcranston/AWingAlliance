@@ -24,11 +24,6 @@ CameraController::CameraController(const Eigen::Vector3f& start_pos,
 {
 }
 
-void CameraController::set_target_pose(const Eigen::Isometry3f& target)
-{
-    target_pose = target;
-}
-
 void CameraController::set_pos_blend_ratio(const float ratio)
 {
     pos_blend_ratio = ratio;

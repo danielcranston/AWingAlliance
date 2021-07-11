@@ -24,12 +24,12 @@ class Actor
     void set_position(const Eigen::Vector3f& pos);
     void set_orientation(const Eigen::Quaternionf& quat);
     void set_pose(const Eigen::Isometry3f& pose);
-    virtual void set_target_pose(const Eigen::Isometry3f& target_pose);
+    void set_target_pose(const Eigen::Isometry3f& target_pose);
 
     const Eigen::Vector3f get_position() const;
     const Eigen::Quaternionf get_orientation() const;
     const Eigen::Isometry3f get_pose() const;
-    virtual const Eigen::Isometry3f get_target_pose() const;
+    const Eigen::Isometry3f get_target_pose() const;
 
     std::string get_name() const;
 
@@ -50,5 +50,6 @@ class Actor
     std::string visual = "";
     std::string geometry = "";
     mutable geometry::MotionState motion_state;
+    Eigen::Isometry3f target_pose;
 };
 }  // namespace actor

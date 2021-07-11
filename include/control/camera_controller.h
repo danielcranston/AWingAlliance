@@ -16,7 +16,6 @@ class CameraController
                      const float pos_blend_ratio,
                      const float quat_blend_ratio);
 
-    void set_target_pose(const Eigen::Isometry3f& target);
     void set_pos_blend_ratio(const float ratio);
     void set_quat_blend_ratio(const float ratio);
 
@@ -26,8 +25,6 @@ class CameraController
                                  const float dt);
 
   private:
-    Eigen::Isometry3f target_pose;
-
     PositionController position_controller;
     OrientationController orientation_controller;
 

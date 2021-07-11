@@ -31,7 +31,7 @@ const Eigen::Matrix4f& Camera::get_perspective()
 
 void Camera::tick(float current_time_s, float dt)
 {
-    auto target_pose = tick_behavior_fn();
+    set_target_pose(tick_behavior_fn());
 
     motion_state = camera_controller.update(motion_state, target_pose, current_time_s, dt);
 }

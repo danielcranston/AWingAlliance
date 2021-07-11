@@ -39,7 +39,7 @@ void Actor::set_pose(const Eigen::Isometry3f& p)
 
 void Actor::set_target_pose(const Eigen::Isometry3f& target)
 {
-    // To be overloaded with something more interesting
+    target_pose = target;
 }
 
 const Eigen::Vector3f Actor::get_position() const
@@ -59,8 +59,7 @@ const Eigen::Isometry3f Actor::get_pose() const
 
 const Eigen::Isometry3f Actor::get_target_pose() const
 {
-    // To be overloaded with something more interesting
-    return get_pose();
+    return target_pose;
 }
 
 std::string Actor::get_name() const
