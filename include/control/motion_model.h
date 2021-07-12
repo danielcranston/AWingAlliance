@@ -40,8 +40,7 @@ class MotionModel
     Eigen::Vector2f throttle_input_bounds;
     Eigen::Vector2f throttle_output_bounds;
 
-    float speed = 0.0f;
-    float throttle_input;
+    float throttle_input;  // Between [-1, 1]
     float throttle_windup_time;
     float max_speed = 130.0f;
 

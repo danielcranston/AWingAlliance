@@ -9,7 +9,8 @@ namespace control
 MotionModel::MotionModel()
   : attitude_inputs(Eigen::Vector3f::Zero()),
     attitude_windup_times({ 0.25f, 0.25f, 0.25f }),
-    max_angular_velocity({ M_PI / 8.0f, M_PI / 24.0f, M_PI / 8.0f })
+    max_angular_velocity({ M_PI / 8.0f, M_PI / 24.0f, M_PI / 8.0f }),
+    throttle_input(0.0f)
 {
     throttle_windup_time = 0.5f;
     attitude_input_bounds << -Eigen::Vector3f::Ones(), Eigen::Vector3f::Ones();
@@ -34,7 +35,7 @@ Eigen::Isometry3f MotionModel::update(const float d_v,
     auto throttle = geometry::map(throttle_input_bounds, throttle_output_bounds, throttle_input);
 
     // Attitude
-    attitude_inputs += dt * (d_w.cwiseQuotient(attitude_windup_times));
+    attitude_inputs += dt * d_w.cwiseQuotient(attitude_windup_times);
     attitude_inputs.x() *= d_w.x() == 0.0f ? input_falloff_rate : 1.0f;
     attitude_inputs.y() *= d_w.y() == 0.0f ? input_falloff_rate : 1.0f;
     attitude_inputs.z() *= d_w.z() == 0.0f ? input_falloff_rate : 1.0f;

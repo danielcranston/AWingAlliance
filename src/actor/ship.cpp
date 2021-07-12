@@ -20,14 +20,14 @@ void Ship::tick(float current_time_s, float dt)
 {
     auto normalized_actuation = motion_control.get_normalized_actuation();
 
-    set_target_pose(motion_model.update(normalized_actuation.d_v,
-                                        normalized_actuation.d_w,
-                                        get_position(),
-                                        get_orientation(),
-                                        current_time_s,
-                                        dt));
+    target_pose = motion_model.update(normalized_actuation.d_v,
+                                      normalized_actuation.d_w,
+                                      get_position(),
+                                      get_orientation(),
+                                      current_time_s,
+                                      dt);
 
-    motion_state = (ship_controller.update(motion_state, get_target_pose(), current_time_s, dt));
+    motion_state = ship_controller.update(motion_state, target_pose, current_time_s, dt);
 
     if (is_firing)
     {

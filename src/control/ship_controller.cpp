@@ -54,7 +54,8 @@ geometry::MotionState ShipController::update(const geometry::MotionState& state,
 
     speed = (target_pose.translation() - state.position)
                 .dot(out.orientation * -Eigen::Vector3f::UnitZ());
-    out.position += out.orientation * Eigen::Vector3f(0.0f, 0.0f, -speed * dt);
+    out.velocity = geometry::get_fwd_dir(out.orientation.toRotationMatrix()) * speed;
+    out.position += out.velocity * dt;
 
     return out;
 }

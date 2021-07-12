@@ -62,6 +62,11 @@ const Eigen::Isometry3f Actor::get_target_pose() const
     return target_pose;
 }
 
+const geometry::MotionState Actor::get_motion_state() const
+{
+    return motion_state;
+}
+
 std::string Actor::get_name() const
 {
     return name;
