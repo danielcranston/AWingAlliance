@@ -48,7 +48,7 @@ static const Eigen::Matrix<float, CONTROL_DIM, CONTROL_DIM> R =
 
 }  // namespace
 
-PositionController::PositionController(const Eigen::Vector3f& pos) : K(LQR(A, B, Q, R)){};
+PositionController::PositionController() : K(LQR(A, B, Q, R)){};
 
 geometry::MotionState PositionController::update(const geometry::MotionState& state,
                                                  const geometry::MotionState& goal,
@@ -71,7 +71,7 @@ geometry::MotionState PositionController::update(const geometry::MotionState& st
     geometry::MotionState out = state;
     out.position = x.head<3>();
     out.velocity = x.segment<3>(3);
-    out.acceleration = x.tail<3>(3);
+    out.acceleration = x.tail<3>();
 
     return out;
 }

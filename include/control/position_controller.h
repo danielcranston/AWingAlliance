@@ -16,7 +16,7 @@ class PositionController
     static constexpr int STATE_DIM = 9;
     static constexpr int CONTROL_DIM = 3;
 
-    PositionController(const Eigen::Vector3f& pos);
+    PositionController();
 
     geometry::MotionState update(const geometry::MotionState& state,
                                  const geometry::MotionState& goal,

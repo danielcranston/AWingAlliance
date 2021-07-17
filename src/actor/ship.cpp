@@ -37,9 +37,7 @@ void Ship::tick(float current_time_s, float dt)
         {
             for (const auto& offset : dispatches.value())
             {
-                auto relative_pose = Eigen::Isometry3f::Identity();
-                relative_pose.translation() = offset;
-                on_fire_cb(*this, relative_pose);
+                on_fire_cb(*this, geometry::make_pose(offset));
             }
         }
     }

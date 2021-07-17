@@ -17,7 +17,7 @@ CameraController::CameraController(const Eigen::Vector3f& start_pos,
                                    const Eigen::Quaternionf& start_quat,
                                    const float pos_blend_ratio,
                                    const float quat_blend_ratio)
-  : position_controller(start_pos),
+  : position_controller(),
     orientation_controller(),
     pos_blend_ratio(pos_blend_ratio),
     quat_blend_ratio(quat_blend_ratio)
