@@ -1,5 +1,5 @@
 #pragma once
-#include "control/position_controller.h"
+#include "control/velocity_controller.h"
 #include "control/orientation_controller.h"
 #include "geometry.h"
 
@@ -19,5 +19,6 @@ class ShipController
   private:
     float speed = 0.0f;
     OrientationController orientation_controller;
+    VelocityController velocity_controller;
 };
 }  // namespace control

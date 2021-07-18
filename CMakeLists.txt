@@ -76,6 +76,7 @@ add_library(control src/control/fire_control.cpp
                     src/control/motion_model.cpp
                     src/control/lqr.cpp
                     src/control/position_controller.cpp
+                    src/control/velocity_controller.cpp
                     src/control/orientation_controller.cpp
                     src/control/camera_controller.cpp
                     src/control/ship_controller.cpp)
