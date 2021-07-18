@@ -1,7 +1,7 @@
 #include "control/ship_controller.h"
 
 #include <iostream>
-#include "geometry.h"
+#include "geometry/geometry.h"
 
 namespace control
 {

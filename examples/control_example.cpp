@@ -21,7 +21,7 @@
 #include "rendering/context_manager.h"
 #include "rendering/rendering_manager.h"
 #include "rendering/draw.h"
-#include "geometry.h"
+#include "geometry/geometry.h"
 #include "actor/ship.h"
 #include "actor/camera.h"
 #include "actor/laser.h"

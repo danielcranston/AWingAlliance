@@ -1,6 +1,6 @@
 #include "actor/actor.h"
 
-#include "geometry.h"
+#include "geometry/geometry.h"
 
 namespace actor
 {

@@ -3,7 +3,7 @@
 #include <Eigen/Dense>
 #include <Eigen/Geometry>
 
-#include "geometry.h"
+#include "geometry/geometry.h"
 
 namespace control
 {

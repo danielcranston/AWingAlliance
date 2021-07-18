@@ -1,7 +1,7 @@
 #pragma once
 #include "control/velocity_controller.h"
 #include "control/orientation_controller.h"
-#include "geometry.h"
+#include "geometry/geometry.h"
 
 namespace control
 {
