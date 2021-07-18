@@ -21,7 +21,7 @@ MotionControl::StateMap MotionControl::get_states() const
 
 MotionControl::Actuation MotionControl::get_normalized_actuation() const
 {
-    static auto test = [this](MotionControl::States state1, MotionControl::States state2) {
+    auto test = [this](MotionControl::States state1, MotionControl::States state2) {
         if (state_map.test(state1))
             return -1.0f;
         if (state_map.test(state2))
