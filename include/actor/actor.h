@@ -50,7 +50,7 @@ class Actor
     std::string name;
     std::string visual = "";
     std::string geometry = "";
-    mutable geometry::MotionState motion_state;
+    geometry::MotionState motion_state;
     Eigen::Isometry3f target_pose = Eigen::Isometry3f::Identity();
 };
 }  // namespace actor
