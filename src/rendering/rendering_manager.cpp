@@ -131,7 +131,7 @@ bool RenderingManager::has_unloaded_textures() const
 void RenderingManager::register_unloaded_textures(
     std::function<resources::TextureData(const std::string&)> loader_fn)
 {
-    std::cout << "Loading required textures:" << std::endl;
+    // std::cout << "Loading required textures:" << std::endl;
     for (const auto& filename : unloaded_textures)
     {
         if (textures.find(filename) == textures.end())

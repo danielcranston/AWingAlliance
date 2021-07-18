@@ -90,8 +90,8 @@ MeshData process_mesh_data(const std::string& filename, const int mesh_num, cons
 
     if (num_diffuse_textures > 1)
     {
-        std::cout << "Loading \"" << filename << "\": expected max 1 diffuse texture for mesh"
-                  << " but found " << num_diffuse_textures;
+        // std::cout << "Loading \"" << filename << "\": expected max 1 diffuse texture for mesh"
+        //           << " but found " << num_diffuse_textures;
     }
 
     if (num_diffuse_textures == 1)
@@ -128,7 +128,7 @@ void process_node(const std::string& filename,
 
 std::vector<MeshData> load_model(const std::string& filename)
 {
-    std::cout << "Loading \"" << filename << "\"" << std::endl;
+    // std::cout << "Loading \"" << filename << "\"" << std::endl;
 
     Assimp::Importer importer;
     const aiScene* scene =

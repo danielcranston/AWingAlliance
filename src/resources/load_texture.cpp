@@ -23,8 +23,8 @@ TextureData load_texture(const std::string& filename)
         std::cerr << "Unable to load texture: " << texture_path << std::endl;
         throw std::runtime_error("Unable to load texture");
     }
-    std::cout << "Loading \"" << filename << "\", w=" << w << ", h=" << h << ", comp=" << comp
-              << std::endl;
+    // std::cout << "Loading \"" << filename << "\", w=" << w << ", h=" << h << ", comp=" << comp
+    //           << std::endl;
 
     // Wasteful to copy, but rather that than dealing with raw unowned pointers
     const std::vector<unsigned char> buffer{ image, image + w * h * comp };

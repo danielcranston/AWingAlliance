@@ -40,8 +40,8 @@ Mesh::Mesh(const std::string& name,
     glGenBuffers(1, &vbo_texture_coords);
     glGenBuffers(1, &vbo_indices);
 
-    std::cout << "Mesh with texture \"" << diffuse_texname << "\" (vao id " << vao
-              << ") being constructed" << std::endl;
+    // std::cout << "Mesh with texture \"" << diffuse_texname << "\" (vao id " << vao
+    //           << ") being constructed" << std::endl;
 
     glBindVertexArray(vao);
     glEnableVertexAttribArray(0);
@@ -168,7 +168,8 @@ Mesh::~Mesh()
 {
     if (is_owning)
     {
-        std::cout << "Mesh \"" << name << "\" (vao id " << vao << ") being cleaned up" << std::endl;
+        // std::cout << "Mesh \"" << name << "\" (vao id " << vao << ") being cleaned up" <<
+        // std::endl;
         glDeleteVertexArrays(1, &vao);
         glDeleteBuffers(1, &vbo_vertices);
         glDeleteBuffers(1, &vbo_indices);

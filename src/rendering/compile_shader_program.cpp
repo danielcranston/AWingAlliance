@@ -90,7 +90,7 @@ std::unique_ptr<ShaderProgram> compileComputeShader(const std::string& name,
 
     glDetachShader(program, computeShader);
 
-    std::cout << "Creating Compute ShaderProgram (" << name << ")" << std::endl;
+    // std::cout << "Creating Compute ShaderProgram (" << name << ")" << std::endl;
 
     return std::make_unique<ShaderProgram>(name, ShaderType::NORMAL, program);
 }
@@ -170,7 +170,7 @@ std::unique_ptr<ShaderProgram> compileShaders(const std::string& name,
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
 
-    std::cout << "Creating ShaderProgram (" << name << ")" << std::endl;
+    // std::cout << "Creating ShaderProgram (" << name << ")" << std::endl;
 
     return std::make_unique<ShaderProgram>(name, ShaderType::COMPUTE, program);
 }

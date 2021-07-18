@@ -14,14 +14,14 @@ namespace rendering
 ShaderProgram::ShaderProgram(const std::string& n, const ShaderType t, const uint program)
   : name(n), type(t), program_id(program)
 {
-    std::cout << "ShaderProgram \"" << name << "\" (program id " << program_id << ") constructed"
-              << std::endl;
+    // std::cout << "ShaderProgram \"" << name << "\" (program id " << program_id << ") constructed"
+    //           << std::endl;
 }
 
 ShaderProgram::~ShaderProgram()
 {
-    std::cout << "ShaderProgram \"" << name << "\" (program id " << program_id
-              << ") being cleaned up" << std::endl;
+    // std::cout << "ShaderProgram \"" << name << "\" (program id " << program_id
+    //           << ") being cleaned up" << std::endl;
     glUseProgram(0);
     glDeleteProgram(program_id);
 }

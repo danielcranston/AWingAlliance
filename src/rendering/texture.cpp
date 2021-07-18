@@ -34,8 +34,8 @@ Texture::Texture(const std::string& name,
 
     glGenerateMipmap(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, 0);
-    std::cout << "Texture \"" << name << "\" (id " << texture_id << ") being constructed"
-              << std::endl;
+    // std::cout << "Texture \"" << name << "\" (id " << texture_id << ") being constructed"
+    //           << std::endl;
 }
 
 // from https://learnopengl.com/Advanced-OpenGL/Cubemaps
@@ -58,8 +58,8 @@ Texture::Texture(const std::string& name, const std::array<resources::TextureDat
 
         const int format = texdata.comp == 3 ? GL_RGB : GL_RGBA;
 
-        std::cout << "  buffering CUBEMAP texture: " << texdata.name << ", w = " << texdata.width
-                  << ", h = " << texdata.height << ", comp = " << comp << std::endl;
+        // std::cout << "  buffering CUBEMAP texture: " << texdata.name << ", w = " << texdata.width
+        //           << ", h = " << texdata.height << ", comp = " << comp << std::endl;
 
         glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
                      0,
@@ -81,8 +81,9 @@ Texture::Texture(const std::string& name, const std::array<resources::TextureDat
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAX_LEVEL, 0);
 
     glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
-    std::cout << "Texture (cubemap) \"" << name << "\" (id " << texture_id << ") being constructed"
-              << std::endl;
+    // std::cout << "Texture (cubemap) \"" << name << "\" (id " << texture_id << ") being
+    // constructed"
+    //           << std::endl;
 }
 
 Texture::Texture(Texture&& other)
@@ -156,8 +157,8 @@ Texture::~Texture()
 {
     if (is_owning)
     {
-        std::cout << "Texture " << name << " (id " << texture_id << ") being cleaned up"
-                  << std::endl;
+        // std::cout << "Texture " << name << " (id " << texture_id << ") being cleaned up"
+        //           << std::endl;
         glDeleteTextures(1, &texture_id);  // TODO: check if cleanup is different for cubemap
     }
     else
