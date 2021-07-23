@@ -45,13 +45,13 @@ void draw(const ShaderProgram& program,
         else
         {
             program.setUniform1i("use_color", 1);
+            program.setUniform3fv("uniform_color", color);
         }
 
         if (mode != GL_TRIANGLES && mode != GL_LINES)
             throw std::runtime_error("Invalid draw mode " + std::to_string(mode));
 
         glBindVertexArray(mesh.get_vao());
-        // glDrawElements(GL_TRIANGLES, mesh.get_num_indices(), GL_UNSIGNED_INT, (const void*)0);
         glDrawElements(mode, mesh.get_num_indices(), GL_UNSIGNED_INT, (const void*)0);
     }
 }
@@ -90,13 +90,13 @@ void draw(const ShaderProgram& program,
             std::cout << "is not texture" << std::endl;
             program.setUniform1i("use_color", 1);
             glBindTexture(GL_TEXTURE_2D, 0);
+            program.setUniform3fv("uniform_color", color);
         }
 
         if (mode != GL_TRIANGLES && mode != GL_LINES)
             throw std::runtime_error("Invalid draw mode " + std::to_string(mode));
 
         glBindVertexArray(mesh.get_vao());
-        // glDrawElements(GL_TRIANGLES, mesh.get_num_indices(), GL_UNSIGNED_INT, (const void*)0);
         glDrawElements(mode, mesh.get_num_indices(), GL_UNSIGNED_INT, (const void*)0);
     }
 }
