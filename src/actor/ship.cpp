@@ -11,8 +11,7 @@ Ship::Ship(const std::string& name,
            const std::string& geometry)
   : Actor(name, position, orientation, description.visual, geometry),
     is_firing(false),
-    fire_control(description.primary_fire_control),
-    ship_controller(0.0f)
+    fire_control(description.primary_fire_control)
 {
 }
 

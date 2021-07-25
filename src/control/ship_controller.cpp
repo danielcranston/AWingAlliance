@@ -34,11 +34,7 @@ static const Eigen::Matrix<float, CONTROL_DIM, CONTROL_DIM> R = Eigen::Matrix<fl
 
 }  // namespace
 
-ShipController::ShipController() : ShipController(0.0f)
-{
-}
-
-ShipController::ShipController(const float speed) : speed(speed)
+ShipController::ShipController()
 {
 }
 
@@ -49,8 +45,8 @@ geometry::MotionState ShipController::update(const geometry::MotionState& state,
 {
     auto target_state = geometry::MotionState();
     target_state.orientation = Eigen::Quaternionf(target_pose.linear());
-    speed = (target_pose.translation() - state.position)
-                .dot(geometry::get_fwd_dir(state.orientation.toRotationMatrix()));
+    auto speed = (target_pose.translation() - state.position)
+                     .dot(geometry::get_fwd_dir(state.orientation.toRotationMatrix()));
     target_state.velocity = geometry::get_fwd_dir(state.orientation.toRotationMatrix()) * speed;
 
     auto out = orientation_controller.update(state, target_state, dt);
