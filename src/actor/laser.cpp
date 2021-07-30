@@ -12,7 +12,7 @@ Laser::Laser(const std::string& name,
              const float speed,
              const std::string& visual,
              const std::string& geometry)
-  : Actor(name, position, orientation, visual, geometry), color(color), speed(speed)
+  : Actor(name, position, orientation, visual, geometry), alive(true), color(color), speed(speed)
 {
     scale = Eigen::Matrix4f::Identity();
     scale.diagonal() = scale_vec.homogeneous();

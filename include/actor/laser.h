@@ -22,6 +22,7 @@ class Laser : public Actor
     const Eigen::Matrix4f& get_scale();
 
   private:
+    bool alive;
     Eigen::Vector3f color;
     float speed;
     Eigen::Matrix4f scale;
