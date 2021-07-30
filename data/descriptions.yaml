@@ -10,22 +10,26 @@ awing:
     exhausts:
         - [1.4805, -4.0341, 0.0]
         - [-1.4805, -4.0341, 0.0]
-    geometry:
-        bounding_box:
-            length: 9.6
-            width: 6.48
-            height: 3.11
     motion_control:
-        top_speed: 1300
+        max_speed: 1300
     sounds:
         fire: "XW_Laser_4A.wav"
         engine: "AW-BW_ENG_2B.wav"
 
-# tie:
-#     type: "fighter"
-#     visual: "tie.obj"
-#     size:
-#         length: 6.3
-#         width: 6.4
-#         height: 7.5
-#     top_speed: 1200
+tie:
+    type: "fighter"
+    visual: "tie.obj"
+    fire_control:
+        offsets:
+            - [0.1, 0.0, -1.1657]
+            - [-0.1, 0.0, -1.1657]
+        modes: [2]
+        recharge_times_s: [0.2]
+    exhausts:
+        - [1.4805, -4.0341, 0.0]
+        - [-1.4805, -4.0341, 0.0]
+    motion_control:
+        max_speed: 1200
+    sounds:
+        fire: ""
+        engine: ""
