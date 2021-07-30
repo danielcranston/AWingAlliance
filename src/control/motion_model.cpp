@@ -16,7 +16,7 @@ MotionModel::MotionModel()
     attitude_input_bounds << -Eigen::Vector3f::Ones(), Eigen::Vector3f::Ones();
     attitude_output_bounds << -max_angular_velocity, max_angular_velocity;
     throttle_input_bounds << -1.0f, 1.0f;
-    throttle_output_bounds << 0.0f, 1.0f;
+    throttle_output_bounds << -1.0f, 1.0f;
 }
 
 Eigen::Isometry3f MotionModel::update(const float d_v,

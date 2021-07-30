@@ -72,38 +72,6 @@ void update_input_request(SDL_Event& event, actor::Ship::InputStates& req)
     }
 }
 
-class StatfulKalmanPositioner
-{
-  public:
-    StatfulKalmanPositioner() = default;
-
-    Eigen::Isometry3f update(const Eigen::Vector3f& pos, const Eigen::Quaternionf quat, float dt)
-    {
-        float angle = _o.angularDistance(quat);
-
-        auto d_pos = pos - _p;
-
-        auto a = d_pos;
-        auto b = d_pos.dot(_vel) * d_pos.normalized();
-
-        _vel = _vel + (a + b) / 2.0f * 0.05f * dt;
-
-        _vel *= 0.5;
-
-        _p = _p + _vel;
-
-        _o = _o.slerp(0.1f, quat).normalized();
-
-        auto ret = Eigen::Isometry3f(_o);
-        ret.translation() = _p;
-        return ret;
-    }
-
-    Eigen::Vector3f _p = Eigen::Vector3f::Zero();
-    Eigen::Vector3f _vel = Eigen::Vector3f::Zero();
-    Eigen::Quaternionf _o = Eigen::Quaternionf::Identity();
-};
-
 int main(int argc, char* argv[])
 {
     int screen_w = 1200;

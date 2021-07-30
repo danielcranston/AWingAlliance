@@ -23,7 +23,7 @@ static const Eigen::Matrix<float, STATE_DIM, CONTROL_DIM> B = []() {
 
 static const Eigen::Matrix<float, STATE_DIM, STATE_DIM> Q = []() {
     auto Q = Eigen::DiagonalMatrix<float, STATE_DIM>();
-    Q.diagonal() << 1, 1;
+    Q.diagonal() << 50, 1;
     return Q;
 }();
 
