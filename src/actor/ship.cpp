@@ -17,14 +17,22 @@ Ship::Ship(const std::string& name,
 
 void Ship::tick(float current_time_s, float dt)
 {
-    auto normalized_actuation = motion_control.get_normalized_actuation();
+    if (controlled)
+    {
+        auto normalized_actuation = motion_control.get_normalized_actuation();
 
-    target_pose = motion_model.update(normalized_actuation.d_v,
-                                      normalized_actuation.d_w,
-                                      get_position(),
-                                      get_orientation(),
-                                      current_time_s,
-                                      dt);
+        target_pose = motion_model.update(normalized_actuation.d_v,
+                                          normalized_actuation.d_w,
+                                          get_position(),
+                                          get_orientation(),
+                                          current_time_s,
+                                          dt);
+    }
+    else
+    {
+        // some state machine to convert final target_pose held in Actor to a target pose suitable
+        // for ship_controller (e.g. via spline)
+    }
 
     motion_state = ship_controller.update(motion_state, target_pose, current_time_s, dt);
 

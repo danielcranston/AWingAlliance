@@ -52,12 +52,14 @@ class Ship : public Actor
 
     void update_input_states(const InputStates& req);
 
+    bool controlled = false;
+
   private:
     static std::function<void(const Ship& ship, const Eigen::Isometry3f relative_pose)> on_fire_cb;
     control::FireControl fire_control;
 
-    control::ShipController ship_controller;
     control::MotionControl motion_control;
     control::MotionModel motion_model;
+    control::ShipController ship_controller;
 };
 }  // namespace actor

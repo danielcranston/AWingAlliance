@@ -146,6 +146,8 @@ int main(int argc, char* argv[])
     actor::Actor& sd = environment.get_actor<actor::Actor>("sd");
     actor::Camera& camera = environment.get_actor<actor::Camera>("camera");
 
+    ship.controlled = true;
+
     std::reference_wrapper<actor::Actor> controlled_actor = ship;
 
     auto camera_controller = control::CameraController(controlled_actor.get().get_position(),
