@@ -21,6 +21,7 @@
 #include "rendering/rendering_manager.h"
 #include "rendering/draw.h"
 #include "geometry/geometry.h"
+#include "geometry/collision.h"
 #include "actor/actor.h"
 #include "actor/ship.h"
 #include "actor/camera.h"
@@ -103,6 +104,8 @@ int main(int argc, char* argv[])
 
     environment.register_actor(
         actor::Ship("ship", desc.at("awing"), { 0.0f, -5.0f, -30.0f }, { 1.0f, 0.0f, 0.0f, 0.0f }));
+    environment.register_actor(actor::Ship(
+        "ship2", desc.at("tie"), { -7.04f - 0.3f, -5.0f, -30.0f }, { 1.0f, 0.0f, 0.0f, 0.0f }));
     environment.register_actor(
         actor::Actor("sd", { 0.0f, -0.0f, -100.0f }, { 0.0f, 0.0f, 1.0f, 0.0f }, "sd.obj"));
     environment.register_actor(actor::Actor(
@@ -111,17 +114,14 @@ int main(int argc, char* argv[])
         actor::Camera("camera", { 0.0f, -0.0f, 0.0f }, { 1.0f, 0.0f, 0.0f, 0.0f }, perspective));
 
     actor::Ship& ship = environment.get_actor<actor::Ship>("ship");
+    actor::Ship& ship2 = environment.get_actor<actor::Ship>("ship2");
     actor::Actor& sd = environment.get_actor<actor::Actor>("sd");
     actor::Camera& camera = environment.get_actor<actor::Camera>("camera");
 
     ship.controlled = true;
 
-    std::reference_wrapper<actor::Actor> controlled_actor = ship;
-
-    auto camera_controller = control::CameraController(controlled_actor.get().get_position(),
-                                                       controlled_actor.get().get_orientation());
-    camera.set_tick_behavior([&controlled_actor, &camera_controller]() {
-        return controlled_actor.get().get_pose() * geometry::make_pose({ 0.0f, 5.0f, 15.0f });
+    camera.set_tick_behavior([&ship]() {
+        return ship.get_pose() * geometry::make_pose({ -5.84923 / 2.0f, 3.31491 / 2, 15.0f });
     });
     auto rendering_manager = rendering::RenderingManager();
 
@@ -226,13 +226,33 @@ int main(int argc, char* argv[])
         }
 
         // Draw bounding box, just because
+        auto bb = geometry::CollisionBox(
+            rendering_manager.get_model("awing.obj").get_bounding_box().sizes());
+        auto bb2 = geometry::CollisionBox(
+            rendering_manager.get_model("tie.obj").get_bounding_box().sizes());
+
+        Eigen::Vector3f color = { 0.0f, 1.0f, 0.0f };
+        if (bb.is_inside(bb2, ship.get_pose().inverse() * ship2.get_pose()))
+        {
+            color = { 1.0f, 0.0f, 0.0f };
+        }
+
         auto bb_scale = geometry::to_scale_matrix(
-            rendering_manager.get_model("sd.obj").get_bounding_box().sizes());
+            rendering_manager.get_model("awing.obj").get_bounding_box().sizes());
         shader_model.setUniformMatrix4fv("model_scale", bb_scale);
         rendering::draw(shader_model,
                         rendering_manager.get_model("bounding_box"),
-                        sd.get_pose(),
-                        { 1.0f, 0.0f, 0.0f },
+                        ship.get_pose(),
+                        color,
+                        rendering_manager.get_textures(),
+                        GL_LINES);
+        bb_scale = geometry::to_scale_matrix(
+            rendering_manager.get_model("tie.obj").get_bounding_box().sizes());
+        shader_model.setUniformMatrix4fv("model_scale", bb_scale);
+        rendering::draw(shader_model,
+                        rendering_manager.get_model("bounding_box"),
+                        ship2.get_pose(),
+                        color,
                         rendering_manager.get_textures(),
                         GL_LINES);
 
@@ -249,6 +269,13 @@ int main(int argc, char* argv[])
                 (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE))
             {
                 should_shutdown = true;
+            }
+            if (event.type == SDL_KEYDOWN)
+            {
+                if (event.key.keysym.sym == SDLK_t && !event.key.repeat)
+                {
+                    ship2.set_target_pose(ship.get_pose());
+                }
             }
 
             update_input_request(event, input_request);

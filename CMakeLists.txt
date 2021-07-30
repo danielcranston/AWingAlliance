@@ -68,7 +68,7 @@ target_link_libraries(rendering Eigen3::Eigen ${OPENGL_LIBRARIES} ${GLEW_LIBRARI
 add_library(audio src/audio/audio_manager.cpp)
 target_link_libraries(audio alure2)
 
-add_library(geometry SHARED src/geometry/geometry.cpp)
+add_library(geometry SHARED src/geometry/geometry.cpp src/geometry/collision.cpp)
 target_link_libraries(geometry Eigen3::Eigen)
 
 add_library(control src/control/fire_control.cpp
