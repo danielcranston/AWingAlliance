@@ -150,6 +150,11 @@ int main(int argc, char* argv[])
     rendering_manager.register_unloaded_textures(
         [](const std::string& filename) { return resources::load_texture(filename); });
 
+    auto bb =
+        geometry::CollisionBox(rendering_manager.get_model("awing.obj").get_bounding_box().sizes());
+    auto bb2 =
+        geometry::CollisionBox(rendering_manager.get_model("tie.obj").get_bounding_box().sizes());
+
     bool should_shutdown = false;
 
     float current_time = SDL_GetTicks() / 1000.0f;
@@ -226,16 +231,23 @@ int main(int argc, char* argv[])
         }
 
         // Draw bounding box, just because
-        auto bb = geometry::CollisionBox(
-            rendering_manager.get_model("awing.obj").get_bounding_box().sizes());
-        auto bb2 = geometry::CollisionBox(
-            rendering_manager.get_model("tie.obj").get_bounding_box().sizes());
-
         Eigen::Vector3f color = { 0.0f, 1.0f, 0.0f };
-        if (bb.is_inside(bb2, ship.get_pose().inverse() * ship2.get_pose()))
+        for (const auto& laser : environment.get_lasers())
         {
-            color = { 1.0f, 0.0f, 0.0f };
+            const float speed = 1000.0f;
+            if (geometry::intersects(ship2.get_pose().inverse() * laser.get_position(),
+                                     ship2.get_pose().linear().inverse() * laser.get_fwd_dir(),
+                                     bb2,
+                                     -2.0f - speed * dt,
+                                     2.0f))
+            {
+                color = { 1.0f, 0.0f, 0.0f };
+            }
         }
+        // if (bb.is_inside(bb2, ship.get_pose().inverse() * ship2.get_pose()))
+        // {
+        //     color = { 1.0f, 0.0f, 0.0f };
+        // }
 
         auto bb_scale = geometry::to_scale_matrix(
             rendering_manager.get_model("awing.obj").get_bounding_box().sizes());
@@ -243,7 +255,7 @@ int main(int argc, char* argv[])
         rendering::draw(shader_model,
                         rendering_manager.get_model("bounding_box"),
                         ship.get_pose(),
-                        color,
+                        { 0.0f, 1.0f, 0.0f },
                         rendering_manager.get_textures(),
                         GL_LINES);
         bb_scale = geometry::to_scale_matrix(

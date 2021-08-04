@@ -74,6 +74,43 @@ bool CollisionBox::is_inside(const CollisionBox& other,
     return true;
 }
 
+bool CollisionBox::is_inside(const Eigen::Matrix3Xf& points,
+                             const Eigen::Isometry3f& relative_pose) const
+{
+    for (int i = 0; i < points.cols(); ++i)
+    {
+        const Eigen::Vector3f p = relative_pose * points.col(i);
+
+        if ((p.x() < extents.x() / 2.0f && p.x() > -extents.x() / 2.0f) &&
+            (p.y() < extents.y() / 2.0f && p.y() > -extents.y() / 2.0f) &&
+            (p.z() < extents.z() / 2.0f && p.z() > -extents.z() / 2.0f))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool intersects(const Eigen::Vector3f& orig,
+                const Eigen::Vector3f& dir,
+                CollisionBox aabb,
+                float tmin,
+                float tmax)
+{
+    // https://medium.com/@bromanz/another-view-on-the-classic-ray-aabb-intersection-algorithm-for-bvh-traversal-41125138b525
+    Eigen::Vector3f invD = Eigen::Vector3f::Ones().cwiseQuotient(dir);
+    Eigen::Vector3f t0s = (-aabb.extents / 2.0f - orig).cwiseProduct(invD);
+    Eigen::Vector3f t1s = (aabb.extents / 2.0f - orig).cwiseProduct(invD);
+
+    auto tsmaller = t0s.cwiseMin(t1s);
+    auto tbigger = t0s.cwiseMax(t1s);
+
+    tmin = std::max(tmin, std::max(tsmaller.x(), std::max(tsmaller.y(), tsmaller.z())));
+    tmax = std::min(tmax, std::min(tbigger.x(), std::min(tbigger.y(), tbigger.z())));
+
+    return (tmin < tmax);
+}
+
 bool is_separating_axis(const Eigen::Vector3f& axis,
                         const Eigen::Matrix3Xf& pointsA,
                         const Eigen::Matrix3Xf& pointsB)
