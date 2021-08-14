@@ -20,6 +20,7 @@ class Laser : public Actor
 
     const Eigen::Vector3f& get_color() const;
     const Eigen::Matrix4f& get_scale() const;
+    float get_length() const;
 
     bool is_alive() const;
     void set_alive(const bool data);

@@ -32,6 +32,10 @@ const Eigen::Matrix4f& Laser::get_scale() const
 {
     return scale;
 }
+float Laser::get_length() const
+{
+    return scale(2, 2);
+}
 bool Laser::is_alive() const
 {
     return alive;

@@ -254,8 +254,8 @@ int main(int argc, char* argv[])
                 geometry::intersects(ship2.get_pose().inverse() * laser.get_position(),
                                      ship2.get_pose().linear().inverse() * laser.get_fwd_dir(),
                                      bb2,
-                                     -2.0f - speed * dt,
-                                     2.0f))
+                                     laser.get_length() / 2.0f - speed * dt,
+                                     laser.get_length() / 2.0f))
             {
                 laser.set_alive(false);
                 color = { 1.0f, 0.0f, 0.0f };
