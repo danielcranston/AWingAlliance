@@ -119,10 +119,12 @@ int main(int argc, char* argv[])
     actor::Actor& sd = environment.get_actor<actor::Actor>("sd");
     actor::Camera& camera = environment.get_actor<actor::Camera>("camera");
 
+    ship2.set_target_pose(geometry::make_pose({ 0.0f, 0.0f, -50.0f }));
+
     ship.controlled = true;
 
     camera.set_tick_behavior([&ship]() {
-        return ship.get_pose() * geometry::make_pose({ -5.84923 / 2.0f, 3.31491 / 2, 15.0f });
+        return ship.get_pose() * geometry::make_pose({ 0.0 * -5.84923 / 2.0f, 3.31491, 15.0f });
     });
     auto rendering_manager = rendering::RenderingManager();
 

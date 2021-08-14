@@ -42,7 +42,7 @@ class MotionModel
 
     float throttle_input;  // Between [-1, 1]
     float throttle_windup_time;
-    float max_speed = 10.0f;
+    float max_speed = 50.0f;
 
     float input_falloff_rate = 0.9f;
 };
