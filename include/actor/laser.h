@@ -18,8 +18,11 @@ class Laser : public Actor
 
     virtual void tick(float current_time_s, float dt) override;
 
-    const Eigen::Vector3f& get_color();
-    const Eigen::Matrix4f& get_scale();
+    const Eigen::Vector3f& get_color() const;
+    const Eigen::Matrix4f& get_scale() const;
+
+    bool is_alive() const;
+    void set_alive(const bool data);
 
   private:
     bool alive;

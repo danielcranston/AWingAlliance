@@ -24,13 +24,21 @@ void Laser::tick(float current_time_s, float dt)
     motion_state.position += motion_state.velocity * dt;
 }
 
-const Eigen::Vector3f& Laser::get_color()
+const Eigen::Vector3f& Laser::get_color() const
 {
     return color;
 }
-const Eigen::Matrix4f& Laser::get_scale()
+const Eigen::Matrix4f& Laser::get_scale() const
 {
     return scale;
+}
+bool Laser::is_alive() const
+{
+    return alive;
+}
+void Laser::set_alive(const bool data)
+{
+    alive = data;
 }
 
 }  // namespace actor
