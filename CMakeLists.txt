@@ -85,7 +85,8 @@ target_link_libraries(control geometry Eigen3::Eigen)
 add_library(actors src/actor/actor.cpp
                    src/actor/ship.cpp
                    src/actor/laser.cpp
-                   src/actor/camera.cpp)
+                   src/actor/camera.cpp
+                   src/actor/billboard.cpp)
 target_link_libraries(actors geometry control Eigen3::Eigen)
 
 

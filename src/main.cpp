@@ -26,6 +26,7 @@
 #include "actor/ship.h"
 #include "actor/camera.h"
 #include "actor/laser.h"
+#include "actor/billboard.h"
 #include "control/camera_controller.h"
 #include "environment/environment.h"
 #include "convenience.h"
@@ -138,8 +139,17 @@ int main(int argc, char* argv[])
     rendering_manager.register_shader_program("skybox", "sky.vert", "sky.frag", shader_setup_fn);
     auto& shader_skybox = rendering_manager.get_shader_program("skybox");
 
+    std::vector<actor::Billboard> sparks;
+
+    rendering_manager.register_shader_program("spark", "model.vert", "spark.frag", shader_setup_fn);
+    auto& shader_spark = rendering_manager.get_shader_program("spark");
+    shader_spark.use();
+    shader_spark.setUniform1f("start_time", 0.0f);
+    shader_spark.setUniform1f("time", 1.0f);
+
     rendering_manager.register_model(rendering::primitives::bounding_box());
     rendering_manager.register_model(rendering::primitives::box());
+    rendering_manager.register_model(rendering::primitives::quad());
 
     rendering_manager.register_models(environment.get_visuals(), [](const std::string& filename) {
         return resources::load_model(filename);
@@ -221,27 +231,39 @@ int main(int argc, char* argv[])
             shader_model.setUniformMatrix4fv("model_scale", lasers.front().get_scale());
             for (auto& laser : environment.get_lasers())
             {
-                rendering::draw(shader_model,
-                                rendering_manager.get_model("box"),
-                                laser.get_pose(),
-                                { 1.0f, 0.0f, 0.0f },
-                                rendering_manager.get_textures(),
-                                GL_TRIANGLES);
+                if (laser.is_alive())
+                {
+                    rendering::draw(shader_model,
+                                    rendering_manager.get_model("box"),
+                                    laser.get_pose(),
+                                    { 1.0f, 0.0f, 0.0f },
+                                    rendering_manager.get_textures(),
+                                    GL_TRIANGLES);
+                }
             }
         }
 
         // Draw bounding box, just because
         Eigen::Vector3f color = { 0.0f, 1.0f, 0.0f };
-        for (const auto& laser : environment.get_lasers())
+        for (auto& laser : environment.get_lasers())
         {
             const float speed = 1000.0f;
-            if (geometry::intersects(ship2.get_pose().inverse() * laser.get_position(),
+            if (laser.is_alive() &&
+                geometry::intersects(ship2.get_pose().inverse() * laser.get_position(),
                                      ship2.get_pose().linear().inverse() * laser.get_fwd_dir(),
                                      bb2,
                                      -2.0f - speed * dt,
                                      2.0f))
             {
+                laser.set_alive(false);
                 color = { 1.0f, 0.0f, 0.0f };
+                sparks.emplace_back("",
+                                    laser.get_position(),
+                                    laser.get_orientation(),
+                                    Eigen::Vector3f::Zero(),
+                                    Eigen::Vector2f::Ones() * 10.0f,
+                                    t,
+                                    t + 2.0f);
             }
         }
         // if (bb.is_inside(bb2, ship.get_pose().inverse() * ship2.get_pose()))
@@ -268,7 +290,32 @@ int main(int argc, char* argv[])
                         rendering_manager.get_textures(),
                         GL_LINES);
 
+        shader_spark.use();
+        shader_spark.setUniformMatrix4fv("camera", camera.get_pose().matrix().inverse());
+        shader_spark.setUniform1f("time", t);
+
+        glDepthMask(false);
+        glEnable(GL_BLEND);
+        for (auto& spark : sparks)
+        {
+            spark.tick(t, dt);
+            if (spark.is_alive())
+            {
+                shader_spark.setUniform1f("start_time", spark.get_start_time());
+                shader_spark.setUniformMatrix4fv("model_scale", spark.get_scale());
+
+                rendering::draw(shader_spark,
+                                rendering_manager.get_model("quad"),
+                                spark.get_pose(),
+                                color,
+                                rendering_manager.get_textures(),
+                                GL_TRIANGLES);
+            }
+        }
+        shader_model.use();
         shader_model.setUniformMatrix4fv("model_scale", Eigen::Matrix4f::Identity());
+        glDisable(GL_BLEND);
+        glDepthMask(true);
 
         SDL_GL_SwapWindow(context_manager.window);
 
