@@ -24,7 +24,6 @@ class Laser : public Actor
   private:
     bool alive;
     Eigen::Vector3f color;
-    float speed;
     Eigen::Matrix4f scale;
 };
 }  // namespace actor

@@ -12,7 +12,7 @@ Model quad()
     const std::vector<float>& normals = vertices;
     const std::vector<float> texture_coords = { 0.0f, 0.0f, 0.0f, 1.0f,  //
                                                 1.0f, 0.0f, 1.0f, 1.0f };
-    const std::vector<uint>& indices = { 0, 1, 2, 2, 1, 3 };
+    const std::vector<uint>& indices = { 0, 1, 2, 2, 1, 3, 2, 1, 0, 3, 1, 2 };
     const std::array<float, 3>& min = { -1.0f, -1.0f, 0.0f };
     const std::array<float, 3>& max = { 1.0f, 1.0f, 0.0f };
     std::vector<Mesh> m;
