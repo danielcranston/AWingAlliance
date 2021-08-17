@@ -6,7 +6,6 @@
 #include <GL/glew.h>
 
 #include "resources/locator.h"
-#include "resources/load_textfile.h"
 #include "rendering/shader_program.h"
 
 namespace rendering
