@@ -36,3 +36,6 @@ include/resources/locator.h
 awing
 run.sh
 *_example
+data/textures
+data/models
+data.sounds
