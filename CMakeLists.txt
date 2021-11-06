@@ -50,7 +50,8 @@ configure_file("include/resources/locator.h.in" "${CMAKE_SOURCE_DIR}/include/res
 add_library(resources src/resources/load_model.cpp
                       src/resources/load_texture.cpp
                       src/resources/load_textfile.cpp
-                      src/resources/load_descriptions.cpp)
+                      src/resources/load_descriptions.cpp
+                      src/resources/load_geometry.cpp)
 target_link_libraries(resources ${ASSIMP_LIBRARIES} ${YAML_CPP_LIBRARIES})
 
 add_library(rendering src/rendering/mesh.cpp

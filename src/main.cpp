@@ -13,6 +13,7 @@
 #include "resources/load_model.h"
 #include "resources/load_texture.h"
 #include "resources/load_descriptions.h"
+#include "resources/load_geometry.h"
 #include "rendering/model.h"
 #include "rendering/mesh.h"
 #include "rendering/compile_shader_program.h"
@@ -157,15 +158,21 @@ int main(int argc, char* argv[])
         return resources::load_model(filename);
     });
 
+    auto bvh = resources::load_geometry("sd_geometry.obj");
+    auto sd_collision = geometry::CollisionShape(bvh);
+
     rendering_manager.register_skybox(skybox_tex, resources::load_cubemap_texture(skybox_tex));
 
     rendering_manager.register_unloaded_textures(
         [](const std::string& filename) { return resources::load_texture(filename); });
 
     auto bb =
-        geometry::CollisionBox(rendering_manager.get_model("awing.obj").get_bounding_box().sizes());
+        geometry::CollisionShape(rendering_manager.get_model("awing.obj").get_bounding_box().min(),
+                                 rendering_manager.get_model("awing.obj").get_bounding_box().max());
+
     auto bb2 =
-        geometry::CollisionBox(rendering_manager.get_model("tie.obj").get_bounding_box().sizes());
+        geometry::CollisionShape(rendering_manager.get_model("tie.obj").get_bounding_box().min(),
+                                 rendering_manager.get_model("tie.obj").get_bounding_box().max());
 
     bool should_shutdown = false;
 
@@ -251,11 +258,13 @@ int main(int argc, char* argv[])
         {
             const float speed = 1000.0f;
             if (laser.is_alive() &&
-                geometry::intersects(ship2.get_pose().inverse() * laser.get_position(),
-                                     ship2.get_pose().linear().inverse() * laser.get_fwd_dir(),
-                                     bb2,
-                                     laser.get_length() / 2.0f - speed * dt,
-                                     laser.get_length() / 2.0f))
+                geometry::intersects(
+                    geometry::Ray(ship2.get_pose().inverse() * laser.get_position(),
+                                  ship2.get_pose().linear().inverse() * laser.get_fwd_dir()),
+                    bb2.scale(),
+                    geometry::make_pose((bb2.max + bb2.min) / 2.0f),
+                    -laser.get_length() / 2.0f,
+                    laser.get_length() / 2.0f + speed * dt))
             {
                 laser.set_alive(false);
                 color = { 1.0f, 0.0f, 0.0f };
@@ -268,10 +277,10 @@ int main(int argc, char* argv[])
                                     t + 2.0f);
             }
         }
-        // if (bb.is_inside(bb2, ship.get_pose().inverse() * ship2.get_pose()))
-        // {
-        //     color = { 1.0f, 0.0f, 0.0f };
-        // }
+        if (geometry::intersects(bb, bb2, ship.get_pose().inverse() * ship2.get_pose()))
+        {
+            color = { 1.0f, 0.0f, 0.0f };
+        }
 
         auto bb_scale = geometry::to_scale_matrix(
             rendering_manager.get_model("awing.obj").get_bounding_box().sizes());

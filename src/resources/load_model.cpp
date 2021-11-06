@@ -126,18 +126,35 @@ void process_node(const std::string& filename,
 }
 }  // namespace
 
-std::vector<MeshData> load_model(const std::string& filename)
+std::vector<MeshData> load_model(const std::string& filename, const LoadingMode mode)
 {
     // std::cout << "Loading \"" << filename << "\"" << std::endl;
 
     Assimp::Importer importer;
-    const aiScene* scene =
-        importer.ReadFile(std::string(MODELS_PATH) + filename,
-                          aiProcess_CalcTangentSpace | aiProcess_Triangulate | aiProcess_FlipUVs |
-                              aiProcess_JoinIdenticalVertices | aiProcess_SortByPType |
-                              aiProcess_OptimizeMeshes | aiProcess_RemoveRedundantMaterials |
-                              aiProcess_ImproveCacheLocality | aiProcess_OptimizeGraph);
-    // aiProcess_PreTransformVertices not to be used with OptimizeSceneGraph
+    const aiScene* scene;
+
+    if (mode == LoadingMode::VISUAL)
+    {
+        scene = importer.ReadFile(std::string(MODELS_PATH) + filename,
+                                  aiProcess_CalcTangentSpace | aiProcess_Triangulate |
+                                      aiProcess_FlipUVs | aiProcess_JoinIdenticalVertices |
+                                      aiProcess_SortByPType | aiProcess_OptimizeMeshes |
+                                      aiProcess_RemoveRedundantMaterials |
+                                      aiProcess_ImproveCacheLocality | aiProcess_OptimizeGraph);
+        // aiProcess_PreTransformVertices not to be used with OptimizeSceneGraph
+    }
+    else if (mode == LoadingMode::GEOMETRY)
+    {
+        scene = importer.ReadFile(std::string(MODELS_PATH) + filename,
+                                  aiProcess_CalcTangentSpace | aiProcess_Triangulate |
+                                      aiProcess_FlipUVs | aiProcess_JoinIdenticalVertices |
+                                      aiProcess_RemoveRedundantMaterials);
+    }
+    else
+    {
+        throw std::runtime_error("Unrecongized loading mode:" +
+                                 std::to_string(static_cast<int>(mode)));
+    }
 
     if (!scene)
         throw std::runtime_error("IMPORT FAILED: " + std::string(importer.GetErrorString()));

@@ -205,6 +205,7 @@ bool intersects(const CollisionShape& a,
         }
     }
 
+    // TODO: Continue down to children and check them as well.
     return true;
 }
 
