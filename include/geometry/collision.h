@@ -59,22 +59,6 @@ struct CollisionShape
     std::vector<CollisionShape> children;
 };
 
-struct CollisionBox
-{
-    explicit CollisionBox(const Eigen::Vector3f& extents);
-
-    bool is_inside(const CollisionBox& other,
-                   const Eigen::Isometry3f& relative_pose) const;  // brings extents of other into
-                                                                   // this box frame
-
-    bool is_inside(const Eigen::Matrix3Xf& points,                 // In world frame
-                   const Eigen::Isometry3f& relative_pose) const;  // brings points into this box
-                                                                   // frame
-
-    const Eigen::Vector3f extents;
-    const Eigen::Matrix3Xf corners;
-};
-
 bool is_inside(const CollisionShape& box,
                const Eigen::Matrix3Xf& points,
                const Eigen::Isometry3f& relative_pose);

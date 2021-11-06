@@ -188,48 +188,6 @@ CollisionShape::CollisionShape(const resources::GeometryData& data)
     }
 }
 
-CollisionBox::CollisionBox(const Eigen::Vector3f& extents)
-  : extents(extents), corners([&extents]() {
-        Eigen::Matrix3Xf ret(3, 8);
-        ret.col(0) << -0.5f, -0.5f, -0.5f;
-        ret.col(1) << 0.5f, -0.5f, -0.5f;
-        ret.col(2) << 0.5f, 0.5f, -0.5f;
-        ret.col(3) << -0.5f, 0.5f, -0.5f;
-        ret.col(4) << -0.5f, -0.5f, 0.5f;
-        ret.col(5) << 0.5f, -0.5f, 0.5f;
-        ret.col(6) << 0.5f, 0.5f, 0.5f;
-        ret.col(7) << -0.5f, 0.5f, 0.5f;
-
-        for (int i = 0; i < ret.cols(); ++i)
-        {
-            ret.col(i) = ret.col(i).cwiseProduct(extents);
-        }
-
-        return ret;
-    }()){};
-
-bool CollisionBox::is_inside(const CollisionBox& other,
-                             const Eigen::Isometry3f& relative_pose) const
-{
-    auto separating_axes = make_separating_axes(relative_pose);
-
-    Eigen::Matrix3Xf transformed_corners(3, 8);
-    for (int i = 0; i < other.corners.cols(); ++i)
-    {
-        transformed_corners.col(i) = relative_pose * other.corners.col(i);
-    }
-
-    for (int i = 0; i < separating_axes.cols(); ++i)
-    {
-        if (is_separating_axis(separating_axes.col(i), corners, transformed_corners))
-        {
-            return false;
-        }
-    }
-
-    return true;
-}
-
 bool intersects(const CollisionShape& a,
                 const CollisionShape& b,
                 const Eigen::Isometry3f& relative_pose)
@@ -272,23 +230,6 @@ bool is_inside(const CollisionShape& box,
         }
     }
     return true;
-}
-
-bool CollisionBox::is_inside(const Eigen::Matrix3Xf& points,
-                             const Eigen::Isometry3f& relative_pose) const
-{
-    for (int i = 0; i < points.cols(); ++i)
-    {
-        const Eigen::Vector3f p = relative_pose * points.col(i);
-
-        if ((p.x() < extents.x() / 2.0f && p.x() > -extents.x() / 2.0f) &&
-            (p.y() < extents.y() / 2.0f && p.y() > -extents.y() / 2.0f) &&
-            (p.z() < extents.z() / 2.0f && p.z() > -extents.z() / 2.0f))
-        {
-            return true;
-        }
-    }
-    return false;
 }
 
 // http://adrianboeing.blogspot.com/2010/02/intersection-of-convex-hull-with-line.html
