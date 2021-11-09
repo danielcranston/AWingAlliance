@@ -91,7 +91,7 @@ add_library(actors src/actor/actor.cpp
 target_link_libraries(actors geometry control Eigen3::Eigen)
 
 
-add_library(environment src/environment/environment.cpp)
+add_library(environment STATIC src/environment/environment.cpp)
 target_link_libraries(environment actors Eigen3::Eigen)
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/examples)
