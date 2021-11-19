@@ -1,7 +1,9 @@
-project(AWingAlliance)
 cmake_minimum_required(VERSION 3.8.0)
+project(AWingAlliance LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
-set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR})
+
+
+option(BUILD_EXAMPLES "Build examples" ON)
 
 # ~/Documents/alure/build$ sudo cmake --install .
 # -- Install configuration: ""
@@ -94,7 +96,10 @@ target_link_libraries(actors geometry control Eigen3::Eigen)
 add_library(environment STATIC src/environment/environment.cpp)
 target_link_libraries(environment actors Eigen3::Eigen)
 
-add_subdirectory(${PROJECT_SOURCE_DIR}/examples)
+
+if("${BUILD_EXAMPLES}")
+    add_subdirectory(${PROJECT_SOURCE_DIR}/examples)
+endif()
 
 add_executable(awing src/main.cpp)
 #SDL2::Main

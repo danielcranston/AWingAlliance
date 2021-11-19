@@ -175,6 +175,8 @@ int main(int argc, char* argv[])
                                  rendering_manager.get_model("tie.obj").get_bounding_box().max());
 
     bool should_shutdown = false;
+    bool should_follow = false;
+    bool should_flip = false;
 
     float current_time = SDL_GetTicks() / 1000.0f;
     const float dt = 1.0f / 60.f;
@@ -192,6 +194,17 @@ int main(int argc, char* argv[])
         while (accumulator >= dt)
         {
             environment.integrate(t, dt);
+
+            if (should_follow)
+            {
+                ship2.set_target_pose(geometry::make_pose(
+                    ship.get_position(),
+                    geometry::look_at(ship2.get_position(),
+                                      ship.get_position(),
+                                      (ship.get_position() - ship2.get_position())
+                                          .normalized()
+                                          .cross(ship.get_up_dir()))));
+            }
             accumulator -= dt;
             t += dt;
         }
@@ -344,33 +357,24 @@ int main(int argc, char* argv[])
             {
                 if (event.key.keysym.sym == SDLK_t && !event.key.repeat)
                 {
-                    ship2.set_target_pose(ship.get_pose());
+                    should_follow = !should_follow;
+                }
+                else if (event.key.keysym.sym == SDLK_q && !event.key.repeat)
+                {
+                    should_flip = !should_flip;
+
+                    auto flip = Eigen::Quaternionf(0.0f, 0.0f, 0.0f, 0.0f);
+                    flip.w() = should_flip ? 0.0f : 1.0f;
+                    flip.y() = should_flip ? 1.0f : 0.0f;
+                    camera.set_tick_behavior([&ship, flip]() {
+                        return geometry::make_pose(ship.get_position(),
+                                                   ship.get_orientation() * flip) *
+                               geometry::make_pose({ 0.0 * -5.84923 / 2.0f, 3.31491, 15.0f });
+                    });
                 }
             }
 
             update_input_request(event, input_request);
-
-            /*
-            else if (event.type == SDL_MOUSEMOTION)
-            {
-                int x, y;
-                SDL_GetRelativeMouseState(&x, &y);
-
-                controlled_actor.get().set_orientation(
-                    Eigen::AngleAxis<float>(-M_PI * dt * 0.25f * x, Eigen::Vector3f::UnitY()) *
-                    controlled_actor.get().get_orientation());
-
-                auto a = Eigen::Quaternionf(Eigen::AngleAxis<float>(
-                    -M_PI * dt * 0.25f * y, controlled_actor.get().get_right_dir()));
-                auto b = controlled_actor.get().get_orientation();
-
-                controlled_actor.get().set_orientation((a * b).normalized());
-
-                if (event.button.button == SDL_BUTTON_RIGHT)
-                {
-                    std::cout << "  yep" << std::endl;
-                }
-            } */
         }
 
         ship.update_input_states(input_request);
