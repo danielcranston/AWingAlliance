@@ -1,5 +1,7 @@
 #pragma once
 
+#include <optional>
+
 #include <Eigen/Dense>
 #include <Eigen/Geometry>
 
@@ -63,9 +65,9 @@ bool is_inside(const CollisionShape& box,
                const Eigen::Matrix3Xf& points,
                const Eigen::Isometry3f& relative_pose);
 
-bool intersects(const CollisionShape& a,
-                const CollisionShape& b,
-                const Eigen::Isometry3f& relative_pose);
+std::optional<CollisionShape> intersect_test(const CollisionShape& a,
+                                             const CollisionShape& b,
+                                             const Eigen::Isometry3f& relative_pose);
 
 bool intersects(const Ray& ray,
                 const Eigen::Vector3f& extents,          // Extents of AABB

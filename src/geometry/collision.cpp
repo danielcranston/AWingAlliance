@@ -75,6 +75,20 @@ Eigen::Matrix3Xf make_separating_axes(const CollisionShape& a,
     return separating_axes;
 }
 
+bool convex_intersection_test(const Eigen::Matrix3Xf& separating_axes,
+                              const Eigen::Matrix3Xf& points1,
+                              const Eigen::Matrix3Xf& points2)
+{
+    for (int i = 0; i < separating_axes.cols(); ++i)
+    {
+        if (is_separating_axis(separating_axes.col(i), points1, points2))
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
 std::pair<Eigen::Vector3f, Eigen::Vector3f> calculate_extents(const CollisionShape& shape)
 {
     if (shape.children.empty())
@@ -101,29 +115,6 @@ std::pair<Eigen::Vector3f, Eigen::Vector3f> calculate_extents(const CollisionSha
         return std::make_pair(min, max);
     }
 }
-
-Eigen::Matrix3Xf make_separating_axes(const Eigen::Isometry3f& relative_pose)
-{
-    Eigen::Matrix3Xf separating_axes(3, 15);
-
-    separating_axes.col(0) = Eigen::Vector3f::UnitX();
-    separating_axes.col(1) = Eigen::Vector3f::UnitY();
-    separating_axes.col(2) = Eigen::Vector3f::UnitZ();
-    separating_axes.col(3) = relative_pose.linear() * Eigen::Vector3f::UnitX();
-    separating_axes.col(4) = relative_pose.linear() * Eigen::Vector3f::UnitY();
-    separating_axes.col(5) = relative_pose.linear() * Eigen::Vector3f::UnitZ();
-
-    // It's actually the cross product between the EDGES, but for cubes normals == edges
-    // https://www.gamedev.net/forums/topic/694911-separating-axis-theorem-3d-polygons/5420814/
-    for (int i = 0; i < 3; ++i)
-    {
-        separating_axes.col(6 + (3 * i)) = separating_axes.col(i).cross(separating_axes.col(3));
-        separating_axes.col(7 + (3 * i)) = separating_axes.col(i).cross(separating_axes.col(4));
-        separating_axes.col(8 + (3 * i)) = separating_axes.col(i).cross(separating_axes.col(5));
-    }
-
-    return separating_axes;
-};
 }  // namespace
 
 CollisionShape::CollisionShape(const Eigen::Vector3f& min, const Eigen::Vector3f& max)
@@ -189,25 +180,32 @@ CollisionShape::CollisionShape(const resources::GeometryData& data)
     }
 }
 
-bool intersects(const CollisionShape& a,
-                const CollisionShape& b,
-                const Eigen::Isometry3f& relative_pose)
+std::optional<CollisionShape> intersect_test(const CollisionShape& a,
+                                             const CollisionShape& b,
+                                             const Eigen::Isometry3f& relative_pose)
 {
-    auto separating_axes =
-        make_separating_axes(a, b, Eigen::Isometry3f(Eigen::Quaternionf(relative_pose.linear())));
-
-    auto vertices = relative_pose * b.vertices.colwise().homogeneous();
-
-    for (int i = 0; i < separating_axes.cols(); ++i)
+    if (convex_intersection_test(
+            make_separating_axes(a, b, Eigen::Isometry3f(relative_pose.linear())),
+            a.vertices,
+            relative_pose * b.vertices.colwise().homogeneous()))
     {
-        if (is_separating_axis(separating_axes.col(i), a.vertices, vertices))
+        // If B is a leaf, A and B intersect
+        if (!b.children.size())
         {
-            return false;
+            return b;
+        }
+
+        // If B has children, run down the tree
+        for (const auto& b_child : b.children)
+        {
+            if (const auto& test = intersect_test(a, b_child, relative_pose))
+            {
+                return b_child;
+            }
         }
     }
 
-    // TODO: Continue down to children and check them as well.
-    return true;
+    return std::nullopt;
 }
 
 bool is_inside(const CollisionShape& box,

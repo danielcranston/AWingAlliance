@@ -290,7 +290,7 @@ int main(int argc, char* argv[])
                                     t + 2.0f);
             }
         }
-        if (geometry::intersects(bb, bb2, ship.get_pose().inverse() * ship2.get_pose()))
+        if (geometry::intersect_test(bb, sd_collision, ship.get_pose().inverse() * sd.get_pose()))
         {
             color = { 1.0f, 0.0f, 0.0f };
         }
@@ -301,7 +301,7 @@ int main(int argc, char* argv[])
         rendering::draw(shader_model,
                         rendering_manager.get_model("bounding_box"),
                         ship.get_pose(),
-                        { 0.0f, 1.0f, 0.0f },
+                        color,
                         rendering_manager.get_textures(),
                         GL_LINES);
         bb_scale = geometry::to_scale_matrix(
