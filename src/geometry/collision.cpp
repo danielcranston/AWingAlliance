@@ -144,6 +144,7 @@ CollisionShape::CollisionShape(const resources::GeometryData& data)
 
         // Calculate combined extents...
         std::tie(min, max) = calculate_extents(*this);
+        std::tie(vertices, face_normals, edges) = make_box_attribs(min, max);
     }
     else
     {
