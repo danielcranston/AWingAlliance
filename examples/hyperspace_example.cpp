@@ -3,7 +3,6 @@
 
 #include <GL/glew.h>
 #include <SDL2/SDL.h>
-#include "SDL2/SDL_mixer.h"
 
 #include "audio/audio_manager.h"
 #include "resources/locator.h"
