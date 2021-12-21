@@ -23,7 +23,7 @@ Here's a list of the main external libraries used in this project.
 
 This assumes you are on a Linux system using the apt package manager.
 
-### Instaling main dependencies
+### Installing main dependencies
 
 Dependencies (except Alure) can be installed easily via apt.
 
@@ -37,7 +37,7 @@ Unfortunately there is no apt package for Alure, so it needs to be cloned, built
 
 ```
 sudo apt install libopenal-dev libvorbis-dev libopusfile-dev libsndfile1-dev
-git clone git@github.com:kcat/alure.git /tmp/alure && cd /tmp/alure/build
+git clone https://github.com/kcat/alure /tmp/alure && cd /tmp/alure/build
 cmake -DCMAKE_INSTALL_INCLUDEDIR=/usr/include -DCMAKE_BUILD_TYPE=Release ..
 cmake --build .
 sudo cmake --install .
