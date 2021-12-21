@@ -106,10 +106,10 @@ void Environment::register_actor(ActorType&& actor)
     }
 }
 
-template void Environment::register_actor<actor::Actor, void>(actor::Actor&&);
-template void Environment::register_actor<actor::Ship, void>(actor::Ship&&);
-template void Environment::register_actor<actor::Laser, void>(actor::Laser&&);
-template void Environment::register_actor<actor::Camera, void>(actor::Camera&&);
+template void Environment::register_actor<actor::Actor>(actor::Actor&&);
+template void Environment::register_actor<actor::Ship>(actor::Ship&&);
+template void Environment::register_actor<actor::Laser>(actor::Laser&&);
+template void Environment::register_actor<actor::Camera>(actor::Camera&&);
 
 template <typename ActorType,
           typename = std::enable_if_t<std::is_base_of_v<actor::Actor, ActorType>>>
@@ -136,8 +136,8 @@ ActorType& Environment::get_actor(const std::string& name)
     }
 }
 
-template actor::Actor& Environment::get_actor<actor::Actor, void>(const std::string&);
-template actor::Ship& Environment::get_actor<actor::Ship, void>(const std::string&);
-template actor::Camera& Environment::get_actor<actor::Camera, void>(const std::string&);
+template actor::Actor& Environment::get_actor<actor::Actor>(const std::string&);
+template actor::Ship& Environment::get_actor<actor::Ship>(const std::string&);
+template actor::Camera& Environment::get_actor<actor::Camera>(const std::string&);
 
 }  // namespace environment

@@ -6,7 +6,6 @@
 #include <external/json.hpp>
 
 #include "resources/locator.h"
-
 #include "resources/load_descriptions.h"
 
 #include "yaml-cpp/yaml.h"

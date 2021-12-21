@@ -45,13 +45,13 @@ class Environment
                           bool expected);
 };
 
-extern template void Environment::register_actor<actor::Actor, void>(actor::Actor&&);
-extern template void Environment::register_actor<actor::Ship, void>(actor::Ship&&);
-extern template void Environment::register_actor<actor::Laser, void>(actor::Laser&&);
-extern template void Environment::register_actor<actor::Camera, void>(actor::Camera&&);
+extern template void Environment::register_actor<actor::Actor>(actor::Actor&&);
+extern template void Environment::register_actor<actor::Ship>(actor::Ship&&);
+extern template void Environment::register_actor<actor::Laser>(actor::Laser&&);
+extern template void Environment::register_actor<actor::Camera>(actor::Camera&&);
 
-extern template actor::Actor& Environment::get_actor<actor::Actor, void>(const std::string&);
-extern template actor::Ship& Environment::get_actor<actor::Ship, void>(const std::string&);
-extern template actor::Camera& Environment::get_actor<actor::Camera, void>(const std::string&);
+extern template actor::Actor& Environment::get_actor<actor::Actor>(const std::string&);
+extern template actor::Ship& Environment::get_actor<actor::Ship>(const std::string&);
+extern template actor::Camera& Environment::get_actor<actor::Camera>(const std::string&);
 
 }  // namespace environment
