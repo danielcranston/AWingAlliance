@@ -84,12 +84,10 @@ int main(int argc, char* argv[])
     rendering::ContextManager context_manager{ "Main Window", screen_w, screen_h };
     convenience::init_glew(screen_w, screen_h);
 
-    float FOV_Y = 60.0f * M_PI / 180.0f;
-    float aspect = 1.0f * screen_w / screen_h;
-    const auto perspective = geometry::perspective(FOV_Y, aspect, 5.0f, 8192.0f);
     const std::string skybox_tex = "skybox/new";
 
-    auto environment = environment::Environment();
+    auto env = environment::Environment::load_from_scenario("scenario");
+    auto& environment = *env;
 
     actor::Ship::set_on_fire_cb(
         [&environment](const actor::Ship& ship, const Eigen::Isometry3f relative_pose) {
@@ -103,17 +101,6 @@ int main(int argc, char* argv[])
         });
 
     auto desc = resources::load_descriptions();
-
-    environment.register_actor(
-        actor::Ship("ship", desc.at("awing"), { 0.0f, -5.0f, -30.0f }, { 1.0f, 0.0f, 0.0f, 0.0f }));
-    environment.register_actor(actor::Ship(
-        "ship2", desc.at("tie"), { -7.04f - 0.3f, -5.0f, -30.0f }, { 1.0f, 0.0f, 0.0f, 0.0f }));
-    environment.register_actor(
-        actor::Actor("sd", { 0.0f, -0.0f, -100.0f }, { 0.0f, 0.0f, 1.0f, 0.0f }, "sd.obj"));
-    environment.register_actor(actor::Actor(
-        "medfrigate", { 256.0f, 100.0f, -50.0f }, { 0.0f, 0.0f, 1.0f, 0.0f }, "medfrigate.obj"));
-    environment.register_actor(
-        actor::Camera("camera", { 0.0f, -0.0f, 0.0f }, { 1.0f, 0.0f, 0.0f, 0.0f }, perspective));
 
     actor::Ship& ship = environment.get_actor<actor::Ship>("ship");
     actor::Ship& ship2 = environment.get_actor<actor::Ship>("ship2");
@@ -129,10 +116,10 @@ int main(int argc, char* argv[])
     });
     auto rendering_manager = rendering::RenderingManager();
 
-    auto shader_setup_fn = [&perspective](rendering::ShaderProgram* program) {
+    auto shader_setup_fn = [&camera](rendering::ShaderProgram* program) {
         program->use();
         program->setUniform1i("tex", 0);
-        program->setUniformMatrix4fv("perspective", perspective);
+        program->setUniformMatrix4fv("perspective", camera.get_perspective());
         program->setUniformMatrix4fv("model_scale", Eigen::Matrix4f::Identity());
     };
 

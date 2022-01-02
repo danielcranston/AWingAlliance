@@ -2,6 +2,7 @@
 
 #include <map>
 #include <list>
+#include <memory>
 #include <type_traits>
 
 #include "actor/actor.h"
@@ -15,6 +16,8 @@ class Environment
 {
   public:
     Environment();
+
+    static std::shared_ptr<Environment> load_from_scenario(const std::string& scenario_name);
 
     template <typename ActorType,
               typename = std::enable_if_t<std::is_base_of_v<actor::Actor, ActorType>>>
