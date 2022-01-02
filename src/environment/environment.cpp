@@ -1,9 +1,68 @@
 #include "environment/environment.h"
 
+#include "geometry/geometry.h"
+#include "resources/locator.h"
+#include "resources/load_descriptions.h"
+
+#include "yaml-cpp/yaml.h"
+
 namespace environment
 {
 Environment::Environment()
 {
+}
+
+std::shared_ptr<Environment> Environment::load_from_scenario(const std::string& scenario_name)
+{
+    auto descriptions = resources::load_descriptions();
+
+    YAML::Node node = YAML::LoadFile(resources::locator::ROOT_PATH + scenario_name + ".yaml");
+
+    auto ret = std::make_shared<Environment>();
+    for (const auto& actor_node : node["actors"])
+    {
+        ret->register_actor<actor::Actor>(
+            actor::Actor(actor_node["name"].as<std::string>(),
+                         Eigen::Vector3f(actor_node["position"][0].as<float>(),
+                                         actor_node["position"][1].as<float>(),
+                                         actor_node["position"][2].as<float>()),
+                         Eigen::Quaternionf(actor_node["orientation"][0].as<float>(),
+                                            actor_node["orientation"][1].as<float>(),
+                                            actor_node["orientation"][2].as<float>(),
+                                            actor_node["orientation"][3].as<float>()),
+                         actor_node["visual"].as<std::string>()));
+    }
+
+    for (const auto& ship_node : node["ships"])
+    {
+        ret->register_actor<actor::Ship>(
+            actor::Ship(ship_node["name"].as<std::string>(),
+                        descriptions.at(ship_node["description"].as<std::string>()),
+                        Eigen::Vector3f(ship_node["position"][0].as<float>(),
+                                        ship_node["position"][1].as<float>(),
+                                        ship_node["position"][2].as<float>()),
+                        Eigen::Quaternionf(ship_node["orientation"][0].as<float>(),
+                                           ship_node["orientation"][1].as<float>(),
+                                           ship_node["orientation"][2].as<float>(),
+                                           ship_node["orientation"][3].as<float>())));
+    }
+
+    for (const auto& camera_node : node["cameras"])
+    {
+        auto perspective =
+            geometry::perspective(M_PI / 180.0f * camera_node["intrinsics"]["fov_y"].as<float>(),
+                                  camera_node["intrinsics"]["screen_w"].as<float>() /
+                                      camera_node["intrinsics"]["screen_h"].as<float>(),
+                                  camera_node["intrinsics"]["near"].as<float>(),
+                                  camera_node["intrinsics"]["far"].as<float>());
+
+        ret->register_actor<actor::Camera>(actor::Camera(camera_node["name"].as<std::string>(),
+                                                         Eigen::Vector3f(0.0f, 0.0f, 0.0f),
+                                                         Eigen::Quaternionf(1.0f, 0.0f, 0.0f, 0.0f),
+                                                         perspective));
+    }
+
+    return ret;
 }
 
 std::map<std::string, actor::Actor>& Environment::get_actors()

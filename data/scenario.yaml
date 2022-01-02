@@ -1,0 +1,39 @@
+ships:
+  - name: "ship"
+    description: awing
+    position: [0, -5, -30]
+    orientation: [1, 0, 0, 0]
+  - name: "ship2"
+    description: "tie"
+    position: [-7, -5, -30]
+    orientation: [1, 0, 0, 0]
+  
+actors:
+  - name: "sd"
+    visual: sd.obj
+    position: [0, 0, -100]
+    orientation: [0, 0, 1, 0]
+  - name: "medfrigate"
+    visual: medfrigate.obj
+    position: [256, 100, -50]
+    orientation: [0, 0, 1, 0]
+    
+cameras:
+  - name: "camera"
+    active: True
+    intrinsics:
+      screen_w: 1200
+      screen_h: 900
+      fov_y: 90
+      near: 5.0
+      far: 8192
+    behaviour:
+      type: follow_6dof
+      use_controller: True
+      controller_params:
+        target_actor: "player"
+        offset:
+          position: [0, 0, -20]
+          orientation: [0,0,0,1]
+          pos_blend_ratio: 0
+          quat_blend_ratio: 0
