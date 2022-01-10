@@ -37,3 +37,5 @@ cameras:
           orientation: [0,0,0,1]
           pos_blend_ratio: 0
           quat_blend_ratio: 0
+
+skybox: skybox/new

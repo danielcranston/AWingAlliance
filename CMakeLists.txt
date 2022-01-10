@@ -3,7 +3,7 @@ project(AWingAlliance LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 
 
-option(BUILD_EXAMPLES "Build examples" ON)
+option(BUILD_EXAMPLES "Build examples" OFF)
 
 # ~/Documents/alure/build$ sudo cmake --install .
 # -- Install configuration: ""
@@ -38,7 +38,9 @@ include_directories(${SDL2_INCLUDE_DIRS})
 find_package(yaml-cpp REQUIRED)
 include_directories(${YAML_INCLUDE_DIRS})
 
-include_directories(${PROJECT_SOURCE_DIR}/include)
+add_subdirectory(${PROJECT_SOURCE_DIR}/entt)
+
+include_directories(${PROJECT_SOURCE_DIR}/entt/src ${EIGEN3_INCLUDE_DIR} ${PROJECT_SOURCE_DIR}/include)
 
 
 # Create the absolute location header to locate resources
@@ -101,7 +103,7 @@ if("${BUILD_EXAMPLES}")
     add_subdirectory(${PROJECT_SOURCE_DIR}/examples)
 endif()
 
-add_executable(awing src/main.cpp)
+add_executable(awing src/main2.cpp src/scene.cpp)
 #SDL2::Main
 
 target_link_libraries(awing rendering resources environment audio actors ${SDL2_LIBRARIES} Eigen3::Eigen)
