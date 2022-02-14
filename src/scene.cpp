@@ -7,6 +7,7 @@
 #include "resources/load_texture.h"
 #include "rendering/primitives.h"
 #include "rendering/compile_shader_program.h"
+#include "ecs/components.h"
 
 #include "yaml-cpp/yaml.h"
 
@@ -32,7 +33,7 @@ std::ostream& operator<<(std::ostream& os, const Eigen::Quaternionf& q)
 
 void Scene::on_visual_added(entt::registry& registry, entt::entity entity)
 {
-    if (auto visual = registry.get<VisualComponent>(entity).texture_uri;
+    if (auto visual = registry.get<VisualComponent>(entity).model_uri;
         !model_cache.contains(visual))
     {
         model_cache.load<model_loader>(visual, visual.data());
