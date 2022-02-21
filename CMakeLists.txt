@@ -94,16 +94,13 @@ add_library(actors src/actor/actor.cpp
                    src/actor/billboard.cpp)
 target_link_libraries(actors geometry control Eigen3::Eigen)
 
-
-add_library(environment STATIC src/environment/environment.cpp)
-target_link_libraries(environment actors Eigen3::Eigen)
-
+add_library(ecs src/scene.cpp src/ecs/resource_manager.cpp src/ecs/systems)
 
 if("${BUILD_EXAMPLES}")
     add_subdirectory(${PROJECT_SOURCE_DIR}/examples)
 endif()
 
-add_executable(awing src/main2.cpp src/scene.cpp)
+add_executable(awing src/main2.cpp)
 #SDL2::Main
 
-target_link_libraries(awing rendering resources environment audio actors ${SDL2_LIBRARIES} Eigen3::Eigen)
+target_link_libraries(awing ecs rendering resources audio actors ecs ${SDL2_LIBRARIES} Eigen3::Eigen)

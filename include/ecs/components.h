@@ -34,11 +34,12 @@ struct FighterComponent
 
 struct SkyboxComponent
 {
-    entt::hashed_string texture_uri;
-    entt::hashed_string model_uri;
+    entt::resource_handle<const rendering::Texture> texture;
+    entt::resource_handle<const rendering::Model> model;
 };
 
 struct VisualComponent
 {
-    entt::hashed_string model_uri;
+    entt::resource_handle<const rendering::Model> model;
+    std::vector<entt::resource_handle<const rendering::Texture>> textures;
 };

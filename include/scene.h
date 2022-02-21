@@ -8,37 +8,30 @@
 #include "geometry/geometry.h"
 #include "rendering/model.h"
 #include "rendering/shader_program.h"
+#include "ecs/resource_manager.h"
 
 class Scene
 {
   public:
     Scene();
-    ~Scene();
+    ~Scene() = default;
     static std::shared_ptr<Scene> load_from_scenario(const std::string& scenario_name);
 
     void register_ship(const std::string& name,
                        const std::string& type,
                        const Eigen::Vector3f& position,
                        const Eigen::Quaternionf& orientation);
-    void register_skybox(const std::string& uri);
     void register_camera(const Eigen::Matrix4f& perspective);
     void register_texture(const std::string& uri);
 
     entt::registry registry;
-    entt::resource_cache<rendering::Model> model_cache;
-    entt::resource_cache<rendering::Texture> texture_cache;
-    entt::resource_cache<rendering::ShaderProgram> shader_cache;
+    ResourceManager resource_manager;
 
     entt::entity player_uid;
     entt::entity current_camera_uid;
 
   private:
     std::map<std::string, resources::ActorDescription> descriptions;
-
-    // Listeners
-    void on_visual_added(entt::registry& registry, entt::entity entity);
-    void on_skybox_added(entt::registry& registry, entt::entity entity);
-    void on_camera_added(entt::registry& registry, entt::entity entity);
 };
 
 struct model_loader final : entt::resource_loader<model_loader, rendering::Model>

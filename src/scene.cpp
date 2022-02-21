@@ -31,73 +31,17 @@ std::ostream& operator<<(std::ostream& os, const Eigen::Quaternionf& q)
 }
 }  // namespace
 
-void Scene::on_visual_added(entt::registry& registry, entt::entity entity)
-{
-    if (auto visual = registry.get<VisualComponent>(entity).model_uri;
-        !model_cache.contains(visual))
-    {
-        model_cache.load<model_loader>(visual, visual.data());
-
-        for (const auto& mesh : model_cache.handle(visual)->get_meshes())
-        {
-            if (mesh.get_texture_name().size())
-            {
-                auto texture_uri = entt::hashed_string(mesh.get_texture_name().c_str());
-                if (!texture_cache.contains(texture_uri))
-                {
-                    texture_cache.load<texture_loader>(texture_uri, mesh.get_texture_name());
-                }
-            }
-        }
-    }
-}
-
-void Scene::on_skybox_added(entt::registry& registry, entt::entity entity)
-{
-    const auto skybox_component = registry.get<SkyboxComponent>(entity);
-
-    if (auto texture_uri = skybox_component.texture_uri; !texture_cache.contains(texture_uri))
-    {
-        texture_cache.load<texture_loader>(texture_uri, texture_uri.data(), true);
-    }
-    if (auto model_uri = skybox_component.model_uri; !model_cache.contains(model_uri))
-    {
-        model_cache.load<primitive_model_loader>(model_uri, &rendering::primitives::box);
-    }
-}
-
-void Scene::on_camera_added(entt::registry& registry, entt::entity entity)
-{
-    const auto camera_component = registry.get<CameraComponent>(entity);
-
-    auto shader_setup_fn = [&camera_component](rendering::ShaderProgram& program) {
-        program.use();
-        program.setUniform1i("tex", 0);
-        program.setUniformMatrix4fv("perspective", camera_component.perspective);
-        program.setUniformMatrix4fv("model_scale", Eigen::Matrix4f::Identity());
-    };
-
-    shader_setup_fn(shader_cache.handle(entt::hashed_string("model")).get());
-    shader_setup_fn(shader_cache.handle(entt::hashed_string("skybox")).get());
-}
-
 Scene::Scene() : descriptions(resources::load_descriptions())
 {
-    auto model_uri = entt::hashed_string("model");
-    auto sky_uri = entt::hashed_string("skybox");
-    shader_cache.load<shader_loader>(model_uri, model_uri.data(), "model.vert", "model.frag");
-    shader_cache.load<shader_loader>(sky_uri, "sky", "sky.vert", "sky.frag");
+    resource_manager.load_shader("model", "model.vert", "model.frag");
+    resource_manager.load_shader("skybox", "sky.vert", "sky.frag");
 
-    registry.on_construct<VisualComponent>().connect<&Scene::on_visual_added>(*this);
-    registry.on_construct<SkyboxComponent>().connect<&Scene::on_skybox_added>(*this);
-    registry.on_construct<CameraComponent>().connect<&Scene::on_camera_added>(*this);
-}
-
-Scene::~Scene()
-{
-    registry.on_construct<VisualComponent>().disconnect<&Scene::on_visual_added>(*this);
-    registry.on_construct<SkyboxComponent>().disconnect<&Scene::on_skybox_added>(*this);
-    registry.on_construct<CameraComponent>().disconnect<&Scene::on_camera_added>(*this);
+    resource_manager.shader_cache.each(
+        [](entt::id_type, entt::resource_handle<const rendering::ShaderProgram> program) {
+            program->use();
+            program->setUniform1i("tex", 0);
+            program->setUniformMatrix4fv("model_scale", Eigen::Matrix4f::Identity());
+        });
 }
 
 void Scene::register_ship(const std::string& name,
@@ -128,25 +72,34 @@ void Scene::register_ship(const std::string& name,
     }
 
     const auto entity = registry.create();
-    auto& motion_state = registry.emplace<geometry::MotionState>(entity);
+    auto& motion_state = registry.emplace<MotionStateComponent>(entity);
     motion_state.position = position;
     motion_state.orientation = orientation;
 
-    registry.emplace<VisualComponent>(entity,
-                                      entt::hashed_string(std::string(type + ".obj").c_str()));
-}
+    resource_manager.load_model(type + std::string(".obj"));
+    auto model_handle = resource_manager.get_model(type + std::string(".obj"));
 
-void Scene::register_skybox(const std::string& uri)
-{
-    registry.emplace<SkyboxComponent>(
-        registry.create(), entt::hashed_string(uri.c_str()), entt::hashed_string("box"));
+    auto texture_handles = std::vector<entt::resource_handle<const rendering::Texture>>();
+    for (const auto& mesh : model_handle->get_meshes())
+    {
+        texture_handles.push_back(resource_manager.get_texture(mesh.get_texture_name()));
+    }
+
+    registry.emplace<VisualComponent>(entity, model_handle, texture_handles);
 }
 
 void Scene::register_camera(const Eigen::Matrix4f& perspective)
 {
     current_camera_uid = registry.create();
 
-    registry.emplace<geometry::MotionState>(current_camera_uid);
+    resource_manager.shader_cache.each(
+        [&perspective](entt::id_type,
+                       entt::resource_handle<const rendering::ShaderProgram> program) {
+            program->use();
+            program->setUniformMatrix4fv("perspective", perspective);
+        });
+
+    registry.emplace<MotionStateComponent>(current_camera_uid);
     registry.emplace<CameraComponent>(current_camera_uid, perspective);
 }
 
@@ -181,46 +134,11 @@ std::shared_ptr<Scene> Scene::load_from_scenario(const std::string& scenario_nam
                                   camera_node["intrinsics"]["far"].as<float>()));
     }
 
-    ret->registry.emplace<SkyboxComponent>(
-        ret->registry.create(), entt::hashed_string(node["skybox"].as<std::string>().c_str()));
+    const auto skybox_uri = node["skybox"].as<std::string>();
+    ret->resource_manager.load_skybox(skybox_uri);
+    ret->registry.emplace<SkyboxComponent>(ret->registry.create(),
+                                           ret->resource_manager.get_texture(skybox_uri),
+                                           ret->resource_manager.get_model("box"));
 
     return ret;
-}
-
-std::shared_ptr<rendering::Model> model_loader::load(const std::string& uri) const
-{
-    auto meshes = std::vector<rendering::Mesh>();
-    for (const auto& mesh_data : resources::load_model(uri))
-    {
-        meshes.emplace_back(mesh_data);
-    }
-
-    return std::make_shared<rendering::Model>(uri, std::move(meshes));
-}
-
-std::shared_ptr<rendering::Model>
-primitive_model_loader::load(std::function<rendering::Model()> load_fn) const
-{
-    return std::make_shared<rendering::Model>(load_fn());
-}
-
-std::shared_ptr<rendering::Texture> texture_loader::load(const std::string& uri,
-                                                         const bool as_cubemap) const
-{
-    if (as_cubemap)
-    {
-        return std::make_shared<rendering::Texture>(uri, resources::load_cubemap_texture(uri));
-    }
-    else
-    {
-        return std::make_shared<rendering::Texture>(resources::load_texture(uri));
-    }
-}
-
-std::shared_ptr<rendering::ShaderProgram>
-shader_loader::load(const std::string& uri,
-                    const std::string& vert_filename,
-                    const std::string& frag_filename) const
-{
-    return rendering::compileShaders(uri, vert_filename, frag_filename);
 }
