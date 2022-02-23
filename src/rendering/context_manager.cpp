@@ -1,7 +1,5 @@
-#include <exception>
+#include <stdexcept>
 #include <string>
-#include <iostream>
-#include <sstream>
 
 #include "rendering/context_manager.h"
 #include "rendering/convenience.h"

@@ -1,4 +1,9 @@
 #pragma once
+
+#include <stdexcept>
+#include <iostream>
+#include <sstream>
+
 namespace convenience
 {
 void init_sdl()

@@ -1,31 +1,5 @@
-#include <iostream>
-#include <vector>
-#include <list>
-#include <map>
-
-#include <Eigen/Dense>
-#include <Eigen/Geometry>
-
-#include <GL/glew.h>
-
-#include <SDL2/SDL.h>
-
-#include <entt/entt.hpp>
-
-#include "resources/load_model.h"
-#include "resources/load_texture.h"
-#include "resources/load_geometry.h"
-#include "rendering/model.h"
-#include "rendering/mesh.h"
-#include "rendering/compile_shader_program.h"
-#include "rendering/primitives.h"
 #include "rendering/context_manager.h"
-#include "rendering/draw.h"
-#include "geometry/geometry.h"
-#include "geometry/collision.h"
-#include "control/camera_controller.h"
 #include "scene.h"
-#include "ecs/components.h"
 #include "ecs/systems.h"
 
 int main(int argc, char* argv[])
