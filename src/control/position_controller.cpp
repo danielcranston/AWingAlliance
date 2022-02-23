@@ -14,12 +14,12 @@ static const Eigen::Matrix<float, STATE_DIM, STATE_DIM> A = []() {
     A.row(0) << 0, 0, 0, 1, 0, 0, 0, 0, 0;
     A.row(1) << 0, 0, 0, 0, 1, 0, 0, 0, 0;
     A.row(2) << 0, 0, 0, 0, 0, 1, 0, 0, 0;
-    A.row(3) << 0, 0, 0, 0, 0, 0, 10, 0, 0;
-    A.row(4) << 0, 0, 0, 0, 0, 0, 0, 10, 0;
-    A.row(5) << 0, 0, 0, 0, 0, 0, 0, 0, 10;
-    A.row(6) << 0, 0, 0, 0, 0, 0, 1, 0, 0;
-    A.row(7) << 0, 0, 0, 0, 0, 0, 0, 1, 0;
-    A.row(8) << 0, 0, 0, 0, 0, 0, 0, 0, 1;
+    A.row(3) << 0, 0, 0, 0, 0, 0, 1, 0, 0;
+    A.row(4) << 0, 0, 0, 0, 0, 0, 0, 1, 0;
+    A.row(5) << 0, 0, 0, 0, 0, 0, 0, 0, 1;
+    A.row(6) << 0, 0, 0, 0, 0, 0, 10, 0, 0;
+    A.row(7) << 0, 0, 0, 0, 0, 0, 0, 10, 0;
+    A.row(8) << 0, 0, 0, 0, 0, 0, 0, 0, 10;
     return A;
 }();
 
@@ -31,9 +31,9 @@ static const Eigen::Matrix<float, STATE_DIM, CONTROL_DIM> B = []() {
     B.row(3) << 0, 0, 0;
     B.row(4) << 0, 0, 0;
     B.row(5) << 0, 0, 0;
-    B.row(6) << 1, 0, 0;
-    B.row(7) << 0, 1, 0;
-    B.row(8) << 0, 0, 1;
+    B.row(6) << 30, 0, 0;
+    B.row(7) << 0, 30, 0;
+    B.row(8) << 0, 0, 30;
     return B;
 }();
 
@@ -68,9 +68,7 @@ geometry::MotionState PositionController::update(const geometry::MotionState& st
     auto xdot = A * x + B * u;
     x = x + dt * xdot;
 
-    geometry::MotionState out = state;
-    out.position = x.head<3>();
-    out.velocity = x.segment<3>(3);
+    auto out = state;
     out.acceleration = x.tail<3>();
 
     return out;

@@ -33,14 +33,8 @@ geometry::MotionState OrientationController::update(const geometry::MotionState&
     Eigen::Vector3f w_err = goal.angular_velocity - state.angular_velocity;
     Eigen::Vector3f Kp_world = (q * Kp.asDiagonal() * q.inverse()).diagonal();
     Eigen::Vector3f Kd_world = (q * Kd.asDiagonal() * q.inverse()).diagonal();
-    Eigen::Vector3f torque = Kp_world.cwiseProduct(q_err) + Kd_world.cwiseProduct(w_err);
 
-    // Update state
-    out.orientation = dq * q;
-    auto R = q.toRotationMatrix();
-    inertia_world = R * state.inertia_matrix * R.transpose();
-    out.angular_momentum = out.angular_momentum + torque * dt;
-    out.angular_velocity = inertia_world.inverse() * out.angular_momentum;
+    out.torque = Kp_world.cwiseProduct(q_err) + Kd_world.cwiseProduct(w_err);
 
     return out;
 }
