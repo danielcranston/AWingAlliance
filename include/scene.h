@@ -8,6 +8,7 @@
 #include "geometry/geometry.h"
 #include "rendering/model.h"
 #include "rendering/shader_program.h"
+#include "control/camera_controller.h"
 #include "ecs/resource_manager.h"
 
 class Scene
@@ -28,7 +29,9 @@ class Scene
     ResourceManager resource_manager;
 
     entt::entity player_uid;
+
     entt::entity current_camera_uid;
+    control::CameraController camera_controller;
 
   private:
     std::map<std::string, resources::ActorDescription> descriptions;
