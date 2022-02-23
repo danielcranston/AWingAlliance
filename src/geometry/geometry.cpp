@@ -1,7 +1,26 @@
+#include <iostream>
+
 #include "geometry/geometry.h"
 
 namespace geometry
 {
+Eigen::Isometry3f MotionState::pose() const
+{
+    return make_pose(position, orientation);
+}
+
+void MotionState::integrate(const float dt)
+{
+    velocity += acceleration * dt;
+    position += velocity * dt;
+
+    Eigen::Matrix3f inertia_world = orientation * inertia_matrix * orientation.inverse();
+
+    angular_momentum = angular_momentum + torque * dt;
+    angular_velocity = inertia_world.inverse() * angular_momentum;
+    orientation = angular_velocity_to_quat(angular_velocity, dt) * orientation;
+}
+
 // https://stackoverflow.com/questions/14971712/eigen-perspective-projection-matrix
 Eigen::Matrix4f
 perspective(const float fov_y, const float aspect, const float z_near, const float z_far)

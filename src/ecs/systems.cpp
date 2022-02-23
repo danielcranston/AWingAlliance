@@ -40,21 +40,19 @@ void render(const Scene& scene)
         {
             if (meshes[i].has_texture())
             {
-                rendering::draw_textured(
-                    shader_model,
-                    meshes[i],
-                    geometry::make_pose(motion_state.position, motion_state.orientation),
-                    visual_component.textures[i].get(),
-                    GL_TRIANGLES);
+                rendering::draw_textured(shader_model,
+                                         meshes[i],
+                                         motion_state.pose(),
+                                         visual_component.textures[i].get(),
+                                         GL_TRIANGLES);
             }
             else
             {
-                rendering::draw_colored(
-                    shader_model,
-                    meshes[i],
-                    geometry::make_pose(motion_state.position, motion_state.orientation),
-                    { 0.7f, 0.0f, 0.0f },
-                    GL_TRIANGLES);
+                rendering::draw_colored(shader_model,
+                                        meshes[i],
+                                        motion_state.pose(),
+                                        { 0.7f, 0.0f, 0.0f },
+                                        GL_TRIANGLES);
             }
         }
     }

@@ -22,6 +22,12 @@ struct MotionState
 
     Eigen::Matrix3f inertia_matrix = Eigen::Matrix3f::Identity();
     // Note: Inertial center of mass is always assumed to be identity.
+
+    Eigen::Vector3f torque = Eigen::Vector3f::Zero();
+
+    Eigen::Isometry3f pose() const;
+
+    void integrate(const float dt);
 };
 
 // https://stackoverflow.com/questions/14971712/eigen-perspective-projection-matrix
