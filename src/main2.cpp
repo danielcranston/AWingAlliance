@@ -24,19 +24,13 @@
 #include "geometry/geometry.h"
 #include "geometry/collision.h"
 #include "control/camera_controller.h"
-#include "convenience.h"
 #include "scene.h"
 #include "ecs/components.h"
 #include "ecs/systems.h"
 
 int main(int argc, char* argv[])
 {
-    int screen_w = 1200;
-    int screen_h = 900;
-
-    convenience::init_sdl();
-    rendering::ContextManager context_manager{ "Main Window", screen_w, screen_h };
-    convenience::init_glew(screen_w, screen_h);
+    auto context_manager = rendering::ContextManager::create("Main Window", 1200, 900);
 
     auto scene = Scene::load_from_scenario("scenario");
 
