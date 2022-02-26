@@ -36,27 +36,3 @@ class Scene
   private:
     std::map<std::string, resources::ActorDescription> descriptions;
 };
-
-struct model_loader final : entt::resource_loader<model_loader, rendering::Model>
-{
-    std::shared_ptr<rendering::Model> load(const std::string& uri) const;
-};
-
-struct primitive_model_loader final
-  : entt::resource_loader<primitive_model_loader, rendering::Model>
-{
-    std::shared_ptr<rendering::Model> load(std::function<rendering::Model()> load_fn) const;
-};
-
-struct texture_loader final : entt::resource_loader<texture_loader, rendering::Texture>
-{
-    std::shared_ptr<rendering::Texture> load(const std::string& uri,
-                                             const bool as_cubemap = false) const;
-};
-
-struct shader_loader final : entt::resource_loader<shader_loader, rendering::ShaderProgram>
-{
-    std::shared_ptr<rendering::ShaderProgram> load(const std::string& uri,
-                                                   const std::string& vert_filename,
-                                                   const std::string& frag_filename) const;
-};
