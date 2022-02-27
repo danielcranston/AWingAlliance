@@ -55,15 +55,12 @@ void Scene::register_ship(const std::string& name,
         throw std::runtime_error(std::string("Ship type not in descriptions: ") + type);
     }
 
-    auto fc = FighterComponent{};
-    std::transform(desc->second.primary_fire_control.offsets.begin(),
-                   desc->second.primary_fire_control.offsets.end(),
-                   std::back_inserter(fc.laser_spawn_points),
-                   [](const std::array<float, 3>& offset) {
-                       auto out = Eigen::Isometry3f::Identity();
-                       out.translation() = Eigen::Vector3f(offset[0], offset[1], offset[2]);
-                       return out;
-                   });
+    auto fc = FighterComponent();
+    for (const auto& offset : desc->second.primary_fire_control.offsets)
+    {
+        fc.laser_spawn_points.emplace_back(
+            geometry::make_pose({ offset[0], offset[1], offset[2] }));
+    }
 
     for (int i = 0; i < desc->second.primary_fire_control.fire_modes.size(); ++i)
     {
@@ -112,7 +109,7 @@ std::shared_ptr<Scene> Scene::load_from_scenario(const std::string& scenario_nam
 
     for (const auto& actor_node : node["ships"])
     {
-        auto fighter_component = FighterComponent{};
+        auto fighter_component = FighterComponent();
         if (actor_node["description"])
         {
         }
