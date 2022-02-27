@@ -4,6 +4,22 @@
 #include "ecs/components.h"
 #include "ecs/systems.h"
 
+namespace
+{
+// Converts data from a frame expressed in ROS convention (X fwd, Y left)
+// (https://www.ros.org/reps/rep-0103.html#coordinate-frame-conventions)
+// into an equivalent frame in OpenGL convention (-Z fwd, -X left)
+// ()
+static const Eigen::Matrix4f T_opengl_ros = []() {
+    auto out = Eigen::Matrix4f();
+    out.row(0) << 0, -1, 0, 0;
+    out.row(1) << 0, 0, 1, 0;
+    out.row(2) << -1, 0, 0, 0;
+    out.row(3) << 0, 0, 0, 1;
+    return out;
+}();
+}  // namespace
+
 namespace ecs::systems
 {
 void render(const Scene& scene)
@@ -17,7 +33,7 @@ void render(const Scene& scene)
 
     const auto& shader_skybox = resource_manager.get_shader("skybox").get();
     shader_skybox.use();
-    shader_skybox.setUniformMatrix4fv("camera", camera_matrix);
+    shader_skybox.setUniformMatrix4fv("camera", T_opengl_ros * camera_matrix);
 
     for (const auto [entity, skybox_component] : scene.registry.view<SkyboxComponent>().each())
     {
@@ -34,7 +50,7 @@ void render(const Scene& scene)
     const auto& shader_model = resource_manager.get_shader("model").get();
 
     shader_model.use();
-    shader_model.setUniformMatrix4fv("camera", camera_matrix);
+    shader_model.setUniformMatrix4fv("camera", T_opengl_ros * camera_matrix);
 
     auto view = scene.registry.view<MotionStateComponent, VisualComponent>();
     for (const auto [entity, motion_state, visual_component] : view.each())
@@ -65,7 +81,7 @@ void render(const Scene& scene)
 void integrate(Scene& scene, const float dt)
 {
     auto target_pose = Eigen::Isometry3f(Eigen::Quaternionf(0.966, 0, 0.259, 0));
-    target_pose.translation() = Eigen::Vector3f(0.0f, -1.68f, -15.0f);
+    target_pose.translation() = Eigen::Vector3f(15.0f, 0.0f, 1.68f);
 
     for (auto [entity, camera_component, motion_state] :
          scene.registry.view<CameraComponent, MotionStateComponent>().each())

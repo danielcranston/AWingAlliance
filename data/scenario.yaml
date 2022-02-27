@@ -1,11 +1,11 @@
 ships:
   - name: "ship"
     description: awing
-    position: [0, -5, -30]
+    position: [30, 0, 0]
     orientation: [1, 0, 0, 0]
   - name: "ship2"
     description: "tie"
-    position: [-7, -5, -30]
+    position: [30, 7 ,0]
     orientation: [1, 0, 0, 0]
   
 actors:
