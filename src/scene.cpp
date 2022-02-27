@@ -36,8 +36,8 @@ Scene::Scene() : descriptions(resources::load_descriptions())
     resource_manager.load_shader("model", "model.vert", "model.frag");
     resource_manager.load_shader("skybox", "sky.vert", "sky.frag");
 
-    resource_manager.shader_cache.each(
-        [](entt::id_type, entt::resource_handle<const rendering::ShaderProgram> program) {
+    resource_manager.update_shaders(
+        [](entt::resource_handle<const rendering::ShaderProgram> program) {
             program->use();
             program->setUniform1i("tex", 0);
             program->setUniformMatrix4fv("model_scale", Eigen::Matrix4f::Identity());
@@ -92,9 +92,8 @@ void Scene::register_camera(const Eigen::Matrix4f& perspective)
 {
     current_camera_uid = registry.create();
 
-    resource_manager.shader_cache.each(
-        [&perspective](entt::id_type,
-                       entt::resource_handle<const rendering::ShaderProgram> program) {
+    resource_manager.update_shaders(
+        [&perspective](entt::resource_handle<const rendering::ShaderProgram> program) {
             program->use();
             program->setUniformMatrix4fv("perspective", perspective);
         });

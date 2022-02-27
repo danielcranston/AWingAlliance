@@ -111,6 +111,15 @@ void ResourceManager::load_shader(const std::string& uri,
         entt::hashed_string(uri.c_str()), uri, vert_filename, frag_filename);
 }
 
+void ResourceManager::update_shaders(
+    std::function<void(entt::resource_handle<const rendering::ShaderProgram>)> fn)
+{
+    shader_cache.each(
+        [&fn](entt::id_type, entt::resource_handle<const rendering::ShaderProgram> program) {
+            fn(program);
+        });
+}
+
 entt::resource_handle<const rendering::Model>
 ResourceManager::get_model(const std::string& uri) const
 {
