@@ -25,7 +25,7 @@ namespace ecs::systems
 void render(const Scene& scene)
 {
     const auto& resource_manager = scene.resource_manager;
-    const auto& camera = scene.registry.get<MotionStateComponent>(scene.current_camera_uid);
+    const auto& camera = scene.registry.get<MotionStateComponent>(scene.camera_uid);
     const Eigen::Matrix4f camera_matrix = camera.pose().matrix().inverse();
 
     glEnable(GL_CULL_FACE);

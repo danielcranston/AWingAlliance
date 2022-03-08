@@ -18,19 +18,18 @@ class Scene
     ~Scene() = default;
     static std::shared_ptr<Scene> load_from_scenario(const std::string& scenario_name);
 
-    void register_ship(const std::string& name,
-                       const std::string& type,
-                       const Eigen::Vector3f& position,
-                       const Eigen::Quaternionf& orientation);
-    void register_camera(const Eigen::Matrix4f& perspective);
-    void register_texture(const std::string& uri);
+    entt::entity register_ship(const std::string& name,
+                               const std::string& type,
+                               const Eigen::Vector3f& position,
+                               const Eigen::Quaternionf& orientation);
+    entt::entity register_camera(const Eigen::Matrix4f& perspective);
 
     entt::registry registry;
-    ResourceManager resource_manager;
+    ResourceManager resource_manager;  // Could be made shared_ptr to allow scenes to share same mgr
 
-    entt::entity player_uid;
+    entt::entity player_uid = entt::null;
 
-    entt::entity current_camera_uid;
+    entt::entity camera_uid = entt::null;
     control::CameraController camera_controller;
 
   private:

@@ -3,6 +3,7 @@ ships:
     description: awing
     position: [30, 0, 0]
     orientation: [1, 0, 0, 0]
+    player: True
   - name: "ship2"
     description: "tie"
     position: [30, 7 ,0]
