@@ -4,7 +4,6 @@
 #include <Eigen/Dense>
 #include <entt/entt.hpp>
 
-#include "resources/description_data.h"
 #include "control/camera_controller.h"
 #include "ecs/resource_manager.h"
 
@@ -30,8 +29,5 @@ class Scene
 
     entt::entity camera_uid = entt::null;
     control::CameraController camera_controller;
-
-  private:
-    std::map<std::string, resources::ActorDescription> descriptions;
 };
 }  // namespace ecs

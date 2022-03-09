@@ -1,7 +1,6 @@
 #include "ecs/scene.h"
 #include <iostream>
 
-#include "resources/load_descriptions.h"
 #include "resources/load_model.h"
 #include "resources/load_texture.h"
 #include "rendering/primitives.h"
@@ -32,7 +31,7 @@ std::ostream& operator<<(std::ostream& os, const Eigen::Quaternionf& q)
 
 namespace ecs
 {
-Scene::Scene() : descriptions(resources::load_descriptions())
+Scene::Scene()
 {
     resource_manager.load_shader("model", "model.vert", "model.frag");
     resource_manager.load_shader("skybox", "sky.vert", "sky.frag");
@@ -50,25 +49,6 @@ entt::entity Scene::register_ship(const std::string& name,
                                   const Eigen::Vector3f& position,
                                   const Eigen::Quaternionf& orientation)
 {
-    auto desc = descriptions.find(type);
-    if (desc == descriptions.end())
-    {
-        throw std::runtime_error(std::string("Ship type not in descriptions: ") + type);
-    }
-
-    auto fc = FighterComponent();
-    for (const auto& offset : desc->second.primary_fire_control.offsets)
-    {
-        fc.laser_spawn_points.emplace_back(
-            geometry::make_pose({ offset[0], offset[1], offset[2] }));
-    }
-
-    for (int i = 0; i < desc->second.primary_fire_control.fire_modes.size(); ++i)
-    {
-        fc.fire_modes.emplace_back(desc->second.primary_fire_control.fire_modes[i],
-                                   desc->second.primary_fire_control.recharge_times_s[i]);
-    }
-
     const auto entity = registry.create();
     auto& motion_state = registry.emplace<MotionStateComponent>(entity);
     motion_state.position = position;
