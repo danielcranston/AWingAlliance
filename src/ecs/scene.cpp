@@ -1,4 +1,4 @@
-#include "scene.h"
+#include "ecs/scene.h"
 #include <iostream>
 
 #include "resources/locator.h"
@@ -31,6 +31,8 @@ std::ostream& operator<<(std::ostream& os, const Eigen::Quaternionf& q)
 }
 }  // namespace
 
+namespace ecs
+{
 Scene::Scene() : descriptions(resources::load_descriptions())
 {
     resource_manager.load_shader("model", "model.vert", "model.frag");
@@ -158,3 +160,4 @@ std::shared_ptr<Scene> Scene::load_from_scenario(const std::string& scenario_nam
 
     return ret;
 }
+}  // namespace ecs

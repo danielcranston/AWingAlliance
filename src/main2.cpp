@@ -1,12 +1,12 @@
 #include "rendering/context_manager.h"
-#include "scene.h"
+#include "ecs/scene.h"
 #include "ecs/systems.h"
 
 int main(int argc, char* argv[])
 {
     auto context_manager = rendering::ContextManager::create("Main Window", 1200, 900);
 
-    auto scene = Scene::load_from_scenario("scenario");
+    auto scene = ecs::Scene::load_from_scenario("scenario");
 
     float current_time = SDL_GetTicks() / 1000.0f;
     const float dt = 1.0f / 60.f;

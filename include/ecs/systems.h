@@ -1,5 +1,5 @@
 #pragma once
-#include <scene.h>
+#include "ecs/scene.h"
 
 namespace ecs::systems
 {

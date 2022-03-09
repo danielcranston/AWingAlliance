@@ -75,7 +75,8 @@ add_library(actors src/actor/actor.cpp src/actor/ship.cpp src/actor/laser.cpp
                    src/actor/camera.cpp src/actor/billboard.cpp)
 target_link_libraries(actors geometry control Eigen3::Eigen)
 
-add_library(ecs src/scene.cpp src/ecs/resource_manager.cpp src/ecs/systems)
+add_library(ecs src/ecs/scene.cpp src/ecs/resource_manager.cpp
+                src/ecs/systems.cpp)
 
 if("${BUILD_EXAMPLES}")
   add_subdirectory(${PROJECT_SOURCE_DIR}/examples)

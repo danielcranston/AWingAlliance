@@ -11,6 +11,8 @@
 #include "control/camera_controller.h"
 #include "ecs/resource_manager.h"
 
+namespace ecs
+{
 class Scene
 {
   public:
@@ -35,3 +37,4 @@ class Scene
   private:
     std::map<std::string, resources::ActorDescription> descriptions;
 };
+}  // namespace ecs
