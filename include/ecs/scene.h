@@ -5,9 +5,6 @@
 #include <entt/entt.hpp>
 
 #include "resources/description_data.h"
-#include "geometry/geometry.h"
-#include "rendering/model.h"
-#include "rendering/shader_program.h"
 #include "control/camera_controller.h"
 #include "ecs/resource_manager.h"
 
