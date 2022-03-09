@@ -3,7 +3,6 @@
 
 #include <Eigen/Geometry>
 
-#include "control/motion_control.h"
 namespace control
 {
 // float smoothstep(float edge0, float edge1, float x)
