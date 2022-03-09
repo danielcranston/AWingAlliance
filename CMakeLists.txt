@@ -58,7 +58,6 @@ target_link_libraries(geometry Eigen3::Eigen)
 
 add_library(
   control
-  src/control/fire_control.cpp
   src/control/motion_model.cpp
   src/control/lqr.cpp
   src/control/position_controller.cpp
