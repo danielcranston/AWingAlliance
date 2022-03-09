@@ -71,10 +71,6 @@ add_library(
   src/control/ship_controller.cpp)
 target_link_libraries(control geometry Eigen3::Eigen)
 
-add_library(actors src/actor/actor.cpp src/actor/ship.cpp src/actor/laser.cpp
-                   src/actor/camera.cpp src/actor/billboard.cpp)
-target_link_libraries(actors geometry control Eigen3::Eigen)
-
 add_library(ecs src/ecs/scene.cpp src/ecs/scene_factory.cpp
                 src/ecs/resource_manager.cpp src/ecs/systems.cpp)
 
@@ -90,7 +86,6 @@ target_link_libraries(
   rendering
   resources
   audio
-  actors
-  ecs
+  control
   ${SDL2_LIBRARIES}
   Eigen3::Eigen)
