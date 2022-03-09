@@ -38,4 +38,5 @@ run.sh
 *_example
 data/textures
 data/models
-data.sounds
+data/sounds
+.vscode
