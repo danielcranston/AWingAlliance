@@ -59,14 +59,16 @@ struct shader_loader final : entt::resource_loader<shader_loader, rendering::Sha
 
 void ResourceManager::load_model(const std::string& uri)
 {
-    auto uri_hash = entt::hashed_string(uri.data());
-    model_cache.load<model_loader>(uri_hash, uri);
-
-    for (const auto& mesh : model_cache.handle(uri_hash)->get_meshes())
+    if (auto uri_hash = entt::hashed_string(uri.data()); !model_cache.contains(uri_hash))
     {
-        if (mesh.get_texture_name().size())
+        model_cache.load<model_loader>(uri_hash, uri);
+
+        for (const auto& mesh : model_cache.handle(uri_hash)->get_meshes())
         {
-            load_texture(mesh.get_texture_name());
+            if (mesh.get_texture_name().size())
+            {
+                load_texture(mesh.get_texture_name());
+            }
         }
     }
 }
