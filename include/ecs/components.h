@@ -15,21 +15,11 @@ struct CameraComponent
 
 struct FighterComponent
 {
-    struct FireMode
-    {
-        FireMode(int num_lasers, float recharge_time)
-          : num_lasers(num_lasers), recharge_time(recharge_time)
-        {
-        }
-        int num_lasers;
-        float recharge_time;
-    };
-
-    std::vector<Eigen::Isometry3f> laser_spawn_points;
-    std::vector<FireMode> fire_modes;
+    // entt:resource_handle<const urdf::FigherModel> model;
     int current_fire_mode;
     int current_spawn_idx;
     float last_fired_time;
+    bool firing;
 };
 
 struct SkyboxComponent

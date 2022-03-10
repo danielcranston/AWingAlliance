@@ -14,7 +14,6 @@ class Scene
   public:
     Scene();
     ~Scene() = default;
-    static std::shared_ptr<Scene> load_from_scenario(const std::string& scenario_name);
 
     entt::entity register_ship(const std::string& name,
                                const std::string& type,
