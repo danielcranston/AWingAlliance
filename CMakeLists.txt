@@ -5,6 +5,7 @@ set(CMAKE_CXX_STANDARD 17)
 option(BUILD_EXAMPLES "Build examples" OFF)
 
 find_package(Eigen3 3.3 REQUIRED)
+include_directories(${EIGEN3_INCLUDE_DIR})
 
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
@@ -21,8 +22,9 @@ include_directories(${YAML_INCLUDE_DIRS})
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/entt)
 
-include_directories(${PROJECT_SOURCE_DIR}/entt/src ${EIGEN3_INCLUDE_DIR}
-                    ${PROJECT_SOURCE_DIR}/include)
+include_directories(
+  ${PROJECT_SOURCE_DIR}/include ${PROJECT_SOURCE_DIR}/entt/src
+  ${PROJECT_SOURCE_DIR}/thirdparty)
 
 # Create the absolute location header to locate resources
 get_filename_component(CMAKE_ABSOLUTE_DATA_DIR "${CMAKE_SOURCE_DIR}/data"
