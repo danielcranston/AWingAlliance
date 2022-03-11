@@ -1,0 +1,90 @@
+<robot xmlns:xacro="http://ros.org/wiki/xacro" name="awing">
+    <link name="base_link">
+        <visual>
+            <geometry>
+                <mesh filename="package://awa_urdf/meshes/awing.obj" />
+            </geometry>
+        </visual>
+        <collision>
+            <geometry>
+                <box size="9.6 5.849234 3.314908" />
+            </geometry>
+        </collision>
+    </link>
+
+    <link name="turret1" />
+    <joint name="base_turret1" type="fixed">
+        <parent link="base_link" />
+        <child link="turret1" />
+        <origin rpy="0 0 0" xyz="1.195 -2.8 0.035" />
+    </joint>
+
+    <link name="turret2" />
+    <joint name="base_turret2" type="fixed">
+        <parent link="base_link" />
+        <child link="turret2" />
+        <origin rpy="0 0 0" xyz="1.195 2.8 0.035" />
+    </joint>
+
+    <link name="exhaust1" />
+    <joint name="base_exhaust1" type="fixed">
+        <parent link="base_link" />
+        <child link="exhaust1" />
+        <origin rpy="0 0 3.14159" xyz="-3.78 -1.52 -0.2" />
+    </joint>
+
+    <link name="exhaust2" />
+    <joint name="base_exhaust2" type="fixed">
+        <parent link="base_link" />
+        <child link="exhaust2" />
+        <origin rpy="0 0 3.14159" xyz="-3.78 1.52 -0.2" />
+    </joint>
+
+    <link name="pilot_camera" />
+    <joint name="base_pilot_camera" type="fixed">
+        <parent link="base_link" />
+        <child link="pilot_camera" />
+        <origin rpy="0 0 0" xyz="-0.5 0.0 1.0" />
+    </joint>
+
+    <link name="behind_camera" />
+    <joint name="base_behind_camera" type="fixed">
+        <parent link="base_link" />
+        <child link="behind_camera" />
+        <origin rpy="0 0 0" xyz="-15.0 0.0 3.315" />
+    </joint>
+
+    <!-- AWingAlliance-specific elements below -->
+
+    <laser>
+        <speed kmps="1" />
+        <size xyz="0.4 0.15 0.15" />
+        <color rgb="1 0 0" />
+    </laser>
+
+    <sounds>
+        <laser file="XW_Laser_4A.wav" />
+        <engine file="AW-BW_ENG_2B.wav" />
+        <hit file="Deflector_Hit_1B.wav" />
+    </sounds>
+
+    <fire_mode type="single" recharge_time="0.2" />
+    <fire_mode type="dual" recharge_time="0.4" />
+
+    <!-- TBD -->
+    <!-- <motion>
+        <control type="fighter" />
+
+        <velocity>
+            <linear max="500 0 0" min="0 0 0" />
+            <angular max="3.14 3.14 3.14" min="3.14 3.14 3.14" />
+        </velocity>
+
+        <accel>
+            <linear max="10 0 0" min="-10 0 0" />
+            <angular max="3.14 3.14 3.14" min="3.14 3.14 3.14" />
+        </accel>
+    </motion>
+
+    <dynamics></dynamics> -->
+</robot>

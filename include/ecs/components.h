@@ -5,6 +5,7 @@
 #include <Eigen/Dense>
 
 #include "geometry/geometry.h"
+#include "urdf/fighter_model.h"
 
 using MotionStateComponent = geometry::MotionState;
 
@@ -15,11 +16,15 @@ struct CameraComponent
 
 struct FighterComponent
 {
-    // entt:resource_handle<const urdf::FigherModel> model;
-    int current_fire_mode;
-    int current_spawn_idx;
-    float last_fired_time;
-    bool firing;
+    FighterComponent(entt::resource_handle<const urdf::FighterModel> model) : model(model)
+    {
+    }
+
+    entt::resource_handle<const urdf::FighterModel> model;
+    int current_fire_mode = 0;
+    int current_spawn_idx = 0;
+    float last_fired_time = 0;
+    bool firing = false;
 };
 
 struct SkyboxComponent

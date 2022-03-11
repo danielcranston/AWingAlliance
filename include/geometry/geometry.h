@@ -9,6 +9,9 @@ struct MotionState
 {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
+    MotionState() = default;
+    MotionState(const Eigen::Vector3f& position, const Eigen::Quaternionf& orientation);
+
     Eigen::Vector3f position = Eigen::Vector3f::Zero();
     Eigen::Quaternionf orientation = Eigen::Quaternionf::Identity();
 

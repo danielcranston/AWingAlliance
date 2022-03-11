@@ -69,8 +69,13 @@ add_library(
   src/control/ship_controller.cpp)
 target_link_libraries(control geometry Eigen3::Eigen)
 
+add_library(urdf thirdparty/external/tinyxml2.cpp src/urdf/parsing.cpp
+                 src/urdf/parsing_utils)
+target_link_libraries(urdf Eigen3::Eigen)
+
 add_library(ecs src/ecs/scene.cpp src/ecs/scene_factory.cpp
                 src/ecs/resource_manager.cpp src/ecs/systems.cpp)
+target_link_libraries(ecs urdf rendering)
 
 if("${BUILD_EXAMPLES}")
   add_subdirectory(${PROJECT_SOURCE_DIR}/examples)
@@ -81,6 +86,7 @@ add_executable(awing src/main2.cpp)
 target_link_libraries(
   awing
   ecs
+  urdf
   rendering
   resources
   audio

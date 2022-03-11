@@ -16,7 +16,7 @@ class Scene
     ~Scene() = default;
 
     entt::entity register_ship(const std::string& name,
-                               const std::string& type,
+                               const std::string& urdf_filename,
                                const Eigen::Vector3f& position,
                                const Eigen::Quaternionf& orientation);
     entt::entity register_camera(const Eigen::Matrix4f& perspective);

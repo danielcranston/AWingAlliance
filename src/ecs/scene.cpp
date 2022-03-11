@@ -45,17 +45,15 @@ Scene::Scene()
 }
 
 entt::entity Scene::register_ship(const std::string& name,
-                                  const std::string& type,
+                                  const std::string& urdf_filename,
                                   const Eigen::Vector3f& position,
                                   const Eigen::Quaternionf& orientation)
 {
-    const auto entity = registry.create();
-    auto& motion_state = registry.emplace<MotionStateComponent>(entity);
-    motion_state.position = position;
-    motion_state.orientation = orientation;
+    resource_manager.load_fighter_model(urdf_filename);
+    auto fighter_model_handle = resource_manager.get_fighter_model(urdf_filename);
 
-    resource_manager.load_model(type + std::string(".obj"));
-    auto model_handle = resource_manager.get_model(type + std::string(".obj"));
+    resource_manager.load_model(fighter_model_handle->visual_name);
+    auto model_handle = resource_manager.get_model(fighter_model_handle->visual_name);
 
     auto texture_handles = std::vector<entt::resource_handle<const rendering::Texture>>();
     for (const auto& mesh : model_handle->get_meshes())
@@ -63,7 +61,10 @@ entt::entity Scene::register_ship(const std::string& name,
         texture_handles.push_back(resource_manager.get_texture(mesh.get_texture_name()));
     }
 
+    const auto entity = registry.create();
+    registry.emplace<FighterComponent>(entity, fighter_model_handle);
     registry.emplace<VisualComponent>(entity, model_handle, texture_handles);
+    registry.emplace<MotionStateComponent>(entity, position, orientation);
 
     return entity;
 }

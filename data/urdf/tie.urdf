@@ -1,0 +1,67 @@
+<robot xmlns:xacro="http://ros.org/wiki/xacro" name="tie">
+    <link name="base_link">
+        <visual>
+            <geometry>
+                <mesh filename="package://awa_urdf/meshes/tie.obj" />
+            </geometry>
+        </visual>
+        <collision>
+            <geometry>
+                <box size="8.425002 8.2292 10.204998" />
+            </geometry>
+        </collision>
+    </link>
+
+    <link name="turret1" />
+    <joint name="base_turret1" type="fixed">
+        <parent link="base_link" />
+        <child link="turret1" />
+        <origin rpy="0 0 0" xyz="1.1 -0.78 -0.85" />
+    </joint>
+
+    <link name="turret2" />
+    <joint name="base_turret2" type="fixed">
+        <parent link="base_link" />
+        <child link="turret2" />
+        <origin rpy="0 0 0" xyz="1.1 0.78 -0.85" />
+    </joint>
+
+    <link name="exhaust" />
+    <joint name="base_exhaust" type="fixed">
+        <parent link="base_link" />
+        <child link="exhaust" />
+        <origin rpy="0 0 3.14159" xyz="-1.6 0 0 " />
+    </joint>
+
+
+    <link name="pilot_camera" />
+    <joint name="base_pilot_camera" type="fixed">
+        <parent link="base_link" />
+        <child link="pilot_camera" />
+        <origin rpy="0 0 0" xyz="0.6 0.0 0.5" />
+    </joint>
+
+    <link name="behind_camera" />
+    <joint name="base_behind_camera" type="fixed">
+        <parent link="base_link" />
+        <child link="behind_camera" />
+        <origin rpy="0 0 0" xyz="-15.0 0.0 3.315" />
+    </joint>
+
+    <!-- AWingAlliance-specific elements below -->
+
+    <laser>
+        <speed kmps="1" />
+        <size xyz="0.4 0.15 0.15" />
+        <color rgb="0 1 0" />
+    </laser>
+
+    <sounds>
+        <laser file="" />
+        <engine file="" />
+        <hit file="" />
+    </sounds>
+
+    <fire_mode type="single" recharge_time="0.3" />
+
+</robot>

@@ -29,13 +29,8 @@ std::shared_ptr<Scene> SceneFactory::create_from_scenario(const std::string& sce
 
     for (const auto& actor_node : node["ships"])
     {
-        auto fighter_component = FighterComponent();
-        if (actor_node["description"])
-        {
-        }
-
         auto entity = ret->register_ship(actor_node["name"].as<std::string>(),
-                                         actor_node["description"].as<std::string>(),
+                                         actor_node["urdf_filename"].as<std::string>(),
                                          to_vec3(actor_node["position"]),
                                          to_quat(actor_node["orientation"]));
 

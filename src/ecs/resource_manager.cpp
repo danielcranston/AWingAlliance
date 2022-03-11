@@ -5,6 +5,7 @@
 #include "resources/load_geometry.h"
 #include "rendering/compile_shader_program.h"
 #include "rendering/primitives.h"
+#include "urdf/parsing.h"
 
 namespace
 {
@@ -52,6 +53,14 @@ struct shader_loader final : entt::resource_loader<shader_loader, rendering::Sha
                                                    const std::string& frag_filename) const
     {
         return rendering::compileShaders(uri, vert_filename, frag_filename);
+    }
+};
+
+struct fighter_model_loader final : entt::resource_loader<fighter_model_loader, urdf::FighterModel>
+{
+    std::shared_ptr<urdf::FighterModel> load(const std::string& uri) const
+    {
+        return std::make_shared<urdf::FighterModel>(urdf::parse_fighter_urdf(uri));
     }
 };
 
@@ -113,6 +122,20 @@ void ResourceManager::load_shader(const std::string& uri,
         entt::hashed_string(uri.c_str()), uri, vert_filename, frag_filename);
 }
 
+void ResourceManager::load_fighter_model(const std::string& uri)
+{
+    if (auto uri_hash = entt::hashed_string(uri.data()); !model_cache.contains(uri_hash))
+    {
+        fighter_model_cache.load<fighter_model_loader>(uri_hash, uri);
+
+        if (const auto& visual_name = fighter_model_cache.handle(uri_hash)->visual_name;
+            visual_name.empty())
+        {
+            load_model(visual_name);
+        }
+    }
+}
+
 void ResourceManager::update_shaders(
     std::function<void(entt::resource_handle<const rendering::ShaderProgram>)> fn)
 {
@@ -138,4 +161,10 @@ entt::resource_handle<const rendering::ShaderProgram>
 ResourceManager::get_shader(const std::string& uri) const
 {
     return shader_cache.handle(entt::hashed_string(uri.c_str()));
+}
+
+entt::resource_handle<const urdf::FighterModel>
+ResourceManager::get_fighter_model(const std::string& uri) const
+{
+    return fighter_model_cache.handle(entt::hashed_string(uri.c_str()));
 }

@@ -1,14 +1,14 @@
 ships:
   - name: "ship"
-    description: awing
+    urdf_filename: awing.urdf
     position: [30, 0, 0]
     orientation: [1, 0, 0, 0]
     player: True
   - name: "ship2"
-    description: "tie"
+    urdf_filename: tie.urdf
     position: [30, 7 ,0]
     orientation: [1, 0, 0, 0]
-  
+
 actors:
   - name: "sd"
     visual: sd.obj
@@ -18,7 +18,7 @@ actors:
     visual: medfrigate.obj
     position: [256, 100, -50]
     orientation: [0, 0, 1, 0]
-    
+
 cameras:
   - name: "camera"
     active: True

@@ -4,6 +4,11 @@
 
 namespace geometry
 {
+MotionState::MotionState(const Eigen::Vector3f& position, const Eigen::Quaternionf& orientation)
+  : position(position), orientation(orientation)
+{
+}
+
 Eigen::Isometry3f MotionState::pose() const
 {
     return make_pose(position, orientation);
