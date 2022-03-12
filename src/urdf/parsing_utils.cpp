@@ -180,7 +180,7 @@ FighterModel::LaserInfo parse_laser_element(const XMLElement* laser)
     FighterModel::LaserInfo out;
     if (const auto* speed = laser->FirstChildElement("speed"))
     {
-        out.speed = parse_float_element(speed, "kmps");
+        out.speed = 1000.0f * parse_float_element(speed, "kmps");
 
         if (const auto* size = laser->FirstChildElement("size"))
         {
