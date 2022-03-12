@@ -1,6 +1,7 @@
 #include "rendering/context_manager.h"
 #include "ecs/scene_factory.h"
 #include "ecs/systems.h"
+#include "input/key_event.h"
 
 int main(int argc, char* argv[])
 {
@@ -33,6 +34,7 @@ int main(int argc, char* argv[])
 
         SDL_GL_SwapWindow(context_manager.window);
 
+        std::vector<KeyEvent> key_events;
         SDL_Event event;
         while (SDL_PollEvent(&event))
         {
@@ -41,6 +43,14 @@ int main(int argc, char* argv[])
             {
                 should_shutdown = true;
             }
+            if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP && !event.key.repeat)
+            {
+                key_events.emplace_back(static_cast<char>(event.key.keysym.sym),
+                                        event.type == SDL_KEYDOWN ? KeyEvent::Status::PRESSED :
+                                                                    KeyEvent::Status::RELEASED);
+            }
         }
+
+        ecs::systems::handle_key_events(*scene, key_events);
     }
 }

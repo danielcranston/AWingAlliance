@@ -89,10 +89,32 @@ void integrate(Scene& scene, const float dt)
         motion_state = scene.camera_controller.update(motion_state, target_pose, 0, dt);
     }
 
-    auto view = scene.registry.view<MotionStateComponent>();
-    for (auto [entity, motion_state] : view.each())
+    for (auto [entity, motion_state] : scene.registry.view<MotionStateComponent>().each())
     {
         motion_state.integrate(dt);
+    }
+
+    for (auto [entity, fighter_component] : scene.registry.view<FighterComponent>().each())
+    {
+        if (fighter_component.firing())
+        {
+            std::cout << "firing" << std::endl;
+        }
+    }
+}
+
+void handle_key_events(Scene& scene, const std::vector<KeyEvent>& key_events)
+{
+    if (scene.player_uid != entt::null)
+    {
+        if (FighterComponent* fighter_component =
+                scene.registry.try_get<FighterComponent>(scene.player_uid))
+        {
+            for (const auto& event : key_events)
+            {
+                fighter_component->input.handle_key_event(event);
+            }
+        }
     }
 }
 

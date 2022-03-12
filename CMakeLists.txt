@@ -70,7 +70,7 @@ add_library(
 target_link_libraries(control geometry Eigen3::Eigen)
 
 add_library(urdf thirdparty/external/tinyxml2.cpp src/urdf/parsing.cpp
-                 src/urdf/parsing_utils)
+                 src/urdf/parsing_utils src/urdf/fighter_input.cpp)
 target_link_libraries(urdf Eigen3::Eigen)
 
 add_library(ecs src/ecs/scene.cpp src/ecs/scene_factory.cpp
