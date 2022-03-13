@@ -91,13 +91,19 @@ void render(const Scene& scene)
 
 void integrate(Scene& scene, const float t, const float dt)
 {
-    auto target_pose = Eigen::Isometry3f(Eigen::Quaternionf(0.966, 0, 0.259, 0));
-    target_pose.translation() = Eigen::Vector3f(15.0f, 0.0f, 1.68f);
-
-    for (auto [entity, camera_component, motion_state] :
-         scene.registry.view<CameraComponent, MotionStateComponent>().each())
+    if (scene.player_uid != entt::null)
     {
-        motion_state = scene.camera_controller.update(motion_state, target_pose, 0, dt);
+        auto motion_state = scene.registry.try_get<MotionStateComponent>(scene.player_uid);
+        auto fighter_component = scene.registry.try_get<FighterComponent>(scene.player_uid);
+        if (motion_state && fighter_component)
+        {
+            auto target_pose = motion_state->pose() * fighter_component->model->camera_poses[1];
+            for (auto [entity, camera_component, motion_state] :
+                 scene.registry.view<CameraComponent, MotionStateComponent>().each())
+            {
+                motion_state = scene.camera_controller.update(motion_state, target_pose, 0, dt);
+            }
+        }
     }
 
     for (auto [entity, motion_state] : scene.registry.view<MotionStateComponent>().each())
