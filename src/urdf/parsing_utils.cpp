@@ -1,10 +1,24 @@
 #include "urdf/parsing_utils.h"
 
 #include <algorithm>
+#include <regex>
 #include <iterator>
 #include <sstream>
 
 using namespace tinyxml2;
+
+namespace
+{
+// https://stackoverflow.com/a/9437426
+std::vector<std::string> split(const std::string& input, const std::string& regex)
+{
+    std::regex re(regex);
+    std::sregex_token_iterator first = { input.begin(), input.end(), re, -1 };
+    std::sregex_token_iterator last;
+    return { first, last };
+}
+
+}  // namespace
 
 namespace urdf::parsing_utils
 {
@@ -53,11 +67,12 @@ Eigen::Vector3f parse_vec3_attribute(const XMLElement* element, const std::strin
     auto val_string = element->Attribute(attrib_name.c_str());
     assert_nonempty_numeric(val_string);
 
-    auto iss = std::istringstream(val_string);
+    auto split_string = split(val_string, " ");
     std::vector<float> vals;
-    std::copy(std::istream_iterator<float>(iss),
-              std::istream_iterator<float>(),
-              std::back_inserter(vals));
+    std::transform(split_string.begin(),
+                   split_string.end(),
+                   std::back_inserter(vals),
+                   [](const auto& substr) { return std::stof(substr); });
 
     if (vals.size() != 3)
     {
