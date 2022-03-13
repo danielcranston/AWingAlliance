@@ -46,21 +46,21 @@ FighterInput::Actuation FighterInput::current_actuation() const
 {
     auto evaluate_attitute_axis = [this](FighterInput::Action state1, FighterInput::Action state2) {
         if (test(state1))
-            return -1.0f;
-        else if (test(state2))
             return 1.0f;
+        else if (test(state2))
+            return -1.0f;
         else
             return 0.0f;
     };
 
     Eigen::Vector3f d_w = {
-        evaluate_attitute_axis(FighterInput::Action::TURN_UP, FighterInput::Action::TURN_DOWN),
-        evaluate_attitute_axis(FighterInput::Action::TURN_RIGHT, FighterInput::Action::TURN_LEFT),
-        evaluate_attitute_axis(FighterInput::Action::ROLL_RIGHT, FighterInput::Action::ROLL_LEFT)
+        evaluate_attitute_axis(FighterInput::Action::ROLL_RIGHT, FighterInput::Action::ROLL_LEFT),
+        evaluate_attitute_axis(FighterInput::Action::TURN_DOWN, FighterInput::Action::TURN_UP),
+        evaluate_attitute_axis(FighterInput::Action::TURN_LEFT, FighterInput::Action::TURN_RIGHT)
     };
 
-    float d_v = evaluate_attitute_axis(FighterInput::Action::ACC_DECREASE,
-                                       FighterInput::Action::ACC_INCREASE);
+    float d_v = evaluate_attitute_axis(FighterInput::Action::ACC_INCREASE,
+                                       FighterInput::Action::ACC_DECREASE);
 
     return { d_w, d_v };
 }
