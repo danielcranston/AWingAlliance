@@ -52,8 +52,8 @@ void render(const Scene& scene)
     shader_model.use();
     shader_model.setUniformMatrix4fv("camera", T_opengl_ros * camera_matrix);
 
-    auto view = scene.registry.view<MotionStateComponent, VisualComponent>();
-    for (const auto [entity, motion_state, visual_component] : view.each())
+    for (const auto [entity, motion_state, visual_component] :
+         scene.registry.view<MotionStateComponent, VisualComponent>().each())
     {
         shader_model.setUniformMatrix4fv("model_scale",
                                          visual_component.size ?

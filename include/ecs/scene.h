@@ -25,13 +25,12 @@ class Scene
                                 const Eigen::Vector3f& size,
                                 const Eigen::Vector3f color,
                                 const float speed,
-                                entt::entity owner);
+                                entt::entity producer);
 
     entt::registry registry;
     ResourceManager resource_manager;  // Could be made shared_ptr to allow scenes to share same mgr
 
     entt::entity player_uid = entt::null;
-
     entt::entity camera_uid = entt::null;
     control::CameraController camera_controller;
 };
