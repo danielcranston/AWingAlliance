@@ -24,12 +24,17 @@ class FighterInput
         count
     };
 
-    bool test(const Action action) const
-    {
-        return actions.test(static_cast<int>(action));
-    }
+    bool test(const Action action) const;
 
     void handle_key_event(const KeyEvent& key_event);
+
+    struct Actuation
+    {
+        Eigen::Vector3f d_w;  // normalized instantaneous angular velocity in body frame
+        float d_v;            // normalized instantaneous linear velocity in body frame
+    };
+
+    Actuation current_actuation() const;
 
   private:
     static constexpr int num_actions = static_cast<int>(Action::count);

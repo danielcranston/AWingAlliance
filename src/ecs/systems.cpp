@@ -144,6 +144,8 @@ void handle_key_events(Scene& scene, const std::vector<KeyEvent>& key_events)
             {
                 fighter_component->input.handle_key_event(event);
             }
+            std::cout << "actuation d_w: "
+                      << fighter_component->input.current_actuation().d_w.transpose() << std::endl;
         }
     }
 }

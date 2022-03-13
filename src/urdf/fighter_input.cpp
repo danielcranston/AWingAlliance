@@ -1,5 +1,6 @@
 #include <unordered_map>
 #include <SDL2/SDL.h>
+#include <Eigen/Dense>
 
 #include "urdf/fighter_input.h"
 
@@ -34,5 +35,33 @@ void FighterInput::handle_key_event(const KeyEvent& key_event)
             actions.reset(static_cast<int>(item->second));
         }
     }
+}
+
+bool FighterInput::test(const Action action) const
+{
+    return actions.test(static_cast<int>(action));
+}
+
+FighterInput::Actuation FighterInput::current_actuation() const
+{
+    auto evaluate_attitute_axis = [this](FighterInput::Action state1, FighterInput::Action state2) {
+        if (test(state1))
+            return -1.0f;
+        else if (test(state2))
+            return 1.0f;
+        else
+            return 0.0f;
+    };
+
+    Eigen::Vector3f d_w = {
+        evaluate_attitute_axis(FighterInput::Action::TURN_UP, FighterInput::Action::TURN_DOWN),
+        evaluate_attitute_axis(FighterInput::Action::TURN_RIGHT, FighterInput::Action::TURN_LEFT),
+        evaluate_attitute_axis(FighterInput::Action::ROLL_RIGHT, FighterInput::Action::ROLL_LEFT)
+    };
+
+    float d_v = evaluate_attitute_axis(FighterInput::Action::ACC_DECREASE,
+                                       FighterInput::Action::ACC_INCREASE);
+
+    return { d_w, d_v };
 }
 }  // namespace urdf
