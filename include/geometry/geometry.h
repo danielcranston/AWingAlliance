@@ -20,13 +20,7 @@ struct MotionState
     Eigen::Vector3f acceleration = Eigen::Vector3f::Zero();
 
     Eigen::Vector3f angular_velocity = Eigen::Vector3f::Zero();
-    // Eigen::Vector3f angular_acceleration = Eigen::Vector3f::Zero();
-    Eigen::Vector3f angular_momentum = Eigen::Vector3f::Zero();
-
-    Eigen::Matrix3f inertia_matrix = Eigen::Matrix3f::Identity();
-    // Note: Inertial center of mass is always assumed to be identity.
-
-    Eigen::Vector3f torque = Eigen::Vector3f::Zero();
+    Eigen::Vector3f angular_acceleration = Eigen::Vector3f::Zero();
 
     Eigen::Isometry3f pose() const;
 

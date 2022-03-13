@@ -19,10 +19,7 @@ void MotionState::integrate(const float dt)
     velocity += acceleration * dt;
     position += velocity * dt;
 
-    Eigen::Matrix3f inertia_world = orientation * inertia_matrix * orientation.inverse();
-
-    angular_momentum = angular_momentum + torque * dt;
-    angular_velocity = inertia_world.inverse() * angular_momentum;
+    angular_velocity = angular_velocity + angular_acceleration * dt;
     orientation = angular_velocity_to_quat(angular_velocity, dt) * orientation;
 }
 
