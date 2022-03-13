@@ -29,10 +29,10 @@ Model quad()
 
 Model box()
 {
-    const std::vector<float> vertices = { -1.0f, -1.0f, -1.0f, 1.0f,  -1.0f, -1.0f,  //
-                                          1.0f,  1.0f,  -1.0f, -1.0f, 1.0f,  -1.0f,  //
-                                          -1.0f, -1.0f, 1.0f,  1.0f,  -1.0f, 1.0f,   //
-                                          1.0f,  1.0f,  1.0f,  -1.0f, 1.0f,  1.0f };
+    const std::vector<float> vertices = { -0.5f, -0.5f, -0.5f, 0.5f,  -0.5f, -0.5f,  //
+                                          0.5f,  0.5f,  -0.5f, -0.5f, 0.5f,  -0.5f,  //
+                                          -0.5f, -0.5f, 0.5f,  0.5f,  -0.5f, 0.5f,   //
+                                          0.5f,  0.5f,  0.5f,  -0.5f, 0.5f,  0.5f };
 
     const std::vector<float>& normals = vertices;
     const std::vector<float> texture_coords = { 0.0f, 0.0f, 1.0f, 0.0f,  //

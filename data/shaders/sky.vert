@@ -16,7 +16,7 @@ void main(void)
     no_translation[3][0] = 0.0f;
     no_translation[3][1] = 0.0f;
     no_translation[3][2] = 0.0f;
-    gl_Position = perspective * no_translation * vec4(position * 10.0f, 1.0);
+    gl_Position = perspective * no_translation * vec4(position * 20.0f, 1.0);
 
     x_texcoord = position;
     
