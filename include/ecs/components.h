@@ -1,10 +1,13 @@
 #pragma once
 
 #include <vector>
+#include <optional>
 #include <entt/entt.hpp>
 #include <Eigen/Dense>
 
 #include "geometry/geometry.h"
+#include "rendering/model.h"
+#include "rendering/texture.h"
 #include "urdf/fighter_input.h"
 #include "urdf/fighter_model.h"
 
@@ -27,10 +30,13 @@ struct FighterComponent
     int current_spawn_idx = 0;
     float last_fired_time = 0;
 
-    bool firing() const
-    {
-        return input.test(urdf::FighterInput::Action::FIRE);
-    }
+    using LaserDispatch = std::pair<Eigen::Isometry3f, urdf::FighterModel::LaserInfo>;
+
+    bool firing() const;
+    bool laser_recharged(const float t);
+    int num_dispatches() const;
+    std::vector<LaserDispatch> fire_laser();
+    std::optional<std::vector<LaserDispatch>> try_fire_laser(const float t);
 };
 
 struct SkyboxComponent

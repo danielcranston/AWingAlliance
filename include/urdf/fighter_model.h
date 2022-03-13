@@ -34,8 +34,8 @@ struct FighterModel
     {
         enum class FireType
         {
-            SINGLE,
-            DUAL
+            SINGLE = 1,
+            DUAL = 2
         };
         FireType type;
         float recharge_time;

@@ -25,7 +25,7 @@ int main(int argc, char* argv[])
 
         while (accumulator >= dt)
         {
-            ecs::systems::integrate(*scene, dt);
+            ecs::systems::integrate(*scene, t, dt);
             accumulator -= dt;
             t += dt;
         }

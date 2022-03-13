@@ -78,7 +78,7 @@ void render(const Scene& scene)
     }
 }
 
-void integrate(Scene& scene, const float dt)
+void integrate(Scene& scene, const float t, const float dt)
 {
     auto target_pose = Eigen::Isometry3f(Eigen::Quaternionf(0.966, 0, 0.259, 0));
     target_pose.translation() = Eigen::Vector3f(15.0f, 0.0f, 1.68f);
@@ -98,7 +98,10 @@ void integrate(Scene& scene, const float dt)
     {
         if (fighter_component.firing())
         {
-            std::cout << "firing" << std::endl;
+            if (auto dispatches = fighter_component.try_fire_laser(t))
+            {
+                std::cout << "fired " << dispatches->size() << " laser(s)" << std::endl;
+            }
         }
     }
 }
