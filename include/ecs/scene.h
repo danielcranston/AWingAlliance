@@ -20,6 +20,12 @@ class Scene
                                const Eigen::Vector3f& position,
                                const Eigen::Quaternionf& orientation);
     entt::entity register_camera(const Eigen::Matrix4f& perspective);
+    entt::entity register_laser(const Eigen::Vector3f& position,
+                                const Eigen::Quaternionf& orientation,
+                                const Eigen::Vector3f& size,
+                                const Eigen::Vector3f color,
+                                const float speed,
+                                entt::entity owner);
 
     entt::registry registry;
     ResourceManager resource_manager;  // Could be made shared_ptr to allow scenes to share same mgr

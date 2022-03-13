@@ -39,6 +39,13 @@ struct FighterComponent
     std::optional<std::vector<LaserDispatch>> try_fire_laser(const float t);
 };
 
+struct LaserComponent
+{
+    Eigen::Vector3f size;
+    Eigen::Vector3f color;
+    entt::entity producer;
+};
+
 struct SkyboxComponent
 {
     entt::resource_handle<const rendering::Texture> texture;

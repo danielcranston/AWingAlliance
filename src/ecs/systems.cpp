@@ -98,9 +98,17 @@ void integrate(Scene& scene, const float t, const float dt)
     {
         if (fighter_component.firing())
         {
-            if (auto dispatches = fighter_component.try_fire_laser(t))
+            if (const auto dispatches = fighter_component.try_fire_laser(t))
             {
-                std::cout << "fired " << dispatches->size() << " laser(s)" << std::endl;
+                for (const auto& dispatch : *dispatches)
+                {
+                    scene.register_laser(Eigen::Vector3f(dispatch.first.translation()),
+                                         Eigen::Quaternionf(dispatch.first.linear()),
+                                         dispatch.second.size,
+                                         dispatch.second.color,
+                                         dispatch.second.speed,
+                                         entity);
+                }
             }
         }
     }
