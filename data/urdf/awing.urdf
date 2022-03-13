@@ -58,7 +58,7 @@
 
     <laser>
         <speed kmps="1" />
-        <size xyz="0.4 0.15 0.15" />
+        <size xyz="4.0 0.25 0.25" />
         <color rgb="1 0 0" />
     </laser>
 

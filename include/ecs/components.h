@@ -41,8 +41,6 @@ struct FighterComponent
 
 struct LaserComponent
 {
-    Eigen::Vector3f size;
-    Eigen::Vector3f color;
     entt::entity producer;
 };
 
@@ -55,5 +53,7 @@ struct SkyboxComponent
 struct VisualComponent
 {
     entt::resource_handle<const rendering::Model> model;
-    std::vector<entt::resource_handle<const rendering::Texture>> textures;
+    std::optional<std::vector<entt::resource_handle<const rendering::Texture>>> textures;
+    std::optional<Eigen::Vector3f> color = std::nullopt;
+    std::optional<Eigen::Vector3f> size = std::nullopt;
 };
