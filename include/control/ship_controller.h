@@ -11,7 +11,7 @@ class ShipController
     ShipController();
 
     geometry::MotionState update(const geometry::MotionState& state,
-                                 const Eigen::Isometry3f& target_pose,
+                                 const geometry::MotionState& target_state,
                                  const float t,
                                  const float dt);
 

@@ -3,6 +3,7 @@
 #include <bitset>
 
 #include "input/key_event.h"
+#include "geometry/geometry.h"
 
 namespace urdf
 {
@@ -32,6 +33,11 @@ class FighterInput
     {
         Eigen::Vector3f d_w;  // normalized instantaneous angular velocity in body frame
         float d_v;            // normalized instantaneous linear velocity in body frame
+
+        Eigen::Quaternionf d_q(float dt)
+        {
+            return geometry::angular_velocity_to_quat(d_w, dt);
+        }
     };
 
     Actuation current_actuation() const;

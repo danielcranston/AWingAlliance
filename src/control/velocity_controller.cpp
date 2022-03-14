@@ -55,6 +55,7 @@ geometry::MotionState VelocityController::update(const geometry::MotionState& st
 
     geometry::MotionState out = state;
     out.acceleration = fwd_dir * x.tail<1>();
+    out.velocity = fwd_dir * state.velocity.dot(fwd_dir);
 
     return out;
 }

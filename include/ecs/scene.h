@@ -5,6 +5,7 @@
 #include <entt/entt.hpp>
 
 #include "control/camera_controller.h"
+#include "control/ship_controller.h"
 #include "ecs/resource_manager.h"
 
 namespace ecs
@@ -33,5 +34,6 @@ class Scene
     entt::entity player_uid = entt::null;
     entt::entity camera_uid = entt::null;
     control::CameraController camera_controller;
+    control::ShipController ship_controller;
 };
 }  // namespace ecs

@@ -39,16 +39,10 @@ ShipController::ShipController()
 }
 
 geometry::MotionState ShipController::update(const geometry::MotionState& state,
-                                             const Eigen::Isometry3f& target_pose,
+                                             const geometry::MotionState& target_state,
                                              const float t,
                                              const float dt)
 {
-    auto target_state = geometry::MotionState();
-    target_state.orientation = Eigen::Quaternionf(target_pose.linear());
-    auto speed = (target_pose.translation() - state.position)
-                     .dot(geometry::get_fwd_dir(state.orientation.toRotationMatrix()));
-    target_state.velocity = geometry::get_fwd_dir(state.orientation.toRotationMatrix()) * speed;
-
     auto out = orientation_controller.update(state, target_state, dt);
     out = velocity_controller.update(out, target_state, dt);
 
