@@ -98,10 +98,13 @@ void integrate(Scene& scene, const float t, const float dt)
         if (motion_state && fighter_component)
         {
             auto target_pose = motion_state->pose() * fighter_component->model->camera_poses[1];
+            MotionStateComponent target_state = *motion_state;
+            target_state.position = target_pose.translation();
+            target_state.orientation = Eigen::Quaternionf(target_pose.linear());
             for (auto [entity, camera_component, motion_state] :
                  scene.registry.view<CameraComponent, MotionStateComponent>().each())
             {
-                motion_state = scene.camera_controller.update(motion_state, target_pose, 0, dt);
+                motion_state = scene.camera_controller.update(motion_state, target_state, 0.0f, dt);
             }
         }
     }
