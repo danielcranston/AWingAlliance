@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <Eigen/Geometry>
+#include "geometry/geometry.h"
 
 namespace urdf
 {
@@ -41,5 +42,29 @@ struct FighterModel
         float recharge_time;
     };
     std::vector<FireMode> fire_modes;
+
+    struct MotionLimits
+    {
+        float velocity = 1;
+        float acceleration = 1;
+        float angular_velocity = 1;
+        float angular_acceleration = 1;
+    };
+    MotionLimits motion_limits;
+
+    void apply_motion_limits(geometry::MotionState& state) const
+    {
+        auto apply_limit = [](Eigen::Vector3f& x, const float limit) {
+            if (auto norm = x.norm(); std::abs(norm) > 10e-8)
+            {
+                x = std::min(norm, limit) * (x / norm);
+            }
+        };
+
+        apply_limit(state.velocity, motion_limits.velocity);
+        apply_limit(state.acceleration, motion_limits.acceleration);
+        apply_limit(state.angular_velocity, motion_limits.angular_velocity);
+        apply_limit(state.angular_acceleration, motion_limits.angular_acceleration);
+    }
 };
 }  // namespace urdf

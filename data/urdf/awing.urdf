@@ -71,20 +71,12 @@
     <fire_mode type="single" recharge_time="0.2" />
     <fire_mode type="dual" recharge_time="0.4" />
 
-    <!-- TBD -->
-    <!-- <motion>
-        <control type="fighter" />
-
-        <velocity>
-            <linear max="500 0 0" min="0 0 0" />
-            <angular max="3.14 3.14 3.14" min="3.14 3.14 3.14" />
-        </velocity>
-
-        <accel>
-            <linear max="10 0 0" min="-10 0 0" />
-            <angular max="3.14 3.14 3.14" min="3.14 3.14 3.14" />
-        </accel>
+    <motion>
+        <limits>
+            <velocity max="50" />
+            <acceleration max="50" />
+            <angular_velocity max="3.14" />
+            <angular_acceleration max="6.28" />
+        </limits>
     </motion>
-
-    <dynamics></dynamics> -->
 </robot>

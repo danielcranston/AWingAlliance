@@ -54,7 +54,7 @@ std::string parse_string_attribute(const XMLElement* element,
     throw std::runtime_error(std::string("Failed to parse string attribute: ") + attrib_name);
 }
 
-float parse_float_element(const XMLElement* element, const std::string& attrib_name)
+float parse_float_attribute(const XMLElement* element, const std::string& attrib_name)
 {
     auto val_string = element->Attribute(attrib_name.c_str());
     assert_nonempty_numeric(val_string);
@@ -150,7 +150,7 @@ FighterModel::FireMode parse_fire_mode_element(const XMLElement* fire_mode)
 {
     FighterModel::FireMode out;
 
-    out.recharge_time = parse_float_element(fire_mode, "recharge_time");
+    out.recharge_time = parse_float_attribute(fire_mode, "recharge_time");
     std::string type = parse_string_attribute(fire_mode, "type", true);
 
     if (std::strcmp(type.c_str(), "single") == 0)
@@ -195,7 +195,7 @@ FighterModel::LaserInfo parse_laser_element(const XMLElement* laser)
     FighterModel::LaserInfo out;
     if (const auto* speed = laser->FirstChildElement("speed"))
     {
-        out.speed = 1000.0f * parse_float_element(speed, "kmps");
+        out.speed = 1000.0f * parse_float_attribute(speed, "kmps");
 
         if (const auto* size = laser->FirstChildElement("size"))
         {
@@ -209,6 +209,26 @@ FighterModel::LaserInfo parse_laser_element(const XMLElement* laser)
         }
     }
     throw std::runtime_error("Failed to parse laser element");
+}
+
+FighterModel::MotionLimits parse_motion_limits_element(const XMLElement* limits)
+{
+    FighterModel::MotionLimits out;
+
+    auto parse_limit = [limits](const std::string& limit_name) -> float {
+        if (const auto* limit = limits->FirstChildElement(limit_name.c_str()))
+        {
+            return parse_float_attribute(limit, "max");
+        }
+        throw std::runtime_error("Failed to parse motion limit: " + limit_name);
+    };
+
+    out.velocity = parse_limit("velocity");
+    out.acceleration = parse_limit("acceleration");
+    out.angular_velocity = parse_limit("angular_velocity");
+    out.angular_acceleration = parse_limit("angular_acceleration");
+
+    return out;
 }
 
 }  // namespace urdf::parsing_utils

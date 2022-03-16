@@ -86,6 +86,22 @@ FighterModel parse_fighter_urdf(const std::string& filename)
         out.fire_modes.push_back(parse_fire_mode_element(fire_mode));
     }
 
+    // Motion limits
+    if (const XMLElement* motion = robot->FirstChildElement("motion"))
+    {
+        if (const XMLElement* limits = motion->FirstChildElement("limits"))
+        {
+            out.motion_limits = parse_motion_limits_element(limits);
+        }
+        else
+        {
+            throw std::runtime_error("URDF does not contain 'motion' -> 'limits' element");
+        }
+    }
+    else
+    {
+        throw std::runtime_error("URDF does not contain 'motion' element");
+    }
     return out;
 }
 }  // namespace urdf

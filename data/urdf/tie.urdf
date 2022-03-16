@@ -64,4 +64,12 @@
 
     <fire_mode type="single" recharge_time="0.3" />
 
+    <motion>
+        <limits>
+            <velocity max="10" />
+            <acceleration max="10" />
+            <angular_velocity max="1" />
+            <angular_acceleration max="1" />
+        </limits>
+    </motion>
 </robot>

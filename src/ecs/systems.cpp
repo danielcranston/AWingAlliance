@@ -133,12 +133,12 @@ void integrate(Scene& scene, const float t, const float dt)
         auto target_state = MotionStateComponent(
             motion_state.position,
             motion_state.orientation * fighter_component.input.current_actuation().d_q(1.0f));
-        // TODO: Add max_speed to urdf::FighterModel
         target_state.velocity =
             target_state.orientation *
             Eigen::Vector3f(100 * fighter_component.input.current_actuation().d_v, 0.0f, 0.0f);
 
         motion_state = scene.ship_controller.update(motion_state, target_state, t, dt);
+        fighter_component.model->apply_motion_limits(motion_state);
     }
 }
 
