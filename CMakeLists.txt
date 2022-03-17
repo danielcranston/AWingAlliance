@@ -10,6 +10,7 @@ include_directories(${EIGEN3_INCLUDE_DIR})
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
 
+find_package(OpenAL REQUIRED)
 find_package(Alure2 REQUIRED)
 
 find_package(assimp REQUIRED)
@@ -53,6 +54,7 @@ target_link_libraries(rendering Eigen3::Eigen ${OPENGL_LIBRARIES}
 
 add_library(audio src/audio/audio_manager.cpp)
 target_link_libraries(audio alure2)
+target_include_directories(audio PUBLIC ${OPENAL_INCLUDE_DIR})
 
 add_library(geometry SHARED src/geometry/geometry.cpp
                             src/geometry/collision.cpp)

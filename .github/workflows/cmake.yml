@@ -32,7 +32,7 @@ jobs:
         path: './alure'
 
     - name: Install Alure part 3 - Configure CMake
-      run: cmake .. -DCMAKE_INSTALL_INCLUDEDIR=/usr/include -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DALURE_BUILD_EXAMPLES=OFF
+      run: cmake .. -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DALURE_BUILD_EXAMPLES=OFF
       working-directory: ./alure/build
 
     - name: Install Alure part 4 - Build and install
