@@ -139,6 +139,11 @@ Eigen::Isometry3f parse_joint_isometry(const XMLElement* joint)
             isometry.translation() = parse_vec3_attribute(origin, "xyz");
             return isometry;
         }
+        else
+        {
+            throw std::runtime_error(std::string("Failed to parse joint pose: missing 'origin' "
+                                                 "element"));
+        }
     }
     catch (std::logic_error& e)
     {
