@@ -38,13 +38,10 @@ Unfortunately there is no apt package for Alure, so it needs to be cloned, built
 ```
 sudo apt install libopenal-dev libvorbis-dev libopusfile-dev libsndfile1-dev
 git clone https://github.com/kcat/alure /tmp/alure && cd /tmp/alure/build
-cmake -DCMAKE_INSTALL_INCLUDEDIR=/usr/include -DCMAKE_BUILD_TYPE=Release ..
+cmake -DCMAKE_BUILD_TYPE=Release -DALURE_BUILD_EXAMPLES=OFF ..
 cmake --build .
 sudo cmake --install .
 ```
-
-**_NOTE:_**  Alure requires its installed headers to land in the same directory as the headers from `libopenal-dev`. On Ubuntu the headers of the latter are installed in `/usr/include/AL` whereas thoes of the former land in `/usr/local/include`. Therefore the `-DCMAKE_INSTALL_INCLUDEDIR=/usr/include` above is necessary, but depending on the system you're using might not be.
-
 
 ## Cloning and building
 
