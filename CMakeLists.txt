@@ -21,10 +21,8 @@ include_directories(${SDL2_INCLUDE_DIRS})
 find_package(yaml-cpp REQUIRED)
 include_directories(${YAML_INCLUDE_DIRS})
 
-add_subdirectory(${PROJECT_SOURCE_DIR}/entt)
-
 include_directories(
-  ${PROJECT_SOURCE_DIR}/include ${PROJECT_SOURCE_DIR}/entt/src
+  ${PROJECT_SOURCE_DIR}/include ${PROJECT_SOURCE_DIR}/thirdparty/entt/src
   ${PROJECT_SOURCE_DIR}/thirdparty)
 
 # Create the absolute location header to locate resources
