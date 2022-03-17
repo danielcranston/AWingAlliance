@@ -19,6 +19,9 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - name: Update apt
+      run: sudo apt update
+
     - name: Install Alure part 1 - Install dependencies
       run: sudo apt install -y libopenal-dev libvorbis-dev libopusfile-dev libsndfile1-dev
 
