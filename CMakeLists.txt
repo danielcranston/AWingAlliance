@@ -10,9 +10,6 @@ include_directories(${EIGEN3_INCLUDE_DIR})
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
 
-find_package(OpenAL REQUIRED)
-find_package(Alure2 REQUIRED)
-
 find_package(assimp REQUIRED)
 
 find_package(SDL2 REQUIRED)
@@ -21,8 +18,11 @@ include_directories(${SDL2_INCLUDE_DIRS})
 find_package(yaml-cpp REQUIRED)
 include_directories(${YAML_INCLUDE_DIRS})
 
+add_subdirectory(${PROJECT_SOURCE_DIR}/thirdparty/alure)
+
 include_directories(
   ${PROJECT_SOURCE_DIR}/include ${PROJECT_SOURCE_DIR}/thirdparty/entt/src
+  ${PROJECT_SOURCE_DIR}/thirdparty/alure/include
   ${PROJECT_SOURCE_DIR}/thirdparty)
 
 # Create the absolute location header to locate resources

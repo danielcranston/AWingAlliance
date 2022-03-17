@@ -24,22 +24,8 @@ jobs:
     - name: Update apt
       run: sudo apt update
 
-    - name: Install Alure part 1 - Install dependencies
+    - name: Install Alure dependencies
       run: sudo apt install -y libopenal-dev libvorbis-dev libopusfile-dev libsndfile1-dev
-
-    - name: Install Alure part 2 - Checkout repo
-      uses: actions/checkout@v2
-      with:
-        repository: kcat/alure
-        path: './alure'
-
-    - name: Install Alure part 3 - Configure CMake
-      run: cmake .. -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DALURE_BUILD_EXAMPLES=OFF
-      working-directory: ./alure/build
-
-    - name: Install Alure part 4 - Build and install
-      run: sudo make -j4 install
-      working-directory: ./alure/build
 
     - name: Install main dependencies
       run: sudo apt install -y build-essential cmake libsdl2-dev libglew-dev libeigen3-dev libassimp-dev libyaml-cpp-dev
@@ -48,4 +34,4 @@ jobs:
       run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
 
     - name: Build
-      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} -- -j4
+      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} -- -j
