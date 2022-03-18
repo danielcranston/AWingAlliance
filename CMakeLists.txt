@@ -45,7 +45,6 @@ add_library(
   src/rendering/compile_shader_program.cpp
   src/rendering/model.cpp
   src/rendering/primitives.cpp
-  src/rendering/rendering_manager.cpp
   src/rendering/draw.cpp)
 target_link_libraries(rendering Eigen3::Eigen ${OPENGL_LIBRARIES}
                       ${GLEW_LIBRARIES})

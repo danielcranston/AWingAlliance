@@ -18,6 +18,43 @@ static const Eigen::Matrix4f T_opengl_ros = []() {
     out.row(3) << 0, 0, 0, 1;
     return out;
 }();
+
+void render_visual(const rendering::ShaderProgram& shader_program,
+                   const VisualComponent& visual_component,
+                   const Eigen::Isometry3f& pose)
+{
+    shader_program.setUniformMatrix4fv("model_scale",
+                                       visual_component.size ?
+                                           geometry::to_scale_matrix(*visual_component.size) :
+                                           Eigen::Matrix4f::Identity());
+
+    const auto& meshes = visual_component.model->get_meshes();
+    for (int i = 0; i < meshes.size(); ++i)
+    {
+        if (meshes[i].has_texture())
+        {
+            if (!visual_component.textures)
+            {
+                throw std::runtime_error("Mesh has texture, but no textures were provided");
+            }
+
+            rendering::draw_textured(shader_program,
+                                     meshes[i],
+                                     pose,
+                                     visual_component.textures.value()[i].get(),
+                                     GL_TRIANGLES);
+        }
+        else
+        {
+            rendering::draw_colored(shader_program,
+                                    meshes[i],
+                                    pose,
+                                    visual_component.color ? *visual_component.color :
+                                                             Eigen::Vector3f::Ones(),
+                                    GL_TRIANGLES);
+        }
+    }
+}
 }  // namespace
 
 namespace ecs::systems
@@ -55,38 +92,23 @@ void render(const Scene& scene)
     for (const auto [entity, motion_state, visual_component] :
          scene.registry.view<MotionStateComponent, VisualComponent>().each())
     {
-        shader_model.setUniformMatrix4fv("model_scale",
-                                         visual_component.size ?
-                                             geometry::to_scale_matrix(*visual_component.size) :
-                                             Eigen::Matrix4f::Identity());
-
-        const auto& meshes = visual_component.model->get_meshes();
-        for (int i = 0; i < meshes.size(); ++i)
-        {
-            if (meshes[i].has_texture())
-            {
-                if (!visual_component.textures)
-                {
-                    throw std::runtime_error("Mesh has texture, but no textures were provided");
-                }
-
-                rendering::draw_textured(shader_model,
-                                         meshes[i],
-                                         motion_state.pose(),
-                                         visual_component.textures.value()[i].get(),
-                                         GL_TRIANGLES);
-            }
-            else
-            {
-                rendering::draw_colored(shader_model,
-                                        meshes[i],
-                                        motion_state.pose(),
-                                        visual_component.color ? *visual_component.color :
-                                                                 Eigen::Vector3f::Ones(),
-                                        GL_TRIANGLES);
-            }
-        }
+        render_visual(shader_model, visual_component, motion_state.pose());
     }
+
+    glEnable(GL_BLEND);
+    for (auto [entity, fighter_component, motion_state, visual_component] :
+         scene.registry.view<FighterComponent, MotionStateComponent, VisualComponent>().each())
+    {
+        auto pose = geometry::make_pose(motion_state.position,
+                                        motion_state.orientation *
+                                            fighter_component.input.current_actuation().d_q(1.0f));
+        pose.translation() += motion_state.orientation *
+                              fighter_component.input.current_actuation().d_q(1.0f) *
+                              motion_state.orientation.inverse() * motion_state.velocity;
+
+        render_visual(shader_model, visual_component, pose);
+    }
+    glDisable(GL_BLEND);
 }
 
 void integrate(Scene& scene, const float t, const float dt)
