@@ -116,6 +116,7 @@ void render(const Scene& scene)
 
 void integrate(Scene& scene, const float t, const float dt)
 {
+    // Update Camera: Invoke camera controller, (update linear/angular acceleration)
     if (scene.player_uid != entt::null)
     {
         auto motion_state = scene.registry.try_get<MotionStateComponent>(scene.player_uid);
@@ -126,6 +127,8 @@ void integrate(Scene& scene, const float t, const float dt)
             MotionStateComponent target_state = *motion_state;
             target_state.position = target_pose.translation();
             target_state.orientation = Eigen::Quaternionf(target_pose.linear());
+            target_state.velocity *= 0.75f;
+            target_state.acceleration *= 0.75f;
             for (auto [entity, camera_component, motion_state] :
                  scene.registry.view<CameraComponent, MotionStateComponent>().each())
             {
@@ -136,12 +139,14 @@ void integrate(Scene& scene, const float t, const float dt)
         }
     }
 
+    // Integrate all MotionStateComponents
     for (auto [entity, motion_state] : scene.registry.view<MotionStateComponent>().each())
     {
         std::ignore = entity;
         motion_state.integrate(dt);
     }
 
+    // Update Fighters (invoke controller, react to controls)
     for (auto [entity, fighter_component, motion_state] :
          scene.registry.view<FighterComponent, MotionStateComponent>().each())
     {
@@ -161,12 +166,15 @@ void integrate(Scene& scene, const float t, const float dt)
                 }
             }
         }
+
         auto target_state = MotionStateComponent(
             motion_state.position,
             motion_state.orientation * fighter_component.input.current_actuation().d_q(1.0f));
-        target_state.velocity =
-            target_state.orientation *
-            Eigen::Vector3f(100 * fighter_component.input.current_actuation().d_v, 0.0f, 0.0f);
+        target_state.velocity = target_state.orientation *
+                                Eigen::Vector3f(fighter_component.model->motion_limits.velocity *
+                                                    fighter_component.input.current_actuation().d_v,
+                                                0.0f,
+                                                0.0f);
 
         motion_state = scene.ship_controller.update(motion_state, target_state, dt);
         fighter_component.model->apply_motion_limits(motion_state);
