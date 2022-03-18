@@ -19,7 +19,7 @@ class ShaderProgram
     virtual ~ShaderProgram();
 
     void use() const;
-    const uint getProgramId() const;
+    uint getProgramId() const;
     void setUniform1i(const std::string& name, const int value) const;
     void setUniform1f(const std::string& name, const float value) const;
     void setUniform2f(const std::string& name, const float f1, const float f2) const;

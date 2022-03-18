@@ -24,7 +24,6 @@ class MotionModel
                              const Eigen::Vector3f& d_w,
                              const Eigen::Vector3f& position,
                              const Eigen::Quaternionf& orientation,
-                             const float t,
                              const float dt);
 
   private:

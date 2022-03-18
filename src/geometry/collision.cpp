@@ -51,22 +51,22 @@ Eigen::Matrix3Xf make_separating_axes(const CollisionShape& a,
     auto num_cols = a.num_face_normals() + b.num_face_normals() + (a.num_edges() * b.num_edges());
     Eigen::Matrix3Xf separating_axes(3, num_cols);
 
-    for (int i = 0; i < a.num_face_normals(); ++i)
+    for (std::size_t i = 0; i < a.num_face_normals(); ++i)
     {
         separating_axes.col(i) = a.face_normals.col(i);
     }
 
     auto start_idx = a.num_face_normals();
-    for (int i = 0; i < b.num_face_normals(); ++i)
+    for (std::size_t i = 0; i < b.num_face_normals(); ++i)
     {
         separating_axes.col(start_idx + i) = face_normals.col(i);
     }
 
     start_idx = a.num_face_normals() + b.num_face_normals();
     int idx = 0;
-    for (int i = 0; i < a.num_edges(); ++i)
+    for (std::size_t i = 0; i < a.num_edges(); ++i)
     {
-        for (int j = 0; j < b.num_edges(); ++j)
+        for (std::size_t j = 0; j < b.num_edges(); ++j)
         {
             separating_axes.col(start_idx + idx++) = a.edges.col(i).cross(edges.col(j));
         }
@@ -151,14 +151,14 @@ CollisionShape::CollisionShape(const resources::GeometryData& data)
         }
 
         vertices.resize(3, data.vertices.size() / 3);
-        for (int i = 0; i < data.vertices.size() / 3; ++i)
+        for (std::size_t i = 0; i < data.vertices.size() / 3; ++i)
         {
             vertices.col(i) = Eigen::Vector3f(
                 data.vertices[3 * i + 0], data.vertices[3 * i + 1], data.vertices[3 * i + 2]);
         }
 
         face_normals.resize(3, data.face_indices.size());
-        for (int i = 0; i < data.face_indices.size(); ++i)
+        for (std::size_t i = 0; i < data.face_indices.size(); ++i)
         {
             const auto dir1 = vertices.col(std::get<0>(data.face_indices[i])) -
                               vertices.col(std::get<1>(data.face_indices[i]));
@@ -169,7 +169,7 @@ CollisionShape::CollisionShape(const resources::GeometryData& data)
 
         edges.resize(3, data.edge_indices.size());
 
-        int i = 0;
+        std::size_t i = 0;
         for (const auto& [idx1, idx2] : data.edge_indices)
         {
             edges.col(i++) = (vertices.col(idx1) - vertices.col(idx2)).normalized();
@@ -208,21 +208,17 @@ std::optional<CollisionShape> intersect_test(const CollisionShape& a,
     return std::nullopt;
 }
 
-bool is_inside(const CollisionShape& box,
-               const Eigen::Matrix3Xf& points,
-               const Eigen::Isometry3f& relative_pose)
+bool is_inside(const CollisionShape& box, const Eigen::Matrix3Xf& points)
 
 {
-    auto transformed_points = relative_pose * points.colwise().homogeneous();
-
-    for (int i = 0; i < box.num_edges(); ++i)
+    for (std::size_t i = 0; i < box.num_edges(); ++i)
     {
         if (is_separating_axis(box.edges.col(i), box.vertices, points))
         {
             return false;
         }
     }
-    for (int i = 0; i < box.num_face_normals(); ++i)
+    for (std::size_t i = 0; i < box.num_face_normals(); ++i)
     {
         if (is_separating_axis(box.face_normals.col(i), box.vertices, points))
         {

@@ -30,7 +30,7 @@ void ShaderProgram::use() const
     glUseProgram(program_id);
 }
 
-const uint ShaderProgram::getProgramId() const
+uint ShaderProgram::getProgramId() const
 {
     return program_id;
 }

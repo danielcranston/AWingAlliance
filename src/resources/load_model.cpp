@@ -37,7 +37,7 @@ MeshData process_mesh_data(const std::string& filename, const int mesh_num, cons
     buffer.indices.reserve(3 * m->mNumFaces);
     buffer.texture_coords.reserve(2 * m->mNumVertices);
 
-    for (int k = 0; k < m->mNumVertices; ++k)
+    for (std::size_t k = 0; k < m->mNumVertices; ++k)
     {
         buffer.vertices.push_back(m->mVertices[k].x);
         buffer.vertices.push_back(m->mVertices[k].y);
@@ -58,18 +58,18 @@ MeshData process_mesh_data(const std::string& filename, const int mesh_num, cons
         if (m->mVertices[k].z > buffer.max[2])
             buffer.max[2] = m->mVertices[k].z;
     }
-    for (int k = 0; k < m->mNumVertices; ++k)
+    for (std::size_t k = 0; k < m->mNumVertices; ++k)
     {
         buffer.normals.push_back(m->mNormals[k].x);
         buffer.normals.push_back(m->mNormals[k].y);
         buffer.normals.push_back(m->mNormals[k].z);
     }
-    for (int k = 0; k < m->mNumVertices; ++k)
+    for (std::size_t k = 0; k < m->mNumVertices; ++k)
     {
         buffer.texture_coords.push_back(m->mTextureCoords[0][k].x);
         buffer.texture_coords.push_back(m->mTextureCoords[0][k].y);
     }
-    for (int k = 0; k < m->mNumFaces; ++k)
+    for (std::size_t k = 0; k < m->mNumFaces; ++k)
     {
         const aiFace f = m->mFaces[k];
         if (f.mNumIndices != 3)
@@ -113,13 +113,13 @@ void process_node(const std::string& filename,
                   std::vector<MeshData>& buffers)
 {
     // process all the node's meshes (if any)
-    for (int i = 0; i < node->mNumMeshes; i++)
+    for (std::size_t i = 0; i < node->mNumMeshes; i++)
     {
         buffers.push_back(process_mesh_data(filename, node->mMeshes[i], scene));
     }
 
     // then do the same for each of its children
-    for (int i = 0; i < node->mNumChildren; ++i)
+    for (std::size_t i = 0; i < node->mNumChildren; ++i)
     {
         process_node(filename, node->mChildren[i], scene, buffers);
     }

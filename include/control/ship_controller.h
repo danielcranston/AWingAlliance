@@ -12,7 +12,6 @@ class ShipController
 
     geometry::MotionState update(const geometry::MotionState& state,
                                  const geometry::MotionState& target_state,
-                                 const float t,
                                  const float dt);
 
   private:

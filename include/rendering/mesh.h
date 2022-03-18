@@ -44,13 +44,13 @@ class Mesh
     Mesh& operator=(const Mesh&& other);
 
     const std::string& get_name() const;
-    const int get_num_vertices() const;
-    const int get_num_indices() const;
-    const bool has_texture() const;
+    int get_num_vertices() const;
+    int get_num_indices() const;
+    bool has_texture() const;
     const std::string& get_texture_name() const;
-    const std::array<float, 3> get_min() const;
-    const std::array<float, 3> get_max() const;
-    const uint get_vao() const;
+    const std::array<float, 3>& get_min() const;
+    const std::array<float, 3>& get_max() const;
+    uint get_vao() const;
 
   private:
     std::string name;

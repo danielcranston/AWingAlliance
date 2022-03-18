@@ -23,7 +23,6 @@ Eigen::Isometry3f MotionModel::update(const float d_v,
                                       const Eigen::Vector3f& d_w,
                                       const Eigen::Vector3f& position,
                                       const Eigen::Quaternionf& orientation,
-                                      const float t,
                                       const float dt)
 {
     // throttle

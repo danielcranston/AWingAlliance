@@ -14,11 +14,11 @@ class ContextManager
                                  const int screen_w,
                                  const int screen_h);
 
-    SDL_Window* window;
-    SDL_GLContext context;
-
     int screen_w;
     int screen_h;
+
+    SDL_Window* window;
+    SDL_GLContext context;
 
     ~ContextManager();
 

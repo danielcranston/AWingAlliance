@@ -49,7 +49,7 @@ Texture::Texture(const std::string& name, const std::array<resources::TextureDat
     glGenTextures(1, &texture_id);
     glBindTexture(GL_TEXTURE_CUBE_MAP, texture_id);
 
-    for (int i = 0; i < data_vec.size(); ++i)
+    for (std::size_t i = 0; i < data_vec.size(); ++i)
     {
         const auto& texdata = data_vec[i];
 

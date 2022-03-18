@@ -100,7 +100,7 @@ std::string parse_mesh_filename(const XMLElement* base_link)
             if (const auto* mesh = geometry->FirstChildElement("mesh"))
             {
                 std::string full_path = parse_string_attribute(mesh, "filename");
-                if (int start = full_path.find("meshes/"); start != std::string::npos)
+                if (std::size_t start = full_path.find("meshes/"); start != std::string::npos)
                 {
                     return full_path.substr(start + sizeof("meshes/") - 1);
                 }

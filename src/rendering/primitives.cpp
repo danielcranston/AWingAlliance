@@ -59,7 +59,7 @@ Model box()
                         std::move(max),
                         ""));
     return Model(m[0].get_name(), std::move(m));
-};
+}
 
 Model bounding_box()
 {
@@ -91,5 +91,5 @@ Model bounding_box()
                         std::move(max),
                         ""));
     return Model(m[0].get_name(), std::move(m));
-};
+}
 }  // namespace rendering::primitives

@@ -18,7 +18,7 @@ Eigen::MatrixXf solveRiccatiArimotoPotter(const Eigen::MatrixXf& A,
     Eigen::EigenSolver<Eigen::MatrixXf> Eigs(Ham);
     Eigen::MatrixXcf eigvec = Eigen::MatrixXcf::Zero(2 * dim_x, dim_x);
     int j = 0;
-    for (int i = 0; i < 2 * dim_x; ++i)
+    for (std::size_t i = 0; i < 2 * dim_x; ++i)
     {
         if (Eigs.eigenvalues()[i].real() < 0.)
         {

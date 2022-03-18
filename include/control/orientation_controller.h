@@ -13,8 +13,7 @@ class OrientationController
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
     OrientationController();
-    OrientationController(const Eigen::Vector3f& Kp,
-                          const Eigen::Vector3f& Kd);  //@TODO: Should add max torque/w
+    OrientationController(const Eigen::Vector3f& Kp, const Eigen::Vector3f& Kd);
 
     geometry::MotionState update(const geometry::MotionState& state,
                                  const geometry::MotionState& goal,

@@ -48,7 +48,9 @@ static const Eigen::Matrix<float, CONTROL_DIM, CONTROL_DIM> R =
 
 }  // namespace
 
-PositionController::PositionController() : K(LQR(A, B, Q, R)){};
+PositionController::PositionController() : K(LQR(A, B, Q, R))
+{
+}
 
 geometry::MotionState PositionController::update(const geometry::MotionState& state,
                                                  const geometry::MotionState& goal,

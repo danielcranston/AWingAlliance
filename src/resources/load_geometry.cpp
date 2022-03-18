@@ -31,15 +31,6 @@ std::vector<std::string> segment_name(const std::string& name)
     return ret;
 }
 
-void print_names(const std::vector<std::string>& names)
-{
-    for (const auto& name : names)
-    {
-        std::cout << " | " << name;
-    }
-    std::cout << " |" << std::endl;
-}
-
 }  // namespace
 
 void insert_data(const std::vector<std::string>& names, const MeshData& mesh, GeometryData& root)
@@ -77,7 +68,7 @@ void insert_data(const std::vector<std::string>& names, const MeshData& mesh, Ge
 
         assert(mesh.indices.size() % 3 == 0);
 
-        for (int i = 0; i < mesh.indices.size(); i = i + 3)
+        for (std::size_t i = 0; i < mesh.indices.size(); i = i + 3)
         {
             cur_node_ptr->edge_indices.insert(
                 std::make_pair(mesh.indices[i + 0], mesh.indices[i + 1]));

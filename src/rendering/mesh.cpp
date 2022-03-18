@@ -186,41 +186,41 @@ Mesh::~Mesh()
 const std::string& Mesh::get_name() const
 {
     return name;
-};
+}
 
-const int Mesh::get_num_vertices() const
+int Mesh::get_num_vertices() const
 {
     return num_vertices;
-};
+}
 
-const int Mesh::get_num_indices() const
+int Mesh::get_num_indices() const
 {
     return num_indices;
-};
+}
 
 const std::string& Mesh::get_texture_name() const
 {
     return diffuse_texname;
-};
+}
 
-const bool Mesh::has_texture() const
+bool Mesh::has_texture() const
 {
     return diffuse_texname != "";
 }
 
-const std::array<float, 3> Mesh::get_min() const
+const std::array<float, 3>& Mesh::get_min() const
 {
     return min;
 }
 
-const std::array<float, 3> Mesh::get_max() const
+const std::array<float, 3>& Mesh::get_max() const
 {
     return max;
 }
 
-const uint Mesh::get_vao() const
+uint Mesh::get_vao() const
 {
     return vao;
-};
+}
 
 }  // namespace rendering

@@ -29,7 +29,7 @@ void render_visual(const rendering::ShaderProgram& shader_program,
                                            Eigen::Matrix4f::Identity());
 
     const auto& meshes = visual_component.model->get_meshes();
-    for (int i = 0; i < meshes.size(); ++i)
+    for (std::size_t i = 0; i < meshes.size(); ++i)
     {
         if (meshes[i].has_texture())
         {
@@ -74,6 +74,7 @@ void render(const Scene& scene)
 
     for (const auto [entity, skybox_component] : scene.registry.view<SkyboxComponent>().each())
     {
+        std::ignore = entity;
         rendering::draw_textured(shader_skybox,
                                  skybox_component.model.get().get_meshes()[0],
                                  Eigen::Isometry3f::Identity(),
@@ -92,6 +93,7 @@ void render(const Scene& scene)
     for (const auto [entity, motion_state, visual_component] :
          scene.registry.view<MotionStateComponent, VisualComponent>().each())
     {
+        std::ignore = entity;
         render_visual(shader_model, visual_component, motion_state.pose());
     }
 
@@ -99,6 +101,7 @@ void render(const Scene& scene)
     for (auto [entity, fighter_component, motion_state, visual_component] :
          scene.registry.view<FighterComponent, MotionStateComponent, VisualComponent>().each())
     {
+        std::ignore = entity;
         auto pose = geometry::make_pose(motion_state.position,
                                         motion_state.orientation *
                                             fighter_component.input.current_actuation().d_q(1.0f));
@@ -126,13 +129,16 @@ void integrate(Scene& scene, const float t, const float dt)
             for (auto [entity, camera_component, motion_state] :
                  scene.registry.view<CameraComponent, MotionStateComponent>().each())
             {
-                motion_state = scene.camera_controller.update(motion_state, target_state, 0.0f, dt);
+                std::ignore = camera_component;
+                std::ignore = entity;
+                motion_state = scene.camera_controller.update(motion_state, target_state, dt);
             }
         }
     }
 
     for (auto [entity, motion_state] : scene.registry.view<MotionStateComponent>().each())
     {
+        std::ignore = entity;
         motion_state.integrate(dt);
     }
 
@@ -162,7 +168,7 @@ void integrate(Scene& scene, const float t, const float dt)
             target_state.orientation *
             Eigen::Vector3f(100 * fighter_component.input.current_actuation().d_v, 0.0f, 0.0f);
 
-        motion_state = scene.ship_controller.update(motion_state, target_state, t, dt);
+        motion_state = scene.ship_controller.update(motion_state, target_state, dt);
         fighter_component.model->apply_motion_limits(motion_state);
     }
 }

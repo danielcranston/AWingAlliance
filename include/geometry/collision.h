@@ -61,9 +61,7 @@ struct CollisionShape
     std::vector<CollisionShape> children;
 };
 
-bool is_inside(const CollisionShape& box,
-               const Eigen::Matrix3Xf& points,
-               const Eigen::Isometry3f& relative_pose);
+bool is_inside(const CollisionShape& box, const Eigen::Matrix3Xf& points);
 
 std::optional<CollisionShape> intersect_test(const CollisionShape& a,
                                              const CollisionShape& b,

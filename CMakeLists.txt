@@ -49,6 +49,7 @@ add_library(
   src/rendering/draw.cpp)
 target_link_libraries(rendering Eigen3::Eigen ${OPENGL_LIBRARIES}
                       ${GLEW_LIBRARIES})
+target_compile_options(rendering PRIVATE -Wall -Wextra -pedantic -Werror)
 
 add_library(audio src/audio/audio_manager.cpp)
 target_link_libraries(audio alure2)
@@ -57,6 +58,7 @@ target_include_directories(audio PUBLIC ${OPENAL_INCLUDE_DIR})
 add_library(geometry SHARED src/geometry/geometry.cpp
                             src/geometry/collision.cpp)
 target_link_libraries(geometry Eigen3::Eigen)
+target_compile_options(geometry PRIVATE -Wall -Wextra -pedantic -Werror)
 
 add_library(
   control
@@ -68,15 +70,18 @@ add_library(
   src/control/camera_controller.cpp
   src/control/ship_controller.cpp)
 target_link_libraries(control geometry Eigen3::Eigen)
+target_compile_options(control PRIVATE -Wall -Wextra -pedantic -Werror)
 
 add_library(urdf thirdparty/external/tinyxml2.cpp src/urdf/parsing.cpp
                  src/urdf/parsing_utils src/urdf/fighter_input.cpp)
 target_link_libraries(urdf Eigen3::Eigen)
+target_compile_options(urdf PRIVATE -Wall -Wextra -pedantic -Werror)
 
 add_library(
   ecs src/ecs/scene.cpp src/ecs/scene_factory.cpp src/ecs/resource_manager.cpp
       src/ecs/components.cpp src/ecs/systems.cpp)
 target_link_libraries(ecs urdf rendering)
+target_compile_options(ecs PRIVATE -Wall -Wextra -pedantic -Werror)
 
 if("${BUILD_EXAMPLES}")
   add_subdirectory(${PROJECT_SOURCE_DIR}/examples)

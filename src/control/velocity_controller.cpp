@@ -34,7 +34,9 @@ static const Eigen::Matrix<float, CONTROL_DIM, CONTROL_DIM> R = []() {
 }();
 }  // namespace
 
-VelocityController::VelocityController() : K(LQR(A, B, Q, R)){};
+VelocityController::VelocityController() : K(LQR(A, B, Q, R))
+{
+}
 
 geometry::MotionState VelocityController::update(const geometry::MotionState& state,
                                                  const geometry::MotionState& goal,
