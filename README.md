@@ -38,7 +38,7 @@ Execute the following to clone and build the project.
 ```
 git clone --recursive https://github.com/danielcranston/AWingAlliance
 mkdir AWingAlliance/build && cd AWingAlliance/build
-cmake -DCMAKE_BUILD_TYPE=Release -DALURE_BUILD_EXAMPLES=OFF ..
+cmake -DCMAKE_BUILD_TYPE=Release ..
 make -j
 ```
 

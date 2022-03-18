@@ -18,6 +18,7 @@ include_directories(${SDL2_INCLUDE_DIRS})
 find_package(yaml-cpp REQUIRED)
 include_directories(${YAML_INCLUDE_DIRS})
 
+option(ALURE_BUILD_EXAMPLES OFF)
 add_subdirectory(${PROJECT_SOURCE_DIR}/thirdparty/alure)
 
 include_directories(
