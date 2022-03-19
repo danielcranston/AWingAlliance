@@ -5,7 +5,7 @@
 
 int main(int argc, char* argv[])
 {
-    auto context_manager = rendering::ContextManager::create("Main Window", 1200, 900);
+    auto context_manager = rendering::ContextManager("Main Window", 1200, 900);
 
     auto scene = ecs::SceneFactory::create_from_scenario("scenario");
 

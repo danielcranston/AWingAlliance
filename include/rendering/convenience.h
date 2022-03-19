@@ -21,8 +21,7 @@ void init_sdl()
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, context_flags);
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
 
-    SDL_ShowCursor(false);
-    SDL_SetRelativeMouseMode(SDL_TRUE);
+    SDL_ShowCursor(true);
 }
 
 void init_glew(const int screen_w, const int screen_h)

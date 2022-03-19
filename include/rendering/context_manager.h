@@ -10,9 +10,8 @@ namespace rendering
 class ContextManager
 {
   public:
-    static ContextManager create(const std::string& window_name,
-                                 const int screen_w,
-                                 const int screen_h);
+    ContextManager(const std::string& window_name, const int screen_w, const int screen_h);
+    ~ContextManager();
 
     int screen_w;
     int screen_h;
@@ -20,11 +19,7 @@ class ContextManager
     SDL_Window* window;
     SDL_GLContext context;
 
-    ~ContextManager();
-
   private:
-    ContextManager(const std::string& window_name, const int screen_w, const int screen_h);
-
     ContextManager(ContextManager&) = delete;
     ContextManager(const ContextManager&) = delete;
     ContextManager(ContextManager&&) = delete;
