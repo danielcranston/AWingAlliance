@@ -16,6 +16,15 @@ using MotionStateComponent = geometry::MotionState;
 struct CameraComponent
 {
     Eigen::Matrix4f perspective;
+
+    /**
+     * @brief Creates a suitable target motion state to be fed to a camera controller.
+     *
+     * @param tracked_entity_state the MotionState of the entity being tracked
+     * @param relative_offset_pose the camerass pose relative to the entity frame: T_entity_camera
+     */
+    geometry::MotionState get_target_state(const geometry::MotionState& tracked_entity_state,
+                                           const Eigen::Isometry3f& relative_offset_pose);
 };
 
 struct FighterComponent

@@ -18,9 +18,11 @@ class VelocityController
 
     VelocityController();
 
-    geometry::MotionState update(const geometry::MotionState& state,
-                                 const geometry::MotionState& goal,
-                                 const float dt);
+    float calculate_dv(const float current_velocity,
+                       const float current_acceleration,
+                       const float goal_velocity,
+                       const float goal_acceleration,
+                       const float dt);
 
   private:
     Eigen::Matrix<float, CONTROL_DIM, STATE_DIM> K;

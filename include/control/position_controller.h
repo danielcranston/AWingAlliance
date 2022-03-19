@@ -18,8 +18,12 @@ class PositionController
 
     PositionController();
 
-    geometry::MotionState update(const geometry::MotionState& state,
-                                 const geometry::MotionState& goal,
+    Eigen::Vector3f calculate_dv(const Eigen::Vector3f& current_position,
+                                 const Eigen::Vector3f& current_velocity,
+                                 const Eigen::Vector3f& current_acceleration,
+                                 const Eigen::Vector3f& goal_position,
+                                 const Eigen::Vector3f& goal_velocity,
+                                 const Eigen::Vector3f& goal_acceleration,
                                  const float dt);
 
   private:

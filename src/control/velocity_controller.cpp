@@ -38,27 +38,22 @@ VelocityController::VelocityController() : K(LQR(A, B, Q, R))
 {
 }
 
-geometry::MotionState VelocityController::update(const geometry::MotionState& state,
-                                                 const geometry::MotionState& goal,
-                                                 const float dt)
+float VelocityController::calculate_dv(const float current_velocity,
+                                       const float current_acceleration,
+                                       const float goal_velocity,
+                                       const float goal_acceleration,
+                                       const float dt)
 {
-    auto fwd_dir = geometry::get_fwd_dir(state.orientation.toRotationMatrix());
-
     Eigen::Matrix<float, STATE_DIM, 1> x;
-    x << state.velocity.dot(fwd_dir), state.acceleration.dot(fwd_dir);
+    x << current_velocity, current_acceleration;
 
     Eigen::Matrix<float, STATE_DIM, 1> x_goal;
-    x_goal << goal.velocity.dot(geometry::get_fwd_dir(goal.orientation.toRotationMatrix())),
-        goal.acceleration.dot(geometry::get_fwd_dir(goal.orientation.toRotationMatrix()));
+    x_goal << goal_velocity, goal_acceleration;
 
     auto u = -K * (x - x_goal);
     auto xdot = A * x + B * u;
     x = x + dt * xdot;
 
-    geometry::MotionState out = state;
-    out.acceleration = fwd_dir * x.tail<1>();
-    out.velocity = fwd_dir * state.velocity.dot(fwd_dir);
-
-    return out;
+    return x(1);
 }
 }  // namespace control

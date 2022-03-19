@@ -1,5 +1,20 @@
 #include "ecs/components.h"
 
+geometry::MotionState
+CameraComponent::get_target_state(const geometry::MotionState& tracked_entity_state,
+                                  const Eigen::Isometry3f& relative_offset_pose)
+{
+    auto target_pose = tracked_entity_state.pose() * relative_offset_pose;
+    geometry::MotionState target_state = tracked_entity_state;
+    target_state.position = target_pose.translation();
+    target_state.orientation = Eigen::Quaternionf(target_pose.linear());
+    target_state.velocity *= 0.75f;
+    target_state.acceleration *= 0.75f;
+    target_state.velocity *= 0.75f;
+    target_state.acceleration *= 0.75f;
+    return target_state;
+}
+
 bool FighterComponent::firing() const
 {
     return input.test(urdf::FighterInput::Action::FIRE);

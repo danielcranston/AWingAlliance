@@ -16,21 +16,20 @@ OrientationController::OrientationController(const Eigen::Vector3f& Kp, const Ei
 {
 }
 
-geometry::MotionState OrientationController::update(const geometry::MotionState& state,
-                                                    const geometry::MotionState& goal,
+Eigen::Vector3f OrientationController::calculate_dw(const Eigen::Quaternionf& current_orientation,
+                                                    const Eigen::Vector3f& current_angular_velocity,
+                                                    const Eigen::Quaternionf& goal_orientation,
+                                                    const Eigen::Vector3f& goal_angular_velocity,
                                                     const float dt)
 {
-    auto out = state;
-    const auto& q = state.orientation;
+    const auto& q = current_orientation;
 
-    auto q_err_rotvec = Eigen::AngleAxisf(goal.orientation * q.inverse());
+    auto q_err_rotvec = Eigen::AngleAxisf(goal_orientation * q.inverse());
     Eigen::Vector3f q_err = q_err_rotvec.angle() * q_err_rotvec.axis();
-    Eigen::Vector3f w_err = goal.angular_velocity - state.angular_velocity;
+    Eigen::Vector3f w_err = goal_angular_velocity - current_angular_velocity;
     Eigen::Vector3f Kp_world = (q * Kp.asDiagonal() * q.inverse()).diagonal();
     Eigen::Vector3f Kd_world = (q * Kd.asDiagonal() * q.inverse()).diagonal();
 
-    out.angular_acceleration = dt * (Kp_world.cwiseProduct(q_err) + Kd_world.cwiseProduct(w_err));
-
-    return out;
+    return dt * (Kp_world.cwiseProduct(q_err) + Kd_world.cwiseProduct(w_err));
 }
 }  // namespace control

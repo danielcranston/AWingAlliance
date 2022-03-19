@@ -119,22 +119,20 @@ void integrate(Scene& scene, const float t, const float dt)
     // Update Camera: Invoke camera controller, (update linear/angular acceleration)
     if (scene.player_uid != entt::null)
     {
-        auto motion_state = scene.registry.try_get<MotionStateComponent>(scene.player_uid);
+        auto fighter_motion_state = scene.registry.try_get<MotionStateComponent>(scene.player_uid);
         auto fighter_component = scene.registry.try_get<FighterComponent>(scene.player_uid);
-        if (motion_state && fighter_component)
+        if (fighter_motion_state && fighter_component)
         {
-            auto target_pose = motion_state->pose() * fighter_component->model->camera_poses[1];
-            MotionStateComponent target_state = *motion_state;
-            target_state.position = target_pose.translation();
-            target_state.orientation = Eigen::Quaternionf(target_pose.linear());
-            target_state.velocity *= 0.75f;
-            target_state.acceleration *= 0.75f;
-            for (auto [entity, camera_component, motion_state] :
+            for (auto [entity, camera_component, camera_motion_state] :
                  scene.registry.view<CameraComponent, MotionStateComponent>().each())
             {
                 std::ignore = camera_component;
                 std::ignore = entity;
-                motion_state = scene.camera_controller.update(motion_state, target_state, dt);
+                camera_motion_state = scene.camera_controller.update(
+                    camera_motion_state,
+                    camera_component.get_target_state(*fighter_motion_state,
+                                                      fighter_component->model->camera_poses[1]),
+                    dt);
             }
         }
     }

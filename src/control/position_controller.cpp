@@ -52,27 +52,28 @@ PositionController::PositionController() : K(LQR(A, B, Q, R))
 {
 }
 
-geometry::MotionState PositionController::update(const geometry::MotionState& state,
-                                                 const geometry::MotionState& goal,
+Eigen::Vector3f PositionController::calculate_dv(const Eigen::Vector3f& current_position,
+                                                 const Eigen::Vector3f& current_velocity,
+                                                 const Eigen::Vector3f& current_acceleration,
+                                                 const Eigen::Vector3f& goal_position,
+                                                 const Eigen::Vector3f& goal_velocity,
+                                                 const Eigen::Vector3f& goal_acceleration,
                                                  const float dt)
 {
     Eigen::Matrix<float, STATE_DIM, 1> x;
-    x.head<3>() = state.position;
-    x.segment<3>(3) = state.velocity;
-    x.tail<3>() = state.acceleration;
+    x.head<3>() = current_position;
+    x.segment<3>(3) = current_velocity;
+    x.tail<3>() = current_acceleration;
 
     Eigen::Matrix<float, STATE_DIM, 1> x_goal;
-    x_goal.head<3>() = goal.position;
-    x_goal.segment<3>(3) = goal.velocity;
-    x_goal.tail<3>() = goal.acceleration;
+    x_goal.head<3>() = goal_position;
+    x_goal.segment<3>(3) = goal_velocity;
+    x_goal.tail<3>() = goal_acceleration;
 
     auto u = -K * (x - x_goal);
     auto xdot = A * x + B * u;
     x = x + dt * xdot;
 
-    auto out = state;
-    out.acceleration = x.tail<3>();
-
-    return out;
+    return x.tail<3>();
 }
 }  // namespace control

@@ -15,8 +15,10 @@ class OrientationController
     OrientationController();
     OrientationController(const Eigen::Vector3f& Kp, const Eigen::Vector3f& Kd);
 
-    geometry::MotionState update(const geometry::MotionState& state,
-                                 const geometry::MotionState& goal,
+    Eigen::Vector3f calculate_dw(const Eigen::Quaternionf& current_orientation,
+                                 const Eigen::Vector3f& current_angular_velocity,
+                                 const Eigen::Quaternionf& goal_orientation,
+                                 const Eigen::Vector3f& goal_angular_velocity,
                                  const float dt);
 
   private:
