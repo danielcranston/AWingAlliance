@@ -22,8 +22,12 @@ option(ALURE_BUILD_EXAMPLES OFF)
 add_subdirectory(${PROJECT_SOURCE_DIR}/thirdparty/alure)
 
 include_directories(
-  ${PROJECT_SOURCE_DIR}/include ${PROJECT_SOURCE_DIR}/thirdparty/entt/src
+  ${PROJECT_SOURCE_DIR}/include
+  ${PROJECT_SOURCE_DIR}/thirdparty/entt/src
   ${PROJECT_SOURCE_DIR}/thirdparty/alure/include
+  ${PROJECT_SOURCE_DIR}/thirdparty/imgui
+  ${PROJECT_SOURCE_DIR}/thirdparty/imgui/backends
+  ${PROJECT_SOURCE_DIR}/thirdparty/implot
   ${PROJECT_SOURCE_DIR}/thirdparty)
 
 # Create the absolute location header to locate resources
@@ -38,6 +42,20 @@ add_library(
 target_link_libraries(resources ${ASSIMP_LIBRARIES} ${YAML_CPP_LIBRARIES})
 
 add_library(
+  imgui
+  thirdparty/imgui/imgui.cpp
+  thirdparty/imgui/imgui_demo.cpp
+  thirdparty/imgui/imgui_draw.cpp
+  thirdparty/imgui/imgui_tables.cpp
+  thirdparty/imgui/imgui_widgets.cpp
+  thirdparty/imgui/backends/imgui_impl_opengl3.cpp
+  thirdparty/imgui/backends/imgui_impl_sdl.cpp
+  thirdparty/implot/implot.cpp
+  thirdparty/implot/implot_items.cpp
+  thirdparty/implot/implot_demo.cpp)
+target_link_libraries(imgui ${SDL2_LIBRARIES} ${CMAKE_DL_LIBS})
+
+add_library(
   rendering
   src/rendering/mesh.cpp
   src/rendering/texture.cpp
@@ -47,7 +65,7 @@ add_library(
   src/rendering/model.cpp
   src/rendering/primitives.cpp
   src/rendering/draw.cpp)
-target_link_libraries(rendering Eigen3::Eigen ${OPENGL_LIBRARIES}
+target_link_libraries(rendering imgui Eigen3::Eigen ${OPENGL_LIBRARIES}
                       ${GLEW_LIBRARIES})
 target_compile_options(rendering PRIVATE -Wall -Wextra -pedantic -Werror)
 

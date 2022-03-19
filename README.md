@@ -9,11 +9,13 @@ A toy OpenGL project in C++ using SDL2 and Eigen3
 Here's a list of the external libraries used in this project.
 
 | Library      | Description |
-| :---------: | :---------: |
+| :----------: | :---------: |
 | [SDL2](https://github.com/libsdl-org/SDL)      | Simple Direct Media Layer |
 | [GLEW](http://glew.sourceforge.net/)           | The OpenGL Extension Wrangler Library |
 | [Eigen3](https://gitlab.com/libeigen/eigen)    | C++ template library for linear algebra |
 | [EnTT](https://github.com/skypjack/entt)       | A fast and reliable entity component system (ECS) using modern C++ |
+| [Dear ImGui](https://github.com/ocornut/imgui) | Bloat-free Graphical User interface for C++ |
+| [ImPlot](https://github.com/epezent/implot)    | Plotting library for Dear ImGui |
 | [Assimp](https://github.com/assimp/assimp)     | Open-Asset-Importer-Library |
 | [Alure](https://github.com/kcat/alure)         | A C++ utility library for OpenAL |
 | [stb_image](https://github.com/nothings/stb)   | Single-file public domain C/C++ library for loading images |

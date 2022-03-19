@@ -4,3 +4,9 @@
 [submodule "thirdparty/alure"]
 	path = thirdparty/alure
 	url = git@github.com:kcat/alure.git
+[submodule "thirdparty/imgui"]
+	path = thirdparty/imgui
+	url = git@github.com:ocornut/imgui.git
+[submodule "thirdparty/implot"]
+	path = thirdparty/implot
+	url = git@github.com:epezent/implot.git
