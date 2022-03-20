@@ -204,7 +204,6 @@ void integrate(Scene& scene, const float t, const float dt)
             }
         }
     }
-
     // ... and remove lasers that hit something
     scene.registry.destroy(to_remove.begin(), to_remove.end());
 }
