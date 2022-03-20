@@ -63,6 +63,20 @@ struct CollisionShape
 
 bool is_inside(const CollisionShape& box, const Eigen::Matrix3Xf& points);
 
+// When ray and AABB are expressed in world
+bool ray_aabb_test(const Eigen::Isometry3f& T_world_ray,
+                   const float ray_forward_length,
+                   const float ray_backward_length,
+                   const Eigen::Isometry3f& T_world_aabb,
+                   const Eigen::Vector3f& aabb_dimensions);
+
+// When ray and AABB are both expressed in the AABB frame
+bool ray_aabb_test(const Eigen::Vector3f& ray_dir,
+                   const Eigen::Vector3f& ray_origin,
+                   float tmax,
+                   float tmin,
+                   const Eigen::Vector3f& extents);
+
 std::optional<CollisionShape> intersect_test(const CollisionShape& a,
                                              const CollisionShape& b,
                                              const Eigen::Isometry3f& relative_pose);

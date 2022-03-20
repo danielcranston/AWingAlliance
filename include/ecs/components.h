@@ -51,6 +51,7 @@ struct FighterComponent
 struct LaserComponent
 {
     entt::entity producer;
+    float length;
 };
 
 struct SkyboxComponent

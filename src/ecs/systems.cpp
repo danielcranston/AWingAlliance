@@ -1,6 +1,7 @@
 #include <GL/glew.h>
 
 #include "rendering/draw.h"
+#include "geometry/collision.h"
 #include "ecs/components.h"
 #include "ecs/systems.h"
 
@@ -178,6 +179,35 @@ void integrate(Scene& scene, const float t, const float dt)
         motion_state = scene.ship_controller.update(motion_state, target_state, dt);
         fighter_component.model->apply_motion_limits(motion_state);
     }
+
+    // Calculate and detect collisions ...
+    std::vector<entt::entity> to_remove;
+    auto fighter_view = scene.registry.view<FighterComponent, MotionStateComponent>().each();
+    auto laser_view = scene.registry.view<LaserComponent, MotionStateComponent>().each();
+    for (auto [fighter_entity, fighter_component, fighter_motion] : fighter_view)
+    {
+        for (auto [laser_entity, laser_component, laser_motion] : laser_view)
+        {
+            if (laser_component.producer != fighter_entity)
+            {
+                auto laser_speed = laser_motion.velocity.dot(
+                    geometry::get_fwd_dir(laser_motion.orientation.toRotationMatrix()));
+
+                if (geometry::ray_aabb_test(laser_motion.pose(),
+                                            laser_component.length / 2.0f,
+                                            -(laser_component.length + laser_speed) / 2.0f * dt,
+                                            fighter_motion.pose(),
+                                            fighter_component.model->dimensions))
+                {
+                    std::cout << "Laser collided with " << fighter_component.name << std::endl;
+                    to_remove.push_back(laser_entity);
+                }
+            }
+        }
+    }
+
+    // ... and remove lasers that hit something
+    scene.registry.destroy(to_remove.begin(), to_remove.end());
 }
 
 void handle_key_events(Scene& scene, const std::vector<KeyEvent>& key_events)

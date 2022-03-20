@@ -75,7 +75,7 @@ entt::entity Scene::register_laser(const Eigen::Vector3f& position,
     auto entity = registry.create();
     auto& motion_state = registry.emplace<MotionStateComponent>(entity, position, orientation);
     motion_state.velocity = orientation * Eigen::Vector3f(speed, 0, 0);
-    registry.emplace<LaserComponent>(entity, producer);
+    registry.emplace<LaserComponent>(entity, producer, size(0));
     registry.emplace<VisualComponent>(
         entity, resource_manager.get_model("box"), std::nullopt, color, size);
 

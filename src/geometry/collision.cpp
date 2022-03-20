@@ -240,10 +240,19 @@ bool intersects(const Ray& ray,
     // Bring ray into the AABB frame
     const auto& transformed_ray = ray * relative_pose;
 
+    return ray_aabb_test(transformed_ray.direction, transformed_ray.origin, tmax, tmin, extents);
+}
+
+bool ray_aabb_test(const Eigen::Vector3f& ray_dir,
+                   const Eigen::Vector3f& ray_origin,
+                   float tmax,
+                   float tmin,
+                   const Eigen::Vector3f& extents)
+{
     // https://medium.com/@bromanz/another-view-on-the-classic-ray-aabb-intersection-algorithm-for-bvh-traversal-41125138b525
-    Eigen::Vector3f invD = Eigen::Vector3f::Ones().cwiseQuotient(transformed_ray.direction);
-    Eigen::Vector3f t0s = (-extents / 2.0f - transformed_ray.origin).cwiseProduct(invD);
-    Eigen::Vector3f t1s = (extents / 2.0f - transformed_ray.origin).cwiseProduct(invD);
+    Eigen::Vector3f invD = Eigen::Vector3f::Ones().cwiseQuotient(ray_dir);
+    Eigen::Vector3f t0s = (-extents / 2.0f - ray_origin).cwiseProduct(invD);
+    Eigen::Vector3f t1s = (extents / 2.0f - ray_origin).cwiseProduct(invD);
 
     auto tsmaller = t0s.cwiseMin(t1s);
     auto tbigger = t0s.cwiseMax(t1s);
@@ -252,6 +261,20 @@ bool intersects(const Ray& ray,
     tmax = std::min(tmax, std::min(tbigger.x(), std::min(tbigger.y(), tbigger.z())));
 
     return (tmin < tmax);
+}
+
+bool ray_aabb_test(const Eigen::Isometry3f& T_world_ray,
+                   const float ray_tmax,
+                   const float ray_tmin,
+                   const Eigen::Isometry3f& T_world_aabb,
+                   const Eigen::Vector3f& aabb_dimensions)
+{
+    // Bring ray into AABB frame
+    const auto T_aabb_ray = T_world_aabb.inverse() * T_world_ray;
+    const auto ray_dir = T_aabb_ray.linear().col(0);
+    const auto ray_pos = T_aabb_ray.translation();
+
+    return ray_aabb_test(ray_dir, ray_pos, ray_tmax, ray_tmin, aabb_dimensions);
 }
 
 bool is_separating_axis(const Eigen::Vector3f& axis,
