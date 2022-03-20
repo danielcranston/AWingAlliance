@@ -29,10 +29,8 @@ struct CameraComponent
 
 struct FighterComponent
 {
-    FighterComponent(const std::string& name, entt::resource_handle<const urdf::FighterModel> model)
-      : name(name), model(model)
-    {
-    }
+    FighterComponent(const std::string& name,
+                     entt::resource_handle<const urdf::FighterModel> model);
 
     std::string name;
     entt::resource_handle<const urdf::FighterModel> model;

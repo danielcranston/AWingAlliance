@@ -15,6 +15,12 @@ CameraComponent::get_target_state(const geometry::MotionState& tracked_entity_st
     return target_state;
 }
 
+FighterComponent::FighterComponent(const std::string& name,
+                                   entt::resource_handle<const urdf::FighterModel> model)
+  : name(name), model(model)
+{
+}
+
 bool FighterComponent::firing() const
 {
     return input.test(urdf::FighterInput::Action::FIRE);
