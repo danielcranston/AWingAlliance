@@ -14,6 +14,11 @@ Eigen::Isometry3f MotionState::pose() const
     return make_pose(position, orientation);
 }
 
+Eigen::Vector3f MotionState::fwd() const
+{
+    return get_fwd_dir(orientation.toRotationMatrix());
+}
+
 void MotionState::integrate(const float dt)
 {
     velocity += acceleration * dt;

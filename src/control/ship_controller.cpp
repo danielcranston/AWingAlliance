@@ -19,8 +19,8 @@ geometry::MotionState ShipController::update(const geometry::MotionState& state,
                                                               target_state.angular_velocity,
                                                               dt);
 
-    auto fwd_dir = geometry::get_fwd_dir(state.orientation.toRotationMatrix());
-    auto target_fwd_dir = geometry::get_fwd_dir(target_state.orientation.toRotationMatrix());
+    auto fwd_dir = state.fwd();
+    auto target_fwd_dir = target_state.fwd();
 
     float d_v = velocity_controller.calculate_dv(state.velocity.dot(fwd_dir),
                                                  state.acceleration.dot(fwd_dir),

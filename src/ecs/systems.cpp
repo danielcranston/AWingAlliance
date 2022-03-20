@@ -190,8 +190,7 @@ void integrate(Scene& scene, const float t, const float dt)
         {
             if (laser_component.producer != fighter_entity)
             {
-                auto laser_speed = laser_motion.velocity.dot(
-                    geometry::get_fwd_dir(laser_motion.orientation.toRotationMatrix()));
+                auto laser_speed = laser_motion.velocity.dot(laser_motion.fwd());
 
                 if (geometry::ray_aabb_test(laser_motion.pose(),
                                             laser_component.length / 2.0f,

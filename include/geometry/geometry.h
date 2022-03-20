@@ -23,6 +23,7 @@ struct MotionState
     Eigen::Vector3f angular_acceleration = Eigen::Vector3f::Zero();
 
     Eigen::Isometry3f pose() const;
+    Eigen::Vector3f fwd() const;
 
     void integrate(const float dt);
 };
