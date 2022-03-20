@@ -7,14 +7,14 @@ namespace
 }
 Model quad()
 {
-    const std::vector<float> vertices = { -1.0f, -1.0f, 0.0f, -1.0f, 1.0f, 0.0f,
-                                          1.0f,  -1.0f, 0.0f, 1.0f,  1.0f, 0.0f };
+    const std::vector<float> vertices = { 0.0f, -0.5f, -0.5f, 0.0f, -0.5f, 0.5f,
+                                          0.0f, 0.5f,  -0.5f, 0.0f, 0.5f,  0.5f };
     const std::vector<float>& normals = vertices;
     const std::vector<float> texture_coords = { 0.0f, 0.0f, 0.0f, 1.0f,  //
                                                 1.0f, 0.0f, 1.0f, 1.0f };
     const std::vector<uint>& indices = { 0, 1, 2, 2, 1, 3, 2, 1, 0, 3, 1, 2 };
-    const std::array<float, 3>& min = { -1.0f, -1.0f, 0.0f };
-    const std::array<float, 3>& max = { 1.0f, 1.0f, 0.0f };
+    const std::array<float, 3>& min = { 0.0f, -0.5f, -0.5f };
+    const std::array<float, 3>& max = { 0.0f, 0.5f, 0.5f };
     std::vector<Mesh> m;
     m.emplace_back(Mesh("quad",
                         std::move(vertices),
@@ -47,8 +47,8 @@ Model box()
                                          3, 2, 7, 7, 2, 6,  //
                                          4, 5, 0, 0, 5, 1 };
 
-    const std::array<float, 3>& min = { -1.0f, -1.0f, -1.0f };
-    const std::array<float, 3>& max = { 1.0f, 1.0f, 1.0f };
+    const std::array<float, 3>& min = { -0.5f, -0.5f, -0.5f };
+    const std::array<float, 3>& max = { 0.5f, 0.5f, 0.5f };
     std::vector<Mesh> m;
     m.emplace_back(Mesh("box",
                         std::move(vertices),
@@ -78,8 +78,8 @@ Model bounding_box()
                                          4, 5, 5, 6, 6, 7, 7, 4,  //
                                          0, 4, 1, 5, 2, 6, 3, 7 };
 
-    const std::array<float, 3>& min = { -1.0f, -1.0f, -1.0f };
-    const std::array<float, 3>& max = { 1.0f, 1.0f, 1.0f };
+    const std::array<float, 3>& min = { -0.5f, -0.5f, -0.5f };
+    const std::array<float, 3>& max = { 0.5f, 0.5f, 0.5f };
 
     std::vector<Mesh> m;
     m.emplace_back(Mesh("bounding_box",

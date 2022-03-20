@@ -10,6 +10,8 @@
 class ResourceManager
 {
   public:
+    ResourceManager();
+
     void load_model(const std::string& uri);
     void load_primitive(const std::string& name);
     void load_texture(const std::string& uri, const bool as_cubemap = false);

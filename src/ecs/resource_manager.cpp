@@ -66,6 +66,12 @@ struct fighter_model_loader final : entt::resource_loader<fighter_model_loader, 
 
 }  // namespace
 
+ResourceManager::ResourceManager()
+{
+    load_primitive("box");
+    load_primitive("quad");
+}
+
 void ResourceManager::load_model(const std::string& uri)
 {
     if (auto uri_hash = entt::hashed_string(uri.data()); !model_cache.contains(uri_hash))
@@ -86,13 +92,20 @@ void ResourceManager::load_primitive(const std::string& name)
 {
     auto name_hash = entt::hashed_string(name.c_str());
 
+    if (model_cache.contains(name_hash))
+    {
+        return;
+    }
+
     if (name == "box")
     {
-        if (!model_cache.contains(name_hash))
-        {
-            model_cache.load<primitive_loader>(entt::hashed_string(name.c_str()),
-                                               &rendering::primitives::box);
-        }
+        model_cache.load<primitive_loader>(entt::hashed_string(name.c_str()),
+                                           &rendering::primitives::box);
+    }
+    else if (name == "quad")
+    {
+        model_cache.load<primitive_loader>(entt::hashed_string(name.c_str()),
+                                           &rendering::primitives::quad);
     }
     else
     {
@@ -110,7 +123,6 @@ void ResourceManager::load_texture(const std::string& uri, const bool as_cubemap
 
 void ResourceManager::load_skybox(const std::string& uri)
 {
-    load_primitive("box");
     load_texture(uri, true);
 }
 
