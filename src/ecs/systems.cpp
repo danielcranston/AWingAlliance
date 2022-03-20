@@ -113,6 +113,19 @@ void render(const Scene& scene)
         render_visual(shader_model, visual_component, pose);
     }
     glDisable(GL_BLEND);
+
+    const auto& quad_mesh = scene.resource_manager.get_model("quad")->get_meshes()[0];
+    for (const auto [entity, motion_state, billboard_component] :
+         scene.registry.view<MotionStateComponent, BillboardComponent>().each())
+    {
+        std::ignore = entity;
+        shader_model.setUniformMatrix4fv("model_scale", billboard_component.size);
+        rendering::draw_colored(shader_model,
+                                quad_mesh,
+                                motion_state.pose(),
+                                Eigen::Vector3f(0.0f, 0.0f, 1.0f),
+                                GL_TRIANGLES);
+    }
 }
 
 void integrate(Scene& scene, const float t, const float dt)
@@ -158,6 +171,7 @@ void integrate(Scene& scene, const float t, const float dt)
                     auto laser_pose = motion_state.pose() * dispatch.first;
                     scene.register_laser(Eigen::Vector3f(laser_pose.translation()),
                                          Eigen::Quaternionf(laser_pose.linear()),
+                                         fighter_component.model,
                                          dispatch.second.size,
                                          dispatch.second.color,
                                          dispatch.second.speed,
@@ -198,13 +212,33 @@ void integrate(Scene& scene, const float t, const float dt)
                                             fighter_motion.pose(),
                                             fighter_component.model->dimensions))
                 {
-                    std::cout << "Laser collided with " << fighter_component.name << std::endl;
+                    auto backwards_offset = laser_motion.orientation *
+                                            Eigen::Vector3f(-laser_speed * dt, 0.0f, 0.0f) / 2.0f;
+                    auto& impact_info = laser_component.fighter_model->laser_info.impact_info;
+
+                    scene.register_billboard(laser_motion.position + backwards_offset,
+                                             laser_motion.orientation,
+                                             impact_info.size,
+                                             impact_info.duration,
+                                             t);
                     to_remove.push_back(laser_entity);
                 }
             }
         }
     }
     // ... and remove lasers that hit something
+    scene.registry.destroy(to_remove.begin(), to_remove.end());
+
+    // Update Billboards ...
+    to_remove.clear();
+    for (auto [entity, billboard_component] : scene.registry.view<BillboardComponent>().each())
+    {
+        if (billboard_component.birth_time + billboard_component.duration < t)
+        {
+            to_remove.push_back(entity);
+        }
+    }
+    // ... and remove those who have expired
     scene.registry.destroy(to_remove.begin(), to_remove.end());
 }
 

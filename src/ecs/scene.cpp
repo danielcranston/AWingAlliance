@@ -67,6 +67,7 @@ entt::entity Scene::register_camera(const Eigen::Matrix4f& perspective)
 
 entt::entity Scene::register_laser(const Eigen::Vector3f& position,
                                    const Eigen::Quaternionf& orientation,
+                                   const entt::resource_handle<const urdf::FighterModel> model,
                                    const Eigen::Vector3f& size,
                                    const Eigen::Vector3f color,
                                    const float speed,
@@ -75,9 +76,23 @@ entt::entity Scene::register_laser(const Eigen::Vector3f& position,
     auto entity = registry.create();
     auto& motion_state = registry.emplace<MotionStateComponent>(entity, position, orientation);
     motion_state.velocity = orientation * Eigen::Vector3f(speed, 0, 0);
-    registry.emplace<LaserComponent>(entity, producer, size(0));
+    registry.emplace<LaserComponent>(entity, producer, model, size(0));
     registry.emplace<VisualComponent>(
         entity, resource_manager.get_model("box"), std::nullopt, color, size);
+
+    return entity;
+}
+
+entt::entity Scene::register_billboard(const Eigen::Vector3f& position,
+                                       const Eigen::Quaternionf& orientation,
+                                       const Eigen::Vector3f& size,
+                                       const float duration,
+                                       const float birth_time)
+{
+    auto entity = registry.create();
+    registry.emplace<MotionStateComponent>(entity, position, orientation);
+    registry.emplace<BillboardComponent>(
+        entity, geometry::to_scale_matrix(size), birth_time, duration);
 
     return entity;
 }

@@ -51,6 +51,7 @@ struct FighterComponent
 struct LaserComponent
 {
     entt::entity producer;
+    entt::resource_handle<const urdf::FighterModel> fighter_model;
     float length;
 };
 
@@ -66,4 +67,11 @@ struct VisualComponent
     std::optional<std::vector<entt::resource_handle<const rendering::Texture>>> textures;
     std::optional<Eigen::Vector3f> color = std::nullopt;
     std::optional<Eigen::Vector3f> size = std::nullopt;
+};
+
+struct BillboardComponent
+{
+    Eigen::Matrix4f size;
+    float birth_time;
+    float duration;
 };

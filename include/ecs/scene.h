@@ -23,10 +23,16 @@ class Scene
     entt::entity register_camera(const Eigen::Matrix4f& perspective);
     entt::entity register_laser(const Eigen::Vector3f& position,
                                 const Eigen::Quaternionf& orientation,
+                                const entt::resource_handle<const urdf::FighterModel> model,
                                 const Eigen::Vector3f& size,
                                 const Eigen::Vector3f color,
                                 const float speed,
                                 entt::entity producer);
+    entt::entity register_billboard(const Eigen::Vector3f& position,
+                                    const Eigen::Quaternionf& orientation,
+                                    const Eigen::Vector3f& size,
+                                    const float birth_time,
+                                    const float duration);
 
     entt::registry registry;
     ResourceManager resource_manager;  // Could be made shared_ptr to allow scenes to share same mgr
