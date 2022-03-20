@@ -20,6 +20,13 @@ struct FighterModel
         float speed;
         Eigen::Vector3f color;
         Eigen::Vector3f size;
+
+        struct ImpactInfo
+        {
+            Eigen::Vector3f size;
+            float duration;
+        };
+        ImpactInfo impact_info;
     };
     LaserInfo laser_info;
 

@@ -209,7 +209,20 @@ FighterModel::LaserInfo parse_laser_element(const XMLElement* laser)
             if (const auto* color = laser->FirstChildElement("color"))
             {
                 out.color = parse_vec3_attribute(color, "rgb");
-                return out;
+
+                if (const auto* impact = laser->FirstChildElement("impact"))
+                {
+                    if (const auto* size = impact->FirstChildElement("size"))
+                    {
+                        out.impact_info.size = parse_vec3_attribute(size, "xyz");
+
+                        if (const auto* duration = impact->FirstChildElement("duration"))
+                        {
+                            out.impact_info.duration = parse_float_attribute(duration, "s");
+                            return out;
+                        }
+                    }
+                }
             }
         }
     }

@@ -60,6 +60,11 @@
         <speed kmps="1" />
         <size xyz="4.0 0.25 0.25" />
         <color rgb="1 0 0" />
+
+        <impact>
+            <size xyz="0.0 20.0 20.0" />
+            <duration s="2.0" />
+        </impact>
     </laser>
 
     <sounds>
