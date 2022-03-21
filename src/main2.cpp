@@ -30,7 +30,7 @@ int main(int argc, char* argv[])
             t += dt;
         }
 
-        ecs::systems::render(*scene);
+        ecs::systems::render(*scene, t);
 
         SDL_GL_SwapWindow(context_manager.window);
 

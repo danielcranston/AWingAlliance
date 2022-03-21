@@ -60,7 +60,7 @@ void render_visual(const rendering::ShaderProgram& shader_program,
 
 namespace ecs::systems
 {
-void render(const Scene& scene)
+void render(const Scene& scene, const float t)
 {
     const auto& resource_manager = scene.resource_manager;
     const auto& camera = scene.registry.get<MotionStateComponent>(scene.camera_uid);
@@ -112,20 +112,30 @@ void render(const Scene& scene)
 
         render_visual(shader_model, visual_component, pose);
     }
-    glDisable(GL_BLEND);
+
+    const auto& shader_spark = resource_manager.get_shader("spark").get();
+
+    shader_spark.use();
+    shader_model.setUniformMatrix4fv("camera", T_opengl_ros * camera_matrix);
+    shader_spark.setUniform1f("time", t);
+    glDepthMask(false);
 
     const auto& quad_mesh = scene.resource_manager.get_model("quad")->get_meshes()[0];
     for (const auto [entity, motion_state, billboard_component] :
          scene.registry.view<MotionStateComponent, BillboardComponent>().each())
     {
         std::ignore = entity;
-        shader_model.setUniformMatrix4fv("model_scale", billboard_component.size);
-        rendering::draw_colored(shader_model,
+        shader_spark.setUniformMatrix4fv("model_scale", billboard_component.size);
+        shader_spark.setUniform1f("start_time", billboard_component.birth_time);
+        rendering::draw_colored(shader_spark,
                                 quad_mesh,
                                 motion_state.pose(),
                                 Eigen::Vector3f(0.0f, 0.0f, 1.0f),
                                 GL_TRIANGLES);
     }
+
+    glDepthMask(true);
+    glDisable(GL_BLEND);
 }
 
 void integrate(Scene& scene, const float t, const float dt)

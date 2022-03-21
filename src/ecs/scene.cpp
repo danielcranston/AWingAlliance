@@ -15,6 +15,7 @@ Scene::Scene()
 {
     resource_manager.load_shader("model", "model.vert", "model.frag");
     resource_manager.load_shader("skybox", "sky.vert", "sky.frag");
+    resource_manager.load_shader("spark", "model.vert", "spark.frag");
 
     resource_manager.update_shaders(
         [](entt::resource_handle<const rendering::ShaderProgram> program) {
