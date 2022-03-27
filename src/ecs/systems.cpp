@@ -98,26 +98,12 @@ void render(const Scene& scene, const float t)
         render_visual(shader_model, visual_component, motion_state.pose());
     }
 
-    glEnable(GL_BLEND);
-    for (auto [entity, fighter_component, motion_state, visual_component] :
-         scene.registry.view<FighterComponent, MotionStateComponent, VisualComponent>().each())
-    {
-        std::ignore = entity;
-        auto pose = geometry::make_pose(motion_state.position,
-                                        motion_state.orientation *
-                                            fighter_component.input.current_actuation().d_q(1.0f));
-        pose.translation() += motion_state.orientation *
-                              fighter_component.input.current_actuation().d_q(1.0f) *
-                              motion_state.orientation.inverse() * motion_state.velocity;
-
-        render_visual(shader_model, visual_component, pose);
-    }
-
     const auto& shader_spark = resource_manager.get_shader("spark").get();
 
     shader_spark.use();
     shader_model.setUniformMatrix4fv("camera", T_opengl_ros * camera_matrix);
     shader_spark.setUniform1f("time", t);
+    glEnable(GL_BLEND);
     glDepthMask(false);
 
     const auto& quad_mesh = scene.resource_manager.get_model("quad")->get_meshes()[0];
