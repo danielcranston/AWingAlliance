@@ -158,21 +158,18 @@ void integrate(Scene& scene, const float t, const float dt)
     for (auto [entity, fighter_component, motion_state] :
          scene.registry.view<FighterComponent, MotionStateComponent>().each())
     {
-        if (fighter_component.firing())
+        if (const auto dispatches = fighter_component.try_fire_laser(t))
         {
-            if (const auto dispatches = fighter_component.try_fire_laser(t))
+            for (const auto& dispatch : *dispatches)
             {
-                for (const auto& dispatch : *dispatches)
-                {
-                    auto laser_pose = motion_state.pose() * dispatch.first;
-                    scene.register_laser(Eigen::Vector3f(laser_pose.translation()),
-                                         Eigen::Quaternionf(laser_pose.linear()),
-                                         fighter_component.model,
-                                         dispatch.second.size,
-                                         dispatch.second.color,
-                                         dispatch.second.speed,
-                                         entity);
-                }
+                auto laser_pose = motion_state.pose() * dispatch.first;
+                scene.register_laser(Eigen::Vector3f(laser_pose.translation()),
+                                     Eigen::Quaternionf(laser_pose.linear()),
+                                     fighter_component.model,
+                                     dispatch.second.size,
+                                     dispatch.second.color,
+                                     dispatch.second.speed,
+                                     entity);
             }
         }
 

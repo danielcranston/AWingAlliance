@@ -56,7 +56,7 @@ bool FighterComponent::laser_recharged(const float t)
 std::optional<std::vector<FighterComponent::LaserDispatch>>
 FighterComponent::try_fire_laser(const float t)
 {
-    if (laser_recharged(t))
+    if (firing() && laser_recharged(t))
     {
         last_fired_time = t;
         return fire_laser();
