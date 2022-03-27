@@ -154,40 +154,68 @@ void integrate(Scene& scene, const float t, const float dt)
         motion_state.integrate(dt);
     }
 
-    // Update Fighters (invoke controller, react to controls)
+    // Update Fighters (invoke controller, react to controls) ...
+    std::set<entt::entity> to_remove;
     for (auto [entity, fighter_component, motion_state] :
          scene.registry.view<FighterComponent, MotionStateComponent>().each())
     {
-        if (const auto dispatches = fighter_component.try_fire_laser(t))
+        if (fighter_component.alive())
         {
-            for (const auto& dispatch : *dispatches)
+            if (const auto dispatches = fighter_component.try_fire_laser(t))
             {
-                auto laser_pose = motion_state.pose() * dispatch.first;
-                scene.register_laser(Eigen::Vector3f(laser_pose.translation()),
-                                     Eigen::Quaternionf(laser_pose.linear()),
-                                     fighter_component.model,
-                                     dispatch.second.size,
-                                     dispatch.second.color,
-                                     dispatch.second.speed,
-                                     entity);
+                for (const auto& dispatch : *dispatches)
+                {
+                    auto laser_pose = motion_state.pose() * dispatch.first;
+                    scene.register_laser(Eigen::Vector3f(laser_pose.translation()),
+                                         Eigen::Quaternionf(laser_pose.linear()),
+                                         fighter_component.model,
+                                         dispatch.second.size,
+                                         dispatch.second.color,
+                                         dispatch.second.speed,
+                                         entity);
+                }
+            }
+
+            fighter_component.try_toggle_fire_mode();
+
+            motion_state = scene.ship_controller.update(
+                motion_state, fighter_component.get_target_state(motion_state), dt);
+            fighter_component.model->apply_motion_limits(motion_state);
+        }
+        else
+        {
+            if (fighter_component.time_of_death.value() + 2.0f < t)
+            {
+                std::vector<Eigen::AngleAxisf> offsets = {
+                    Eigen::AngleAxisf(M_PI / 2.0f, Eigen::Vector3f::UnitX()),
+                    Eigen::AngleAxisf(M_PI / 2.0f, Eigen::Vector3f::UnitY()),
+                    Eigen::AngleAxisf(M_PI / 2.0f, Eigen::Vector3f::UnitZ())
+                };
+
+                for (const auto& offset : offsets)
+                {
+                    scene.register_billboard(motion_state.position,
+                                             offset * motion_state.orientation,
+                                             { 0.0f, 60.0f, 60.0f },
+                                             2.0f,
+                                             t);
+                }
+                to_remove.insert(entity);
             }
         }
-
-        fighter_component.try_toggle_fire_mode();
-
-        motion_state = scene.ship_controller.update(
-            motion_state, fighter_component.get_target_state(motion_state) dt);
-        fighter_component.model->apply_motion_limits(motion_state);
     }
+    // ... and remove destroyed ships
+    scene.registry.destroy(to_remove.begin(), to_remove.end());
 
     // Calculate, detect and react to collisions ...
-    std::vector<entt::entity> to_remove;
+    to_remove.clear();
     auto fighter_view =
         scene.registry.view<FighterComponent, MotionStateComponent, HealthComponent>().each();
     auto laser_view = scene.registry.view<LaserComponent, MotionStateComponent>().each();
-    for (auto [fighter_entity, fighter_component, fighter_motion, health_component] : fighter_view)
+    for (auto [laser_entity, laser_component, laser_motion] : laser_view)
     {
-        for (auto [laser_entity, laser_component, laser_motion] : laser_view)
+        for (auto [fighter_entity, fighter_component, fighter_motion, health_component] :
+             fighter_view)
         {
             if (laser_component.producer != fighter_entity)
             {
@@ -203,9 +231,11 @@ void integrate(Scene& scene, const float t, const float dt)
                     std::cout << "laser hit " << fighter_component.name
                               << ". shields: " << health_component.shields
                               << ", hull: " << health_component.hull << std::endl;
-                    if (health_component.hull <= 0)
+                    if (health_component.hull <= 0 && fighter_component.alive())
                     {
-                        to_remove.push_back(fighter_entity);
+                        fighter_component.time_of_death = t;
+                        fighter_motion.angular_velocity =
+                            fighter_motion.orientation * Eigen::Vector3f(M_PI_2, 0.0f, 0.0f);
                     }
 
                     auto backwards_offset = laser_motion.orientation *
@@ -217,13 +247,13 @@ void integrate(Scene& scene, const float t, const float dt)
                                              impact_info.size,
                                              impact_info.duration,
                                              t);
-                    to_remove.push_back(laser_entity);
+                    to_remove.insert(laser_entity);
                     break;
                 }
             }
         }
     }
-    // ... and remove lasers that hit something / fighters which were destroyed
+    // ... and remove lasers that hit something
     scene.registry.destroy(to_remove.begin(), to_remove.end());
 
     // Update Billboards ...
@@ -232,7 +262,7 @@ void integrate(Scene& scene, const float t, const float dt)
     {
         if (billboard_component.birth_time + billboard_component.duration < t)
         {
-            to_remove.push_back(entity);
+            to_remove.insert(entity);
         }
     }
     // ... and remove those who have expired

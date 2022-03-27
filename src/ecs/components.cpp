@@ -21,6 +21,11 @@ FighterComponent::FighterComponent(const std::string& name,
 {
 }
 
+bool FighterComponent::alive() const
+{
+    return !time_of_death.has_value();
+}
+
 bool FighterComponent::firing() const
 {
     return input.test(urdf::FighterInput::Action::FIRE);

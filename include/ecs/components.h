@@ -38,9 +38,11 @@ struct FighterComponent
     int current_fire_mode = 0;
     int current_spawn_idx = 0;
     float last_fired_time = 0;
+    std::optional<float> time_of_death = std::nullopt;
 
     using LaserDispatch = std::pair<Eigen::Isometry3f, urdf::FighterModel::LaserInfo>;
 
+    bool alive() const;
     bool firing() const;
     bool laser_recharged(const float t);
     int num_dispatches() const;
