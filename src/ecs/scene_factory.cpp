@@ -63,11 +63,7 @@ std::shared_ptr<Scene> SceneFactory::create_from_scenario(const std::string& sce
         throw std::runtime_error("Scenario file does not specify a main/active camera");
     }
 
-    const auto skybox_uri = node["skybox"].as<std::string>();
-    ret->resource_manager.load_skybox(skybox_uri);
-    ret->registry.emplace<SkyboxComponent>(ret->registry.create(),
-                                           ret->resource_manager.get_texture(skybox_uri),
-                                           ret->resource_manager.get_model("box"));
+    ret->register_skybox(node["skybox"].as<std::string>());
 
     return ret;
 }

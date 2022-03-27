@@ -101,4 +101,15 @@ entt::entity Scene::register_billboard(const Eigen::Vector3f& position,
     return entity;
 }
 
+entt::entity Scene::register_skybox(const std::string& skybox_uri)
+{
+    resource_manager.load_skybox(skybox_uri);
+
+    auto entity = registry.create();
+    registry.emplace<SkyboxComponent>(
+        entity, resource_manager.get_texture(skybox_uri), resource_manager.get_model("box"));
+
+    return entity;
+}
+
 }  // namespace ecs

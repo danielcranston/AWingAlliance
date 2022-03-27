@@ -33,6 +33,7 @@ class Scene
                                     const Eigen::Vector3f& size,
                                     const float birth_time,
                                     const float duration);
+    entt::entity register_skybox(const std::string& skybox_uri);
 
     entt::registry registry;
     ResourceManager resource_manager;  // Could be made shared_ptr to allow scenes to share same mgr
