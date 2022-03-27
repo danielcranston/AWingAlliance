@@ -56,6 +56,8 @@
 
     <!-- AWingAlliance-specific elements below -->
 
+    <health shields="100" hull="100" />
+
     <laser>
         <speed kmps="1" />
         <size xyz="4.0 0.25 0.25" />

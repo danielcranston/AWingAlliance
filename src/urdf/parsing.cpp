@@ -102,6 +102,16 @@ FighterModel parse_fighter_urdf(const std::string& filename)
     {
         throw std::runtime_error("URDF does not contain 'motion' element");
     }
+
+    // Health
+    if (const XMLElement* health = robot->FirstChildElement("health"))
+    {
+        out.health_info = parse_health_element(health);
+    }
+    else
+    {
+        throw std::runtime_error("URDF does not contain 'health' element");
+    }
     return out;
 }
 }  // namespace urdf

@@ -249,4 +249,13 @@ FighterModel::MotionLimits parse_motion_limits_element(const XMLElement* limits)
     return out;
 }
 
+FighterModel::HealthInfo parse_health_element(const tinyxml2::XMLElement* health)
+{
+    FighterModel::HealthInfo out;
+    out.shields_max = parse_float_attribute(health, "shields");
+    out.hull_max = parse_float_attribute(health, "hull");
+
+    return out;
+}
+
 }  // namespace urdf::parsing_utils

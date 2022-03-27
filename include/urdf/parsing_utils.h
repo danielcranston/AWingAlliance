@@ -15,6 +15,7 @@ FighterModel::FireMode parse_fire_mode_element(const tinyxml2::XMLElement* fire_
 FighterModel::Sounds parse_sounds_element(const tinyxml2::XMLElement* sounds);
 FighterModel::LaserInfo parse_laser_element(const tinyxml2::XMLElement* laser);
 FighterModel::MotionLimits parse_motion_limits_element(const tinyxml2::XMLElement* limits);
+FighterModel::HealthInfo parse_health_element(const tinyxml2::XMLElement* health);
 
 void assert_nonempty_numeric(const std::string& val_string);
 std::string parse_string_attribute(const tinyxml2::XMLElement* element,

@@ -59,6 +59,13 @@ struct FighterModel
     };
     MotionLimits motion_limits;
 
+    struct HealthInfo
+    {
+        float shields_max;
+        float hull_max;
+    };
+    HealthInfo health_info;
+
     void apply_motion_limits(geometry::MotionState& state) const
     {
         auto apply_limit = [](Eigen::Vector3f& x, const float limit) {
