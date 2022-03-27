@@ -48,6 +48,14 @@ struct FighterComponent
     std::optional<std::vector<LaserDispatch>> try_fire_laser(const float t);
     void toggle_fire_mode();
     void try_toggle_fire_mode();
+
+    /**
+     * @brief Creates a suitable target motion state to be fed to a ship controller, based on the
+     * current motion and key input states.
+     *
+     * @param motion_state the MotionState related to this FighterComponent
+     */
+    geometry::MotionState get_target_state(const geometry::MotionState& motion_state) const;
 };
 
 struct LaserComponent

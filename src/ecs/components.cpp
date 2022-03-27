@@ -81,6 +81,20 @@ void FighterComponent::try_toggle_fire_mode()
     }
 }
 
+geometry::MotionState
+FighterComponent::get_target_state(const geometry::MotionState& motion_state) const
+{
+    auto target_state = MotionStateComponent(motion_state.position, motion_state.orientation);
+    target_state.velocity =
+        target_state.orientation *
+        Eigen::Vector3f(model->motion_limits.velocity * input.current_actuation().d_v, 0.0f, 0.0f);
+
+    target_state.angular_velocity = motion_state.orientation * input.current_actuation().d_w *
+                                    model->motion_limits.angular_velocity;
+
+    return target_state;
+}
+
 void HealthComponent::take_damage(const float damage)
 {
     shields -= damage;
