@@ -42,6 +42,18 @@ bool FighterInput::test(const Action action) const
     return actions.test(static_cast<int>(action));
 }
 
+void FighterInput::set(const Action action, const bool value)
+{
+    if (value)
+    {
+        actions.set(static_cast<int>(action));
+    }
+    else
+    {
+        actions.reset(static_cast<int>(action));
+    }
+}
+
 FighterInput::Actuation FighterInput::current_actuation() const
 {
     auto evaluate_attitute_axis = [this](FighterInput::Action state1, FighterInput::Action state2) {

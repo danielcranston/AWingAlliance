@@ -66,3 +66,17 @@ FighterComponent::try_fire_laser(const float t)
         return std::nullopt;
     }
 }
+
+void FighterComponent::toggle_fire_mode()
+{
+    current_fire_mode = (current_fire_mode + 1) % model->fire_modes.size();
+    input.set(urdf::FighterInput::Action::TOGGLE_FIRE_MODE, false);
+}
+
+void FighterComponent::try_toggle_fire_mode()
+{
+    if (input.test(urdf::FighterInput::Action::TOGGLE_FIRE_MODE))
+    {
+        toggle_fire_mode();
+    }
+}

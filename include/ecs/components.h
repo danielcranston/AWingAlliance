@@ -46,6 +46,8 @@ struct FighterComponent
     int num_dispatches() const;
     std::vector<LaserDispatch> fire_laser();
     std::optional<std::vector<LaserDispatch>> try_fire_laser(const float t);
+    void toggle_fire_mode();
+    void try_toggle_fire_mode();
 };
 
 struct LaserComponent

@@ -26,7 +26,7 @@ class FighterInput
     };
 
     bool test(const Action action) const;
-
+    void set(const Action action, const bool value);
     void handle_key_event(const KeyEvent& key_event);
 
     struct Actuation

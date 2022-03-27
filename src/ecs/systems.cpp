@@ -176,6 +176,8 @@ void integrate(Scene& scene, const float t, const float dt)
             }
         }
 
+        fighter_component.try_toggle_fire_mode();
+
         auto target_state = MotionStateComponent(motion_state.position, motion_state.orientation);
         target_state.velocity = target_state.orientation *
                                 Eigen::Vector3f(fighter_component.model->motion_limits.velocity *
