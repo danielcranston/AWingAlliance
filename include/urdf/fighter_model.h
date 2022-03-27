@@ -17,6 +17,7 @@ struct FighterModel
 
     struct LaserInfo
     {
+        float damage;
         float speed;
         Eigen::Vector3f color;
         Eigen::Vector3f size;

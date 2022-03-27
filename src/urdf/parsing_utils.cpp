@@ -198,6 +198,7 @@ FighterModel::Sounds parse_sounds_element(const XMLElement* sounds)
 FighterModel::LaserInfo parse_laser_element(const XMLElement* laser)
 {
     FighterModel::LaserInfo out;
+    out.damage = parse_float_attribute(laser, "damage");
     if (const auto* speed = laser->FirstChildElement("speed"))
     {
         out.speed = 1000.0f * parse_float_attribute(speed, "kmps");
