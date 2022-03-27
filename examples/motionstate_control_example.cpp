@@ -169,7 +169,7 @@ int main(int argc, char* argv[])
             {
                 should_shutdown = true;
             }
-            if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP && !event.key.repeat)
+            if ((event.type == SDL_KEYDOWN || event.type == SDL_KEYUP) && !event.key.repeat)
             {
                 key_events.emplace_back(static_cast<char>(event.key.keysym.sym),
                                         event.type == SDL_KEYDOWN ? KeyEvent::Status::PRESSED :
