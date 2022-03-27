@@ -203,7 +203,7 @@ void integrate(Scene& scene, const float t, const float dt)
 
                 if (geometry::ray_aabb_test(laser_motion.pose(),
                                             laser_component.length / 2.0f,
-                                            -(laser_component.length + laser_speed) / 2.0f * dt,
+                                            -laser_component.length / 2.0f - laser_speed * dt,
                                             fighter_motion.pose(),
                                             fighter_component.model->dimensions))
                 {
