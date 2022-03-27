@@ -46,6 +46,9 @@ entt::entity Scene::register_ship(const std::string& name,
     registry.emplace<FighterComponent>(entity, name, fighter_model_handle);
     registry.emplace<VisualComponent>(entity, model_handle, texture_handles);
     registry.emplace<MotionStateComponent>(entity, position, orientation);
+    registry.emplace<HealthComponent>(entity,
+                                      fighter_model_handle->health_info.shields_max,
+                                      fighter_model_handle->health_info.hull_max);
 
     return entity;
 }

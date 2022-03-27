@@ -189,11 +189,12 @@ void integrate(Scene& scene, const float t, const float dt)
         fighter_component.model->apply_motion_limits(motion_state);
     }
 
-    // Calculate and detect collisions ...
+    // Calculate, detect and react to collisions ...
     std::vector<entt::entity> to_remove;
-    auto fighter_view = scene.registry.view<FighterComponent, MotionStateComponent>().each();
+    auto fighter_view =
+        scene.registry.view<FighterComponent, MotionStateComponent, HealthComponent>().each();
     auto laser_view = scene.registry.view<LaserComponent, MotionStateComponent>().each();
-    for (auto [fighter_entity, fighter_component, fighter_motion] : fighter_view)
+    for (auto [fighter_entity, fighter_component, fighter_motion, health_component] : fighter_view)
     {
         for (auto [laser_entity, laser_component, laser_motion] : laser_view)
         {
@@ -207,6 +208,15 @@ void integrate(Scene& scene, const float t, const float dt)
                                             fighter_motion.pose(),
                                             fighter_component.model->dimensions))
                 {
+                    health_component.take_damage(laser_component.fighter_model->laser_info.damage);
+                    std::cout << "laser hit " << fighter_component.name
+                              << ". shields: " << health_component.shields
+                              << ", hull: " << health_component.hull << std::endl;
+                    if (health_component.hull <= 0)
+                    {
+                        to_remove.push_back(fighter_entity);
+                    }
+
                     auto backwards_offset = laser_motion.orientation *
                                             Eigen::Vector3f(-laser_speed * dt, 0.0f, 0.0f) / 2.0f;
                     auto& impact_info = laser_component.fighter_model->laser_info.impact_info;
@@ -217,11 +227,12 @@ void integrate(Scene& scene, const float t, const float dt)
                                              impact_info.duration,
                                              t);
                     to_remove.push_back(laser_entity);
+                    break;
                 }
             }
         }
     }
-    // ... and remove lasers that hit something
+    // ... and remove lasers that hit something / fighters which were destroyed
     scene.registry.destroy(to_remove.begin(), to_remove.end());
 
     // Update Billboards ...

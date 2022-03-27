@@ -77,3 +77,11 @@ struct BillboardComponent
     float birth_time;
     float duration;
 };
+
+struct HealthComponent
+{
+    float shields;
+    float hull;
+
+    void take_damage(const float damage);
+};

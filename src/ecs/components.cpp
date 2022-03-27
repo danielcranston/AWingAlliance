@@ -80,3 +80,13 @@ void FighterComponent::try_toggle_fire_mode()
         toggle_fire_mode();
     }
 }
+
+void HealthComponent::take_damage(const float damage)
+{
+    shields -= damage;
+    if (shields < 0)
+    {
+        hull += shields;
+        shields = 0;
+    }
+}
