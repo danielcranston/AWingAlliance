@@ -105,7 +105,7 @@ if("${BUILD_EXAMPLES}")
   add_subdirectory(${PROJECT_SOURCE_DIR}/examples)
 endif()
 
-add_executable(awing src/main2.cpp)
+add_executable(awing src/main.cpp)
 
 target_link_libraries(
   awing
