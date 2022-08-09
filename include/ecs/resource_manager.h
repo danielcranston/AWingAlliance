@@ -7,6 +7,8 @@
 
 #include <entt/entt.hpp>
 
+namespace ecs
+{
 class ResourceManager
 {
   public:
@@ -35,3 +37,4 @@ class ResourceManager
     entt::resource_cache<rendering::ShaderProgram> shader_cache;
     entt::resource_cache<urdf::FighterModel> fighter_model_cache;
 };
+}  // namespace ecs

@@ -66,6 +66,8 @@ struct fighter_model_loader final : entt::resource_loader<fighter_model_loader, 
 
 }  // namespace
 
+namespace ecs
+{
 ResourceManager::ResourceManager()
 {
     load_primitive("box");
@@ -180,3 +182,4 @@ ResourceManager::get_fighter_model(const std::string& uri) const
 {
     return fighter_model_cache.handle(entt::hashed_string(uri.c_str()));
 }
+}  // namespace ecs
