@@ -69,7 +69,7 @@ target_link_libraries(rendering imgui resources Eigen3::Eigen ${OPENGL_LIBRARIES
                       ${GLEW_LIBRARIES})
 target_compile_options(rendering PRIVATE -Wall -Wextra -pedantic -Werror)
 
-add_library(audio src/audio/audio_manager.cpp)
+add_library(audio src/audio/audio.cpp)
 target_link_libraries(audio alure2)
 target_include_directories(audio PUBLIC ${OPENAL_INCLUDE_DIR})
 

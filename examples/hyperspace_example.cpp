@@ -1,10 +1,11 @@
 #include <iostream>
 #include <string>
+#include <map>
 
 #include <GL/glew.h>
 #include <SDL2/SDL.h>
 
-#include "audio/audio_manager.h"
+#include "audio/audio.h"
 #include "resources/locator.h"
 #include "rendering/primitives.h"
 #include "rendering/compile_shader_program.h"
@@ -22,18 +23,17 @@ class HyperSpaceRendering
     };
     HyperSpaceRendering(const rendering::ShaderProgram* transition_shader_ptr,
                         const rendering::ShaderProgram* during_shader_ptr)
-      : audio_manager(resources::locator::SOUNDS_PATH),
-        transition_shader_ptr(transition_shader_ptr),
+      : transition_shader_ptr(transition_shader_ptr),
         during_shader_ptr(during_shader_ptr),
         current_state(State::IDLE),
         epoch(0)
     {
-        audio_manager.loadAudio("Computer_Drone_10.wav", 0.1);  //, 16
-        audio_manager.loadAudio("Fighter_Startup_2.wav");
-        audio_manager.loadAudio("Hyperspace_Start.wav");
-        audio_manager.loadAudio("Deflector_Hit_1B.wav");
-        audio_manager.loadAudio("XW_ENG_11.wav", 0.25);        //, 64
-        audio_manager.loadAudio("Laser_Whoosh_4A.wav", 0.25);  //, 64
+        loadAudio("Computer_Drone_10.wav", 0.1);
+        loadAudio("Fighter_Startup_2.wav", 1.0);
+        loadAudio("Hyperspace_Start.wav", 1.0);
+        loadAudio("Deflector_Hit_1B.wav", 1.0);
+        loadAudio("XW_ENG_11.wav", 0.25);
+        loadAudio("Laser_Whoosh_4A.wav", 0.25);
 
         SetState(State::IDLE);
     };
@@ -44,7 +44,7 @@ class HyperSpaceRendering
         switch (current_state)
         {
             case State::IDLE:
-                audio_manager.play("Computer_Drone_10.wav");
+                playAudio("Computer_Drone_10.wav");
                 break;
             case State::ENTERING:
                 if (now < 4.5f)
@@ -53,41 +53,41 @@ class HyperSpaceRendering
 
                     if (now < 0.5)
                     {
-                        audio_manager.play("Fighter_Startup_2.wav");
+                        playAudio("Fighter_Startup_2.wav");
                     }
                     if (now > 1.75f)
                     {
-                        audio_manager.play("Hyperspace_Start.wav");
+                        playAudio("Hyperspace_Start.wav");
                     }
                     if (now > 4.2f)
                     {
-                        audio_manager.play("Deflector_Hit_1B.wav");
+                        playAudio("Deflector_Hit_1B.wav");
                     }
                 }
                 else
                 {
-                    audio_manager.stop("Computer_Drone_10.wav");
-                    audio_manager.stop("Fighter_Startup_2.wav");
+                    stopAudio("Computer_Drone_10.wav");
+                    stopAudio("Fighter_Startup_2.wav");
                     SetState(State::DURING);
                 }
                 break;
             case State::DURING:
                 during_shader_ptr->setUniform1f("time", now);
 
-                audio_manager.play("XW_ENG_11.wav");
+                playAudio("XW_ENG_11.wav");
                 break;
             case State::EXITING:
-                audio_manager.stop("XW_ENG_11.wav");
+                stopAudio("XW_ENG_11.wav");
                 if (now < 3.5f)
                 {
                     transition_shader_ptr->setUniform1f("time", now + 4.5f);
                     if (now < 1.0f)
                     {
-                        audio_manager.play("Laser_Whoosh_4A.wav");
+                        playAudio("Laser_Whoosh_4A.wav");
                     }
                     if (now > 1.0f)
                     {
-                        audio_manager.play("Computer_Drone_10.wav");
+                        playAudio("Computer_Drone_10.wav");
                     }
                 }
                 else
@@ -128,7 +128,33 @@ class HyperSpaceRendering
     mutable std::size_t epoch;
     mutable float now;
 
-    mutable AudioManager audio_manager;
+    using SourceBufferPair =
+        std::pair<std::unique_ptr<audio::AudioBuffer>, std::unique_ptr<audio::AudioSource>>;
+    std::map<std::string, SourceBufferPair> sounds;
+
+    void loadAudio(const std::string& name, const float& gain)
+    {
+        sounds.insert(
+            std::make_pair(name,
+                           std::make_pair(std::make_unique<audio::AudioBuffer>(
+                                              resources::locator::SOUNDS_PATH + name),
+                                          std::make_unique<audio::AudioSource>(gain, false))));
+    }
+
+    void playAudio(const std::string& name) const
+    {
+        auto& pair = sounds.at(name);
+        if (!pair.second->is_playing())
+        {
+            pair.second->play(*pair.first);
+        }
+    }
+
+    void stopAudio(const std::string& name) const
+    {
+        auto& pair = sounds.at(name);
+        pair.second->stop();
+    }
 
   private:
     const std::string sounds_path;
