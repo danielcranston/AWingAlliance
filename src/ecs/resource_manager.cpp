@@ -3,6 +3,7 @@
 #include "resources/load_model.h"
 #include "resources/load_texture.h"
 #include "resources/load_geometry.h"
+#include "resources/locator.h"
 #include "rendering/compile_shader_program.h"
 #include "rendering/primitives.h"
 #include "urdf/parsing.h"
@@ -61,6 +62,15 @@ struct fighter_model_loader final : entt::resource_loader<fighter_model_loader, 
     std::shared_ptr<urdf::FighterModel> load(const std::string& uri) const
     {
         return std::make_shared<urdf::FighterModel>(urdf::parse_fighter_urdf(uri));
+    }
+};
+
+struct sound_loader final : entt::resource_loader<sound_loader, audio::AudioBuffer>
+{
+    std::shared_ptr<audio::AudioBuffer> load(const std::string& uri) const
+    {
+        return std::make_shared<audio::AudioBuffer>(std::string(resources::locator::SOUNDS_PATH) +
+                                                    uri);
     }
 };
 
@@ -150,6 +160,14 @@ void ResourceManager::load_fighter_model(const std::string& uri)
     }
 }
 
+void ResourceManager::load_sound(const std::string& uri)
+{
+    if (auto uri_hash = entt::hashed_string(uri.data()); !sound_cache.contains(uri_hash))
+    {
+        sound_cache.load<sound_loader>(uri_hash, uri);
+    }
+}
+
 void ResourceManager::update_shaders(
     std::function<void(entt::resource_handle<const rendering::ShaderProgram>)> fn)
 {
@@ -181,5 +199,11 @@ entt::resource_handle<const urdf::FighterModel>
 ResourceManager::get_fighter_model(const std::string& uri) const
 {
     return fighter_model_cache.handle(entt::hashed_string(uri.c_str()));
+}
+
+entt::resource_handle<const audio::AudioBuffer>
+ResourceManager::get_sound(const std::string& uri) const
+{
+    return sound_cache.handle(entt::hashed_string(uri.c_str()));
 }
 }  // namespace ecs
