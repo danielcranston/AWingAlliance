@@ -173,6 +173,13 @@ void integrate(Scene& scene, const float t, const float dt)
                                          dispatch.second.color,
                                          dispatch.second.speed,
                                          entity);
+
+                    if (!fighter_component.model->sounds.laser.empty())
+                    {
+                        fighter_component.fire_sound_source->play(
+                            scene.resource_manager.get_sound(fighter_component.model->sounds.laser)
+                                .get());
+                    }
                 }
             }
 
