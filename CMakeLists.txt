@@ -98,7 +98,7 @@ target_compile_options(urdf PRIVATE -Wall -Wextra -pedantic -Werror)
 add_library(
   ecs src/ecs/scene.cpp src/ecs/scene_factory.cpp src/ecs/resource_manager.cpp
       src/ecs/components.cpp src/ecs/systems.cpp)
-target_link_libraries(ecs urdf rendering resources)
+target_link_libraries(ecs urdf rendering resources audio)
 target_compile_options(ecs PRIVATE -Wall -Wextra -pedantic -Werror)
 
 if("${BUILD_EXAMPLES}")

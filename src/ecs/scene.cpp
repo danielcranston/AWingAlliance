@@ -50,6 +50,16 @@ entt::entity Scene::register_ship(const std::string& name,
                                       fighter_model_handle->health_info.shields_max,
                                       fighter_model_handle->health_info.hull_max);
 
+    if (!fighter_model_handle->sounds.laser.empty())
+    {
+        resource_manager.load_sound(fighter_model_handle->sounds.laser);
+    }
+
+    if (!fighter_model_handle->sounds.engine.empty())
+    {
+        resource_manager.load_sound(fighter_model_handle->sounds.engine);
+    }
+
     return entity;
 }
 

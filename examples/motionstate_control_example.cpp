@@ -97,8 +97,8 @@ void plot_motion_state_stats(const ecs::Scene& scene,
                              MotionStateDataBuffer& buffer,
                              const float t)
 {
-    auto motion_state = scene.registry.get<MotionStateComponent>(scene.player_uid);
-    auto fighter_component = scene.registry.get<FighterComponent>(scene.player_uid);
+    auto& motion_state = scene.registry.get<MotionStateComponent>(scene.player_uid);
+    auto& fighter_component = scene.registry.get<FighterComponent>(scene.player_uid);
 
     buffer.register_stats(motion_state, t);
 

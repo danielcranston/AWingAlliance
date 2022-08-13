@@ -10,6 +10,7 @@
 #include "rendering/texture.h"
 #include "urdf/fighter_input.h"
 #include "urdf/fighter_model.h"
+#include "audio/audio.h"
 
 using MotionStateComponent = geometry::MotionState;
 
@@ -58,6 +59,9 @@ struct FighterComponent
      * @param motion_state the MotionState related to this FighterComponent
      */
     geometry::MotionState get_target_state(const geometry::MotionState& motion_state) const;
+
+    std::unique_ptr<audio::AudioSource> fire_sound_source;
+    std::unique_ptr<audio::AudioSource> engine_sound_source;
 };
 
 struct LaserComponent
