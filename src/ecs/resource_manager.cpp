@@ -138,7 +138,7 @@ void ResourceManager::load_shader(const std::string& uri,
 
 void ResourceManager::load_fighter_model(const std::string& uri)
 {
-    if (auto uri_hash = entt::hashed_string(uri.data()); !model_cache.contains(uri_hash))
+    if (auto uri_hash = entt::hashed_string(uri.data()); !fighter_model_cache.contains(uri_hash))
     {
         fighter_model_cache.load<fighter_model_loader>(uri_hash, uri);
 
