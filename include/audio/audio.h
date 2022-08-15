@@ -14,6 +14,7 @@ class AudioContextManager
     alure::Context ctx;
 
     static alure::Context& get_context();
+    static void set_listener_position(const float x, const float y, const float z);
 
     ~AudioContextManager();
 

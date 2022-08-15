@@ -29,6 +29,11 @@ alure::Context& AudioContextManager::get_context()
     return audio::impl::instance->ctx;
 }
 
+void AudioContextManager::set_listener_position(const float x, const float y, const float z)
+{
+    get_context().getListener().setPosition(alure::Vector3(x, y, z));
+}
+
 AudioSource::AudioSource(const float gain, const bool looping)
   : data(AudioContextManager::get_context().createSource())
 {
@@ -59,7 +64,7 @@ bool AudioSource::is_playing() const
 
 void AudioSource::set_position(const float x, const float y, const float z)
 {
-    data.setPosition({ x, y, z });
+    data.setPosition(alure::Vector3(x, y, z));
 }
 
 AudioBuffer::AudioBuffer(const std::string& name)

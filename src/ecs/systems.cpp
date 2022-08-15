@@ -143,6 +143,9 @@ void integrate(Scene& scene, const float t, const float dt)
                     camera_component.get_target_state(*fighter_motion_state,
                                                       fighter_component->model->camera_poses[1]),
                     dt);
+
+                const auto& pos = fighter_motion_state->position;
+                audio::AudioContextManager::set_listener_position(-pos.z(), -pos.x(), pos.y());
             }
         }
     }
@@ -176,6 +179,9 @@ void integrate(Scene& scene, const float t, const float dt)
 
                     if (!fighter_component.model->sounds.laser.empty())
                     {
+                        const auto& pos = motion_state.position;
+                        fighter_component.fire_sound_source->set_position(
+                            -pos.z(), -pos.x(), pos.y());
                         fighter_component.fire_sound_source->play(
                             scene.resource_manager.get_sound(fighter_component.model->sounds.laser)
                                 .get());
