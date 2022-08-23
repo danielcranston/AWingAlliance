@@ -19,8 +19,8 @@ FighterComponent::FighterComponent(const std::string& name,
                                    entt::resource_handle<const urdf::FighterModel> model)
   : name(name),
     model(model),
-    fire_sound_source(std::make_unique<audio::AudioSource>()),
-    engine_sound_source(std::make_unique<audio::AudioSource>())
+    fire_sound_source(std::make_unique<audio::AudioSource>(1.0f, false)),
+    engine_sound_source(std::make_unique<audio::AudioSource>(1.0f, true))
 {
 }
 

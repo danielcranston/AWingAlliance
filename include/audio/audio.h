@@ -1,6 +1,7 @@
 #pragma once
 
 #include <AL/alure2.h>
+#include <Eigen/Dense>
 
 namespace audio
 {
@@ -14,7 +15,8 @@ class AudioContextManager
     alure::Context ctx;
 
     static alure::Context& get_context();
-    static void set_listener_position(const float x, const float y, const float z);
+    static void set_listener_pose(const Eigen::Matrix4f& pose);
+    static void update();
 
     ~AudioContextManager();
 
@@ -45,7 +47,7 @@ class AudioSource
     void stop();
     bool is_playing() const;
 
-    void set_position(const float x, const float y, const float z);
+    void set_pose(const Eigen::Matrix4f& pose);
 
   private:
     alure::Source data;

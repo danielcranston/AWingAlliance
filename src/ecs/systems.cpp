@@ -144,8 +144,8 @@ void integrate(Scene& scene, const float t, const float dt)
                                                       fighter_component->model->camera_poses[1]),
                     dt);
 
-                const auto& pos = fighter_motion_state->position;
-                audio::AudioContextManager::set_listener_position(-pos.z(), -pos.x(), pos.y());
+                audio::AudioContextManager::set_listener_pose(T_opengl_ros *
+                                                              camera_motion_state.pose().matrix());
             }
         }
     }
@@ -179,15 +179,24 @@ void integrate(Scene& scene, const float t, const float dt)
 
                     if (!fighter_component.model->sounds.laser.empty())
                     {
-                        const auto& pos = motion_state.position;
-                        fighter_component.fire_sound_source->set_position(
-                            -pos.z(), -pos.x(), pos.y());
                         fighter_component.fire_sound_source->play(
                             scene.resource_manager.get_sound(fighter_component.model->sounds.laser)
                                 .get());
                     }
                 }
             }
+
+            if (!fighter_component.model->sounds.engine.empty() &&
+                !fighter_component.engine_sound_source->is_playing())
+            {
+                fighter_component.engine_sound_source->play(
+                    scene.resource_manager.get_sound(fighter_component.model->sounds.engine).get());
+            }
+
+            fighter_component.fire_sound_source->set_pose(T_opengl_ros *
+                                                          motion_state.pose().matrix());
+            fighter_component.engine_sound_source->set_pose(T_opengl_ros *
+                                                            motion_state.pose().matrix());
 
             fighter_component.try_toggle_fire_mode();
 
@@ -280,6 +289,8 @@ void integrate(Scene& scene, const float t, const float dt)
     }
     // ... and remove those who have expired
     scene.registry.destroy(to_remove.begin(), to_remove.end());
+
+    audio::AudioContextManager::update();
 }
 
 void handle_key_events(Scene& scene, const std::vector<KeyEvent>& key_events)

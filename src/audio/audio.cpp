@@ -29,17 +29,34 @@ alure::Context& AudioContextManager::get_context()
     return audio::impl::instance->ctx;
 }
 
-void AudioContextManager::set_listener_position(const float x, const float y, const float z)
+void AudioContextManager::set_listener_pose(const Eigen::Matrix4f& pose)
 {
-    get_context().getListener().setPosition(alure::Vector3(x, y, z));
+    auto listener = get_context().getListener();
+
+    const auto& pos = pose.col(3).head<3>();
+    listener.setPosition(alure::Vector3(pos.x(), pos.y(), pos.z()));
+
+    const Eigen::Vector3f& fwd = -pose.col(2).head<3>();
+    const Eigen::Vector3f& up = pose.col(1).head<3>();
+    listener.setOrientation(std::make_pair(alure::Vector3(fwd.x(), fwd.y(), fwd.z()),
+                                           alure::Vector3(up.x(), up.y(), up.z())));
+}
+
+void AudioContextManager::update()
+{
+    get_context().update();
 }
 
 AudioSource::AudioSource(const float gain, const bool looping)
   : data(AudioContextManager::get_context().createSource())
 {
     data.set3DSpatialize(alure::Spatialize::On);
+    data.setRelative(false);
     data.setGain(gain);
     data.setLooping(looping);
+    data.setDistanceRange(1.0f, 2000.0f);
+    data.setRadius(1.0f);
+    data.setRolloffFactors(0.5);
 }
 
 AudioSource::~AudioSource()
@@ -62,9 +79,15 @@ bool AudioSource::is_playing() const
     return data.isPlaying();
 }
 
-void AudioSource::set_position(const float x, const float y, const float z)
+void AudioSource::set_pose(const Eigen::Matrix4f& pose)
 {
-    data.setPosition(alure::Vector3(x, y, z));
+    const auto& pos = pose.col(3).head<3>();
+    data.setPosition(alure::Vector3(pos.x(), pos.y(), pos.z()));
+
+    const Eigen::Vector3f& fwd = -pose.col(2).head<3>();
+    const Eigen::Vector3f& up = pose.col(1).head<3>();
+    data.setOrientation(std::make_pair(alure::Vector3(fwd.x(), fwd.y(), fwd.z()),
+                                       alure::Vector3(up.x(), up.y(), up.z())));
 }
 
 AudioBuffer::AudioBuffer(const std::string& name)
