@@ -167,30 +167,7 @@ int main(int argc, char* argv[])
     int screen_w = 1200;
     int screen_h = 900;
 
-    if (SDL_Init(SDL_INIT_EVERYTHING | SDL_VIDEO_OPENGL) != 0)
-        throw std::runtime_error(std::string("SDL_Init failed: ") + SDL_GetError());
-
-    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-    SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
-
-    const auto context_flags = SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG | SDL_GL_CONTEXT_DEBUG_FLAG;
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 5);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, context_flags);
-    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
-
     rendering::ContextManager context_manager{ "Hyperspace Example", screen_w, screen_h };
-
-    GLenum glew_status = glewInit();
-    if (glew_status != GLEW_OK)
-    {
-        std::stringstream ss;
-        ss << "Error initializing GLEW: " << glewGetErrorString(glew_status);
-        throw std::runtime_error(ss.str());
-    }
-    else
-        std::cout << "GLEW Initialized: " << glewGetErrorString(glew_status) << std::endl;
 
     glViewport(0, 0, screen_w, screen_h);
     glClearColor(0.5, 0, 0, 1);
