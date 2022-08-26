@@ -85,6 +85,12 @@ struct VisualComponent
     std::optional<Eigen::Vector3f> size = std::nullopt;
 };
 
+struct SoundEffectComponent
+{
+    entt::resource_handle<const audio::AudioBuffer> buffer;
+    std::unique_ptr<audio::AudioSource> sound_source;
+};
+
 struct BillboardComponent
 {
     Eigen::Matrix4f size;

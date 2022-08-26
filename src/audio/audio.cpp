@@ -54,9 +54,9 @@ AudioSource::AudioSource(const float gain, const bool looping)
     data.setRelative(false);
     data.setGain(gain);
     data.setLooping(looping);
-    data.setDistanceRange(1.0f, 2000.0f);
-    data.setRadius(1.0f);
-    data.setRolloffFactors(0.5);
+    data.setDistanceRange(100.0f, 2000.0f);
+    data.setRadius(10.0f);
+    data.setRolloffFactors(1.0);
 }
 
 AudioSource::~AudioSource()

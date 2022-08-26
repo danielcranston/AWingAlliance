@@ -34,9 +34,13 @@ class Scene
                                     const float birth_time,
                                     const float duration);
     entt::entity register_skybox(const std::string& skybox_uri);
+    entt::entity register_sound_effect(const std::string buffer_name,
+                                       const Eigen::Vector3f,
+                                       const Eigen::Quaternionf& orientation);
 
     entt::registry registry;
-    ecs::ResourceManager resource_manager;  // Could be made shared_ptr to allow scenes to share same mgr
+    ecs::ResourceManager resource_manager;  // Could be made shared_ptr to allow scenes to share
+                                            // same mgr
 
     entt::entity player_uid = entt::null;
     entt::entity camera_uid = entt::null;

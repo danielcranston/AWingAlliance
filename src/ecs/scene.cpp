@@ -59,6 +59,10 @@ entt::entity Scene::register_ship(const std::string& name,
     {
         resource_manager.load_sound(fighter_model_handle->sounds.engine);
     }
+    if (!fighter_model_handle->sounds.hit.empty())
+    {
+        resource_manager.load_sound(fighter_model_handle->sounds.hit);
+    }
 
     return entity;
 }
@@ -118,6 +122,24 @@ entt::entity Scene::register_skybox(const std::string& skybox_uri)
     auto entity = registry.create();
     registry.emplace<SkyboxComponent>(
         entity, resource_manager.get_texture(skybox_uri), resource_manager.get_model("box"));
+
+    return entity;
+}
+
+entt::entity Scene::register_sound_effect(const std::string buffer_name,
+                                          const Eigen::Vector3f position,
+                                          const Eigen::Quaternionf& orientation)
+{
+    resource_manager.load_sound(buffer_name);
+
+    auto entity = registry.create();
+    auto& sound_effect_component = registry.emplace<SoundEffectComponent>(
+        entity, resource_manager.get_sound(buffer_name), std::make_unique<audio::AudioSource>());
+
+    sound_effect_component.sound_source->set_pose(
+        geometry::make_pose(position, orientation).matrix());
+
+    sound_effect_component.sound_source->play(sound_effect_component.buffer);
 
     return entity;
 }

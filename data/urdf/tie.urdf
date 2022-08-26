@@ -64,9 +64,9 @@
     </laser>
 
     <sounds>
-        <laser file="" />
-        <engine file="" />
-        <hit file="" />
+        <laser file="TIE_Laser_1A.wav" />
+        <engine file="TIE_ENG_Film_1.wav" />
+        <hit file="Flak_Explosion_11A.wav" />
     </sounds>
 
     <fire_mode type="single" recharge_time="0.3" />

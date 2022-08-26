@@ -269,6 +269,14 @@ void integrate(Scene& scene, const float t, const float dt)
                                              impact_info.size,
                                              impact_info.duration,
                                              t);
+
+                    if (!fighter_component.model->sounds.hit.empty())
+                    {
+                        scene.register_sound_effect(fighter_component.model->sounds.hit,
+                                                    fighter_motion.position,
+                                                    fighter_motion.orientation);
+                    }
+
                     to_remove.insert(laser_entity);
                     break;
                 }
@@ -276,6 +284,18 @@ void integrate(Scene& scene, const float t, const float dt)
         }
     }
     // ... and remove lasers that hit something
+    scene.registry.destroy(to_remove.begin(), to_remove.end());
+
+    // Check if any SoundEffects have finished playing ...
+    to_remove.clear();
+    for (auto [entity, sound_effect_component] : scene.registry.view<SoundEffectComponent>().each())
+    {
+        if (!sound_effect_component.sound_source->is_playing())
+        {
+            to_remove.insert(entity);
+        }
+    }
+    // ... and remove those who have
     scene.registry.destroy(to_remove.begin(), to_remove.end());
 
     // Update Billboards ...
