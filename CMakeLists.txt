@@ -28,6 +28,7 @@ include_directories(
   ${PROJECT_SOURCE_DIR}/thirdparty/imgui
   ${PROJECT_SOURCE_DIR}/thirdparty/imgui/backends
   ${PROJECT_SOURCE_DIR}/thirdparty/implot
+  ${PROJECT_SOURCE_DIR}/thirdparty/HFSM2/include
   ${PROJECT_SOURCE_DIR}/thirdparty)
 
 # Create the absolute location header to locate resources

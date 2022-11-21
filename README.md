@@ -14,6 +14,7 @@ Here's a list of the external libraries used in this project.
 | [GLEW](http://glew.sourceforge.net/)           | The OpenGL Extension Wrangler Library |
 | [Eigen3](https://gitlab.com/libeigen/eigen)    | C++ template library for linear algebra |
 | [EnTT](https://github.com/skypjack/entt)       | A fast and reliable entity component system (ECS) using modern C++ |
+| [HFSM2](https://github.com/andrew-gresyk/HFSM2)| High-Performance Hierarchical Finite State Machine Framework |
 | [Dear ImGui](https://github.com/ocornut/imgui) | Bloat-free Graphical User interface for C++ |
 | [ImPlot](https://github.com/epezent/implot)    | Plotting library for Dear ImGui |
 | [Assimp](https://github.com/assimp/assimp)     | Open-Asset-Importer-Library |

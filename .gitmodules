@@ -10,3 +10,6 @@
 [submodule "thirdparty/implot"]
 	path = thirdparty/implot
 	url = git@github.com:epezent/implot.git
+[submodule "thirdparty/HFSM2"]
+	path = thirdparty/HFSM2
+	url = git@github.com:andrew-gresyk/HFSM2.git
