@@ -43,7 +43,7 @@ class AudioSource
     AudioSource& operator=(const AudioSource&) = delete;
     AudioSource(AudioSource&&) = delete;
 
-    void play(const AudioBuffer& buffer);
+    void play(const AudioBuffer& buffer, std::optional<float> gain = std::nullopt);
     void stop();
     bool is_playing() const;
 

@@ -64,8 +64,12 @@ AudioSource::~AudioSource()
     data.destroy();
 }
 
-void AudioSource::play(const AudioBuffer& buffer)
+void AudioSource::play(const AudioBuffer& buffer, std::optional<float> gain)
 {
+    if (gain.has_value())
+    {
+        data.setGain(*gain);
+    }
     data.play(buffer.data);
 }
 
