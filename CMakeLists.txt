@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.12.4)
 project(AWingAlliance LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 
-option(BUILD_EXAMPLES "Build examples" OFF)
+option(BUILD_AWINGALLIANCE_EXAMPLES "Build examples" ON)
 
 find_package(Eigen3 3.3 REQUIRED)
 include_directories(${EIGEN3_INCLUDE_DIR})
@@ -102,7 +102,7 @@ add_library(
 target_link_libraries(ecs urdf rendering resources audio)
 target_compile_options(ecs PRIVATE -Wall -Wextra -pedantic -Werror)
 
-if("${BUILD_EXAMPLES}")
+if("${BUILD_AWINGALLIANCE_EXAMPLES}")
   add_subdirectory(${PROJECT_SOURCE_DIR}/examples)
 endif()
 
