@@ -1,5 +1,7 @@
 #pragma once
 
+#include <optional>
+
 #include "rendering/model.h"
 #include "rendering/texture.h"
 #include "rendering/shader_program.h"
@@ -21,7 +23,8 @@ class ResourceManager
     void load_skybox(const std::string& uri);
     void load_shader(const std::string& uri,
                      const std::string& vert_filename,
-                     const std::string& frag_filename);
+                     const std::string& frag_filename,
+                     const std::optional<std::string>& geom_filename = std::nullopt);
     void load_fighter_model(const std::string& uri);
     void load_sound(const std::string& uri);
 

@@ -49,11 +49,13 @@ struct texture_loader final : entt::resource_loader<texture_loader, rendering::T
 
 struct shader_loader final : entt::resource_loader<shader_loader, rendering::ShaderProgram>
 {
-    std::shared_ptr<rendering::ShaderProgram> load(const std::string& uri,
-                                                   const std::string& vert_filename,
-                                                   const std::string& frag_filename) const
+    std::shared_ptr<rendering::ShaderProgram>
+    load(const std::string& uri,
+         const std::string& vert_filename,
+         const std::string& frag_filename,
+         const std::optional<std::string>& geom_filename) const
     {
-        return rendering::compileShaders(uri, vert_filename, frag_filename);
+        return rendering::compileShaders(uri, vert_filename, frag_filename, geom_filename);
     }
 };
 
@@ -140,10 +142,11 @@ void ResourceManager::load_skybox(const std::string& uri)
 
 void ResourceManager::load_shader(const std::string& uri,
                                   const std::string& vert_filename,
-                                  const std::string& frag_filename)
+                                  const std::string& frag_filename,
+                                  const std::optional<std::string>& geom_filename)
 {
     shader_cache.load<shader_loader>(
-        entt::hashed_string(uri.c_str()), uri, vert_filename, frag_filename);
+        entt::hashed_string(uri.c_str()), uri, vert_filename, frag_filename, geom_filename);
 }
 
 void ResourceManager::load_fighter_model(const std::string& uri)

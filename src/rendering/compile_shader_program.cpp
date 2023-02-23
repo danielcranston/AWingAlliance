@@ -47,6 +47,30 @@ void printProgramInfoLog(const uint obj, const char* fn)
 }
 }  // namespace
 
+GLuint createShader(const std::string& filename, GLuint shader_type)
+{
+    GLuint shader = glCreateShader(shader_type);
+
+    const std::string vert_src = resources::load_textfile(filename, SHADERS_PATH);
+    const char* shader_source = vert_src.c_str();
+    glShaderSource(shader, 1, &shader_source, NULL);
+
+    glCompileShader(shader);
+
+    GLint isCompiled = 0;
+    glGetShaderiv(shader, GL_COMPILE_STATUS, &isCompiled);
+    if (isCompiled == GL_FALSE)
+    {
+        printShaderInfoLog(shader, filename.c_str());
+
+        glDeleteShader(shader);
+
+        throw std::runtime_error("Unable to compile shader.");
+    }
+
+    return shader;
+}
+
 namespace rendering
 {
 std::unique_ptr<ShaderProgram> compileComputeShader(const std::string& name,
@@ -98,58 +122,30 @@ std::unique_ptr<ShaderProgram> compileComputeShader(const std::string& name,
 // From https://www.khronos.org/opengl/wiki/Shader_Compilation
 std::unique_ptr<ShaderProgram> compileShaders(const std::string& name,
                                               const std::string& vertex_filename,
-                                              const std::string& fragment_filename)
+                                              const std::string& fragment_filename,
+                                              const std::optional<std::string>& geometry_filename)
 {
-    GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-
-    const std::string vert_src = resources::load_textfile(vertex_filename, SHADERS_PATH);
-    const char* vert_chars = vert_src.c_str();
-    glShaderSource(vertexShader, 1, &vert_chars, NULL);
-
-    glCompileShader(vertexShader);
-
-    GLint isCompiled = 0;
-    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &isCompiled);
-    if (isCompiled == GL_FALSE)
+    GLuint vertexShader = createShader(vertex_filename, GL_VERTEX_SHADER);
+    GLuint fragmentShader = createShader(fragment_filename, GL_FRAGMENT_SHADER);
+    GLuint geometryShader = 0;
+    if (geometry_filename)
     {
-        printShaderInfoLog(vertexShader, vertex_filename.c_str());
-
-        glDeleteShader(vertexShader);
-
-        throw std::runtime_error("Unable to compile vertex shader.");
+        geometryShader = createShader(*geometry_filename, GL_GEOMETRY_SHADER);
     }
 
-    GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-
-    const std::string frag_src = resources::load_textfile(fragment_filename, SHADERS_PATH);
-    const char* frag_chars = frag_src.c_str();
-    glShaderSource(fragmentShader, 1, &frag_chars, NULL);
-
-    glCompileShader(fragmentShader);
-
-    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &isCompiled);
-    if (isCompiled == GL_FALSE)
-    {
-        printShaderInfoLog(fragmentShader, fragment_filename.c_str());
-
-        glDeleteShader(fragmentShader);
-        glDeleteShader(vertexShader);
-
-        throw std::runtime_error("Unable to compile fragment shader.");
-    }
-
-    // Vertex and fragment shaders are successfully compiled.
-    // Now time to link them together into a program.
     GLuint program = glCreateProgram();
 
     glAttachShader(program, vertexShader);
     glAttachShader(program, fragmentShader);
+    if (geometry_filename)
+    {
+        glAttachShader(program, geometryShader);
+    }
 
     glLinkProgram(program);
-    glValidateProgram(program);
 
     GLint isLinked = 0;
-    glGetProgramiv(program, GL_LINK_STATUS, (int*)&isLinked);
+    glGetProgramiv(program, GL_LINK_STATUS, &isLinked);
     if (isLinked == GL_FALSE)
     {
         printProgramInfoLog(program, "compiled shader program");
@@ -161,6 +157,8 @@ std::unique_ptr<ShaderProgram> compileShaders(const std::string& name,
         throw std::runtime_error("Unable to link shader program.");
     }
 
+    glValidateProgram(program);
+
     // Always detach shaders after a successful link.
     glDetachShader(program, vertexShader);
     glDetachShader(program, fragmentShader);
@@ -169,6 +167,11 @@ std::unique_ptr<ShaderProgram> compileShaders(const std::string& name,
     // https://gamedev.stackexchange.com/questions/47910/after-a-succesful-gllinkprogram-should-i-delete-detach-my-shaders
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
+    if (geometry_filename)
+    {
+        glDetachShader(program, geometryShader);
+        glDeleteShader(geometryShader);
+    }
 
     // std::cout << "Creating ShaderProgram (" << name << ")" << std::endl;
 

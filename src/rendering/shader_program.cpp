@@ -68,4 +68,10 @@ void ShaderProgram::setUniformMatrix4fv(const std::string& name, const Eigen::Ma
     glUniformMatrix4fv(glGetUniformLocation(program_id, name.c_str()), 1, GL_FALSE, mat.data());
 }
 
+void ShaderProgram::setUniformMatrix3x4fv(const std::string& name,
+                                          const Eigen::Matrix<float, 4, 3>& mat) const
+{
+    glUniformMatrix3x4fv(glGetUniformLocation(program_id, name.c_str()), 1, GL_FALSE, mat.data());
+}
+
 }  // namespace rendering
