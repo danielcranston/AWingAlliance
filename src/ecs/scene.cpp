@@ -1,6 +1,7 @@
 #include "ecs/scene.h"
 #include <iostream>
 
+#include "geometry/spline.h"
 #include "resources/load_model.h"
 #include "resources/load_texture.h"
 #include "rendering/primitives.h"
@@ -141,6 +142,18 @@ entt::entity Scene::register_sound_effect(const std::string buffer_name,
         geometry::make_pose(position, orientation).matrix());
 
     sound_effect_component.sound_source->play(sound_effect_component.buffer);
+
+    return entity;
+}
+
+entt::entity Scene::register_spline(const Eigen::Vector3f& c0,
+                                    const Eigen::Vector3f& c1,
+                                    const Eigen::Vector3f& c2,
+                                    const Eigen::Vector3f& c3)
+{
+    auto entity = registry.create();
+
+    registry.emplace<SplineComponent>(entity, geometry::CubicBezierCurve(c0, c1, c2, c3));
 
     return entity;
 }

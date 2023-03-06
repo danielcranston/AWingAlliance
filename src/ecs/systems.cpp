@@ -122,6 +122,16 @@ void render(const Scene& scene, const float t)
 
     glDepthMask(true);
     glDisable(GL_BLEND);
+
+    const auto& shader_spline = resource_manager.get_shader("spline").get();
+    shader_spline.use();
+    shader_spline.setUniformMatrix4fv("camera", T_opengl_ros * camera_matrix);
+
+    for (const auto [entity, spline_component] : scene.registry.view<SplineComponent>().each())
+    {
+        shader_spline.setUniformMatrix3x4fv("C", spline_component.curve.C);
+        glDrawArrays(GL_POINTS, 0, 1);
+    }
 }
 
 void integrate(Scene& scene, const float t, const float dt)

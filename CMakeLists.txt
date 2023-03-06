@@ -75,7 +75,8 @@ target_link_libraries(audio Eigen3::Eigen alure2)
 target_include_directories(audio PUBLIC ${OPENAL_INCLUDE_DIR})
 
 add_library(geometry SHARED src/geometry/geometry.cpp
-                            src/geometry/collision.cpp)
+                            src/geometry/collision.cpp
+                            src/geometry/spline.cpp)
 target_link_libraries(geometry Eigen3::Eigen)
 target_compile_options(geometry PRIVATE -Wall -Wextra -pedantic -Werror)
 

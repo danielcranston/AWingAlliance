@@ -6,6 +6,7 @@
 #include <Eigen/Dense>
 
 #include "geometry/geometry.h"
+#include "geometry/spline.h"
 #include "rendering/model.h"
 #include "rendering/texture.h"
 #include "urdf/fighter_input.h"
@@ -104,4 +105,9 @@ struct HealthComponent
     float hull;
 
     void take_damage(const float damage);
+};
+
+struct SplineComponent
+{
+    geometry::CubicBezierCurve curve;
 };

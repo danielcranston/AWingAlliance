@@ -8,6 +8,10 @@ int main(int argc, char* argv[])
     auto context_manager = rendering::ContextManager("Main Window", 1200, 900);
 
     auto scene = ecs::SceneFactory::create_from_scenario("scenario");
+    scene->register_spline(Eigen::Vector3f(0.0f, 0.0f, 0.0f),
+                           Eigen::Vector3f(50.0f, 0.0f, 0.0f),
+                           Eigen::Vector3f(50.0f, 50.0f, 0.0f),
+                           Eigen::Vector3f(100.0f, 50.0f, 0.0f));
 
     float current_time = SDL_GetTicks() / 1000.0f;
     const float dt = 1.0f / 60.f;
