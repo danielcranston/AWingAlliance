@@ -12,8 +12,21 @@
 #include "urdf/fighter_input.h"
 #include "urdf/fighter_model.h"
 #include "audio/audio.h"
+#include "sm/roaming_state_machine.h"
 
 using MotionStateComponent = geometry::MotionState;
+
+struct RoamingStateMachineComponent
+{
+    RoamingStateMachineComponent(std::shared_ptr<sm::RoamingStateMachineContext> context)
+      : context(context), instance(*context)
+    {
+        std::ignore = context;
+    }
+
+    std::shared_ptr<sm::RoamingStateMachineContext> context;
+    sm::RoamingStateMachine::Instance instance;
+};
 
 struct CameraComponent
 {
@@ -31,11 +44,10 @@ struct CameraComponent
 
 struct FighterComponent
 {
-    FighterComponent(const std::string& name,
-                     entt::resource_handle<const urdf::FighterModel> model);
+    FighterComponent(const std::string& name, entt::resource<const urdf::FighterModel> model);
 
     std::string name;
-    entt::resource_handle<const urdf::FighterModel> model;
+    entt::resource<const urdf::FighterModel> model;
     urdf::FighterInput input;
     int current_fire_mode = 0;
     int current_spawn_idx = 0;
@@ -68,27 +80,27 @@ struct FighterComponent
 struct LaserComponent
 {
     entt::entity producer;
-    entt::resource_handle<const urdf::FighterModel> fighter_model;
+    entt::resource<const urdf::FighterModel> fighter_model;
     float length;
 };
 
 struct SkyboxComponent
 {
-    entt::resource_handle<const rendering::Texture> texture;
-    entt::resource_handle<const rendering::Model> model;
+    entt::resource<const rendering::Texture> texture;
+    entt::resource<const rendering::Model> model;
 };
 
 struct VisualComponent
 {
-    entt::resource_handle<const rendering::Model> model;
-    std::optional<std::vector<entt::resource_handle<const rendering::Texture>>> textures;
+    entt::resource<const rendering::Model> model;
+    std::optional<std::vector<entt::resource<const rendering::Texture>>> textures;
     std::optional<Eigen::Vector3f> color = std::nullopt;
     std::optional<Eigen::Vector3f> size = std::nullopt;
 };
 
 struct SoundEffectComponent
 {
-    entt::resource_handle<const audio::AudioBuffer> buffer;
+    entt::resource<const audio::AudioBuffer> buffer;
     std::unique_ptr<audio::AudioSource> sound_source;
 };
 

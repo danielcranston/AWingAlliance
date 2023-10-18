@@ -19,12 +19,11 @@ Scene::Scene()
     resource_manager.load_shader("spark", "model.vert", "spark.frag");
     resource_manager.load_shader("spline", "spline.vert", "spline.frag", "spline.geom");
 
-    resource_manager.update_shaders(
-        [](entt::resource_handle<const rendering::ShaderProgram> program) {
-            program->use();
-            program->setUniform1i("tex", 0);
-            program->setUniformMatrix4fv("model_scale", Eigen::Matrix4f::Identity());
-        });
+    resource_manager.update_shaders([](const entt::resource<rendering::ShaderProgram>& program) {
+        program->use();
+        program->setUniform1i("tex", 0);
+        program->setUniformMatrix4fv("model_scale", Eigen::Matrix4f::Identity());
+    });
 }
 
 entt::entity Scene::register_ship(const std::string& name,
@@ -38,7 +37,7 @@ entt::entity Scene::register_ship(const std::string& name,
     resource_manager.load_model(fighter_model_handle->visual_name);
     auto model_handle = resource_manager.get_model(fighter_model_handle->visual_name);
 
-    auto texture_handles = std::vector<entt::resource_handle<const rendering::Texture>>();
+    auto texture_handles = std::vector<entt::resource<const rendering::Texture>>();
     for (const auto& mesh : model_handle->get_meshes())
     {
         texture_handles.push_back(resource_manager.get_texture(mesh.get_texture_name()));
@@ -74,7 +73,7 @@ entt::entity Scene::register_camera(const Eigen::Matrix4f& perspective)
     auto entity = registry.create();
 
     resource_manager.update_shaders(
-        [&perspective](entt::resource_handle<const rendering::ShaderProgram> program) {
+        [&perspective](const entt::resource<rendering::ShaderProgram>& program) {
             program->use();
             program->setUniformMatrix4fv("perspective", perspective);
         });
@@ -87,7 +86,7 @@ entt::entity Scene::register_camera(const Eigen::Matrix4f& perspective)
 
 entt::entity Scene::register_laser(const Eigen::Vector3f& position,
                                    const Eigen::Quaternionf& orientation,
-                                   const entt::resource_handle<const urdf::FighterModel> model,
+                                   const entt::resource<const urdf::FighterModel> model,
                                    const Eigen::Vector3f& size,
                                    const Eigen::Vector3f color,
                                    const float speed,

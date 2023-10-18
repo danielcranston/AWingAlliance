@@ -23,7 +23,7 @@ class Scene
     entt::entity register_camera(const Eigen::Matrix4f& perspective);
     entt::entity register_laser(const Eigen::Vector3f& position,
                                 const Eigen::Quaternionf& orientation,
-                                const entt::resource_handle<const urdf::FighterModel> model,
+                                const entt::resource<const urdf::FighterModel> model,
                                 const Eigen::Vector3f& size,
                                 const Eigen::Vector3f color,
                                 const float speed,

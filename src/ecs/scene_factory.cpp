@@ -38,6 +38,11 @@ std::shared_ptr<Scene> SceneFactory::create_from_scenario(const std::string& sce
         {
             ret->player_uid = entity;
         }
+        else
+        {
+            auto context = std::make_shared<sm::RoamingStateMachineContext>();
+            ret->registry.emplace<RoamingStateMachineComponent>(entity, context);
+        }
     }
     if (ret->player_uid == entt::null)
     {

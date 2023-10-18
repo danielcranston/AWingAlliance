@@ -16,7 +16,7 @@ CameraComponent::get_target_state(const geometry::MotionState& tracked_entity_st
 }
 
 FighterComponent::FighterComponent(const std::string& name,
-                                   entt::resource_handle<const urdf::FighterModel> model)
+                                   entt::resource<const urdf::FighterModel> model)
   : name(name),
     model(model),
     fire_sound_source(std::make_unique<audio::AudioSource>(1.0f, false)),

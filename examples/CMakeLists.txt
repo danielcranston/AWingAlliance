@@ -5,3 +5,9 @@ target_link_libraries(hyperspace_fsm_example rendering resources audio
 add_executable(motionstate_control_example motionstate_control_example.cpp)
 target_link_libraries(motionstate_control_example ecs urdf rendering resources
                       control)
+
+find_package(ompl)
+
+add_executable(ompl_example ompl_example.cpp)
+target_include_directories(ompl_example PUBLIC ${OMPL_INCLUDE_DIRS})
+target_link_libraries(ompl_example ${OMPL_LIBRARIES})

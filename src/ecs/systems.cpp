@@ -42,7 +42,7 @@ void render_visual(const rendering::ShaderProgram& shader_program,
             rendering::draw_textured(shader_program,
                                      meshes[i],
                                      pose,
-                                     visual_component.textures.value()[i].get(),
+                                     *visual_component.textures.value()[i],  // FIXME
                                      GL_TRIANGLES);
         }
         else
@@ -69,7 +69,7 @@ void render(const Scene& scene, const float t)
     glEnable(GL_CULL_FACE);
     glDisable(GL_DEPTH_TEST);
 
-    const auto& shader_skybox = resource_manager.get_shader("skybox").get();
+    const auto& shader_skybox = *resource_manager.get_shader("skybox");
     shader_skybox.use();
     shader_skybox.setUniformMatrix4fv("camera", T_opengl_ros * camera_matrix);
 
@@ -77,16 +77,16 @@ void render(const Scene& scene, const float t)
     {
         std::ignore = entity;
         rendering::draw_textured(shader_skybox,
-                                 skybox_component.model.get().get_meshes()[0],
+                                 skybox_component.model->get_meshes()[0],
                                  Eigen::Isometry3f::Identity(),
-                                 skybox_component.texture.get(),
+                                 *skybox_component.texture,
                                  GL_TRIANGLES);
     }
 
     glEnable(GL_DEPTH_TEST);
     glClear(GL_DEPTH_BUFFER_BIT);
 
-    const auto& shader_model = resource_manager.get_shader("model").get();
+    const auto& shader_model = *resource_manager.get_shader("model");
 
     shader_model.use();
     shader_model.setUniformMatrix4fv("camera", T_opengl_ros * camera_matrix);
@@ -98,7 +98,7 @@ void render(const Scene& scene, const float t)
         render_visual(shader_model, visual_component, motion_state.pose());
     }
 
-    const auto& shader_spark = resource_manager.get_shader("spark").get();
+    const auto& shader_spark = *resource_manager.get_shader("spark");
 
     shader_spark.use();
     shader_model.setUniformMatrix4fv("camera", T_opengl_ros * camera_matrix);
@@ -123,7 +123,7 @@ void render(const Scene& scene, const float t)
     glDepthMask(true);
     glDisable(GL_BLEND);
 
-    const auto& shader_spline = resource_manager.get_shader("spline").get();
+    const auto& shader_spline = *resource_manager.get_shader("spline");
     shader_spline.use();
     shader_spline.setUniformMatrix4fv("camera", T_opengl_ros * camera_matrix);
 
@@ -189,9 +189,8 @@ void integrate(Scene& scene, const float t, const float dt)
 
                     if (!fighter_component.model->sounds.laser.empty())
                     {
-                        fighter_component.fire_sound_source->play(
-                            scene.resource_manager.get_sound(fighter_component.model->sounds.laser)
-                                .get());
+                        fighter_component.fire_sound_source->play(*scene.resource_manager.get_sound(
+                            fighter_component.model->sounds.laser));
                     }
                 }
             }
@@ -200,7 +199,7 @@ void integrate(Scene& scene, const float t, const float dt)
                 !fighter_component.engine_sound_source->is_playing())
             {
                 fighter_component.engine_sound_source->play(
-                    scene.resource_manager.get_sound(fighter_component.model->sounds.engine).get());
+                    *scene.resource_manager.get_sound(fighter_component.model->sounds.engine));
             }
 
             fighter_component.fire_sound_source->set_pose(T_opengl_ros *
@@ -238,6 +237,16 @@ void integrate(Scene& scene, const float t, const float dt)
     }
     // ... and remove destroyed ships
     scene.registry.destroy(to_remove.begin(), to_remove.end());
+
+    // Tick state machines
+    // for (auto [entity, motion_state, state_machine_component] :
+    //      scene.registry.view<MotionStateComponent, RoamingStateMachineComponent>().each())
+    // {
+    //     std::ignore = entity;
+
+    //     // Poll state, create new roaming goal if necessary.
+    //     if (state_machine_component.instance.isActive)
+    // }
 
     // Calculate, detect and react to collisions ...
     to_remove.clear();

@@ -19,8 +19,8 @@ inline float current_time()
 struct Context
 {
     ecs::ResourceManager* resource_manager;
-    entt::resource_handle<const rendering::ShaderProgram> tunnel_shader;
-    entt::resource_handle<const rendering::ShaderProgram> transition_shader;
+    entt::resource<const rendering::ShaderProgram> tunnel_shader;
+    entt::resource<const rendering::ShaderProgram> transition_shader;
 
     float last_transition_time = 0.0f;
 
@@ -66,8 +66,9 @@ struct IdleState : FSM::State
         context.last_transition_time = current_time();
         context.transition_shader->use();
 
-        context.sound_source_idle->play(
-            context.resource_manager->get_sound("Computer_Drone_10.wav").get(), 0.1);
+        context.sound_source_idle->play(*context.resource_manager->get_sound("Computer_Drone_10."
+                                                                             "wav"),
+                                        0.1);
 
         std::cout << "  IdleState" << std::endl;
     }
@@ -85,8 +86,8 @@ struct EnteringStateStartup : FSM::State
         auto& context = control.context();
         context.last_transition_time = current_time();
 
-        context.sound_source_effect1->play(
-            context.resource_manager->get_sound("Fighter_Startup_2.wav").get());
+        context.sound_source_effect1->play(*context.resource_manager->get_sound("Fighter_Startup_2."
+                                                                                "wav"));
 
         std::cout << "  EnteringStateStartup" << std::endl;
     }
@@ -111,8 +112,8 @@ struct EnteringStateHyperspaceStart : FSM::State
     {
         auto& context = control.context();
 
-        context.sound_source_effect2->play(
-            context.resource_manager->get_sound("Hyperspace_Start.wav").get());
+        context.sound_source_effect2->play(*context.resource_manager->get_sound("Hyperspace_Start."
+                                                                                "wav"));
 
         std::cout << "  EnteringStateHyperspaceStart" << std::endl;
     }
@@ -137,10 +138,10 @@ struct EnteringStateHyperspaceBreakthrough : FSM::State
     {
         auto& context = control.context();
 
-        context.sound_source_idle->play(context.resource_manager->get_sound("XW_ENG_11.wav").get(),
+        context.sound_source_idle->play(*context.resource_manager->get_sound("XW_ENG_11.wav"),
                                         0.25);
-        context.sound_source_effect1->play(
-            context.resource_manager->get_sound("Deflector_Hit_1B.wav").get());
+        context.sound_source_effect1->play(*context.resource_manager->get_sound("Deflector_Hit_1B."
+                                                                                "wav"));
 
         std::cout << "  EnteringStateHyperspaceBreakthrough" << std::endl;
     }
@@ -195,10 +196,12 @@ struct ExitingState : FSM::State
 
         context.transition_shader->use();
 
-        context.sound_source_idle->play(
-            context.resource_manager->get_sound("Computer_Drone_10.wav").get(), 0.1);
-        context.sound_source_effect1->play(
-            context.resource_manager->get_sound("Laser_Whoosh_4A.wav").get(), 0.25);
+        context.sound_source_idle->play(*context.resource_manager->get_sound("Computer_Drone_10."
+                                                                             "wav"),
+                                        0.1);
+        context.sound_source_effect1->play(*context.resource_manager->get_sound("Laser_Whoosh_4A."
+                                                                                "wav"),
+                                           0.25);
 
         std::cout << "  ExitingState" << std::endl;
     }
