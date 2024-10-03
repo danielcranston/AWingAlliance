@@ -27,7 +27,7 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt install -y build-essential cmake libsdl2-dev libglew-dev libeigen3-dev libassimp-dev libyaml-cpp-dev \
-                            libopenal-dev libvorbis-dev libopusfile-dev libsndfile1-dev
+                            libopenal-dev libvorbis-dev libopusfile-dev libsndfile1-dev libompl-dev
 
     - name: Configure CMake
       run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
