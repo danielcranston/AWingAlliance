@@ -14,7 +14,7 @@ jobs:
     runs-on: ${{ matrix.distribution }}
     strategy:
       matrix:
-        distribution: [ubuntu-18.04, ubuntu-latest]
+        distribution: [ubuntu-18.04, ubuntu-20.04]
 
     steps:
     - uses: actions/checkout@v2
