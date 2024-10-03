@@ -53,3 +53,7 @@ Run the main executable with `./awing` from the `build` folder.
 
 [ci-badge]: https://img.shields.io/github/workflow/status/danielcranston/AWingAlliance/CMake/master
 [ci-url]: https://github.com/danielcranston/AWingAlliance/actions/workflows/cmake.yml
+
+## Screenshots and examples
+
+<img src="./MotionStateAndControlDemo.png">
