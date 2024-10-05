@@ -1,5 +1,7 @@
 #pragma once
 
+#include <optional>
+
 #include <AL/alure2.h>
 #include <Eigen/Dense>
 
