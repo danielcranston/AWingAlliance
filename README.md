@@ -31,7 +31,7 @@ Binary dependencies can be installed easily via apt.
 
 ```
 sudo apt install build-essential cmake libsdl2-dev libglew-dev libeigen3-dev libassimp-dev libyaml-cpp-dev \
-                 libopenal-dev libvorbis-dev libopusfile-dev libsndfile1-dev libompl-dev
+                 libopenal-dev libvorbis-dev libopusfile-dev libsndfile1-dev libompl-dev libboost-all-dev
 ```
 
 ## Cloning and building
