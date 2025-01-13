@@ -1,0 +1,26 @@
+#pragma once
+
+#include <fstream>
+#include <filesystem>
+
+namespace data_handling
+{
+constexpr const char* ROOT_PATH = "@CMAKE_ABSOLUTE_DATA_DIR@/";
+constexpr const char* SHADERS_PATH = "@CMAKE_ABSOLUTE_DATA_DIR@/shaders/";
+constexpr const char* MODELS_PATH = "@CMAKE_ABSOLUTE_DATA_DIR@/models/";
+constexpr const char* TEXTURES_PATH = "@CMAKE_ABSOLUTE_DATA_DIR@/textures/";
+constexpr const char* SOUNDS_PATH = "@CMAKE_ABSOLUTE_DATA_DIR@/sounds/";
+constexpr const char* URDF_PATH = "@CMAKE_ABSOLUTE_DATA_DIR@/urdf/";
+
+inline std::string load_textfile(const std::string& filename,
+                                 const std::string folder_path = ROOT_PATH)
+{
+    std::string full_path = folder_path + filename;
+    std::ifstream ifs(full_path);
+    if (!ifs.good())
+        throw std::runtime_error("Could not open " + full_path);
+
+    return { (std::istreambuf_iterator<char>(ifs)), (std::istreambuf_iterator<char>()) };
+}
+
+}  // namespace data_handling
