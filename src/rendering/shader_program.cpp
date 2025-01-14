@@ -1,3 +1,5 @@
+#include "rendering/shader_program.h"
+
 #include <fstream>
 #include <string>
 #include <vector>
@@ -6,7 +8,7 @@
 #include <GL/glew.h>
 
 #include "data_handling.h"
-#include "rendering/shader_program.h"
+#include "rendering/context_manager.h"
 
 namespace rendering
 {
@@ -112,6 +114,9 @@ ShaderProgram::ShaderProgram(const std::string& uri,
 
     program_id = init_shader_program(vertex_shader, fragment_shader);
 
+    unsigned int uniform_block_index = glGetUniformBlockIndex(program_id, "Matrices");
+    glUniformBlockBinding(program_id, uniform_block_index, 0);
+
     std::cout << "ShaderProgram(program_id=" << program_id << " " << vertex_shader.filename << " "
               << fragment_shader.filename << ") constructed" << std::endl;
 }
@@ -125,36 +130,36 @@ ShaderProgram::~ShaderProgram()
 
 void ShaderProgram::use() const
 {
-    glUseProgram(program_id);
+    rendering::global::use_program(*this);
 }
 
-void ShaderProgram::setUniform1i(const std::string& name, const int value) const
+void ShaderProgram::set_uniform(const std::string& name, const int value) const
 {
     glUniform1i(glGetUniformLocation(program_id, name.c_str()), value);
 }
 
-void ShaderProgram::setUniform1f(const std::string& name, const float value) const
+void ShaderProgram::set_uniform(const std::string& name, const float value) const
 {
     glUniform1f(glGetUniformLocation(program_id, name.c_str()), value);
 }
 
-void ShaderProgram::setUniform2f(const std::string& name, const float f1, const float f2) const
+void ShaderProgram::set_uniform(const std::string& name, const float f1, const float f2) const
 {
     glUniform2f(glGetUniformLocation(program_id, name.c_str()), f1, f2);
 }
 
-void ShaderProgram::setUniform3fv(const std::string& name, const Eigen::Vector3f& vec) const
+void ShaderProgram::set_uniform(const std::string& name, const Eigen::Vector3f& vec) const
 {
     glUniform3fv(glGetUniformLocation(program_id, name.c_str()), 1, vec.data());
 }
 
-void ShaderProgram::setUniformMatrix4fv(const std::string& name, const Eigen::Matrix4f& mat) const
+void ShaderProgram::set_uniform(const std::string& name, const Eigen::Matrix4f& mat) const
 {
     glUniformMatrix4fv(glGetUniformLocation(program_id, name.c_str()), 1, GL_FALSE, mat.data());
 }
 
-void ShaderProgram::setUniformMatrix3x4fv(const std::string& name,
-                                          const Eigen::Matrix<float, 4, 3>& mat) const
+void ShaderProgram::set_uniform(const std::string& name,
+                                const Eigen::Matrix<float, 4, 3>& mat) const
 {
     glUniformMatrix3x4fv(glGetUniformLocation(program_id, name.c_str()), 1, GL_FALSE, mat.data());
 }

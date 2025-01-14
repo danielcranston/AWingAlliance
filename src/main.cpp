@@ -42,46 +42,40 @@ int main(int argc, char* argv[])
 
     auto shader_program = rendering::ShaderProgram("model", "model.vert", "model.frag");
     auto skybox_program = rendering::ShaderProgram("skybox", "sky.vert", "sky.frag");
+    auto spark_program = rendering::ShaderProgram("spark", "model.vert", "spark.frag");
 
     auto ship_model = rendering::Model("awing.obj", rendering::AutoLoadTexture);
-
-    auto skybox_model = rendering::Model("cube.obj", [](const std::string&) {
-        return std::make_shared<rendering::Texture>("skybox/new",
+    auto skybox_model = rendering::Model("cube.obj", [](const auto uri) {
+        return std::make_shared<rendering::Texture>("skybox/lightblue/512",
                                                     rendering::Texture::Type::CUBEMAP);
     });
 
-    auto camera_pose = Eigen::Isometry3f::Identity();
-    auto model_pose = make_pose({ 0.0f, 0.0f, -16.0f });
+    rendering::global::set_camera_perspective(perspective(M_PI / 180.0f * 45.0,  //
+                                                          1200.0 / 900.0,
+                                                          1,
+                                                          8192.0));
+    auto model_pose = Eigen::Isometry3f::Identity();
+    auto camera_pose = make_pose({ 0.0f, 0.0f, -50.0f });
+    int camera_rotate_dir = 0;
 
     bool should_shutdown = false;
-    SDL_Event event;
     while (!should_shutdown)
     {
-        // Start throwaway
-        // TODO: Wrap rendering of models/meshes in a nice way
-        // TODO: Use Uniform Buffer Objects: https://learnopengl.com/Advanced-OpenGL/Advanced-GLSL
+        rendering::global::clear_frame(true, true);
 
-        SDL_SetRelativeMouseMode(SDL_TRUE);
-        glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-        glEnable(GL_CULL_FACE);
-        glEnable(GL_DEPTH_TEST);
-        glDepthMask(true);
-        glDisable(GL_BLEND);
+        rendering::global::set_camera_pose(camera_pose.matrix());
 
-        shader_program.use();
-        shader_program.setUniform3fv("uniform_color", Eigen::Vector3f(1.0, 0.0, 0.0));
-        shader_program.setUniformMatrix4fv("perspective",
-                                           perspective(M_PI / 180.0f * 90.0,  //
-                                                       1200.0 / 900.0,
-                                                       5.0,       // 5.0,
-                                                       8192.0));  // 8192.0));
-        shader_program.setUniformMatrix4fv("camera", camera_pose.matrix());
-        shader_program.setUniformMatrix4fv("model_scale", scale_matrix({ 1.0f, 1.0f, 1.0f }));
+        rendering::global::write_depth_buffer(false);
+        rendering::global::cull_back_faces(false);
+        rendering::render(skybox_model, skybox_program, model_pose);
+        rendering::global::write_depth_buffer(true);
+        rendering::global::cull_back_faces(true);
 
         rendering::render(ship_model, shader_program, model_pose);
 
         SDL_GL_SwapWindow(context_manager.window);
 
+        SDL_Event event;
         while (SDL_PollEvent(&event))
         {
             if (event.type == SDL_QUIT ||
@@ -89,15 +83,30 @@ int main(int argc, char* argv[])
             {
                 should_shutdown = true;
             }
-            if (event.type == SDL_MOUSEMOTION)
+            else if (event.type == SDL_MOUSEMOTION)
             {
-                model_pose = model_pose *
-                             Eigen::AngleAxisf(0.01 * event.motion.xrel, Eigen::Vector3f::UnitY()) *
-                             Eigen::AngleAxisf(0.01 * event.motion.yrel, Eigen::Vector3f::UnitX());
-
-                // std::cout << event.motion.x << " " << event.motion.y << " (relative "
-                //           << event.motion.xrel << " " << event.motion.yrel << ")" << std::endl;
+                model_pose =
+                    model_pose *
+                    Eigen::AngleAxisf(-0.005 * event.motion.xrel, Eigen::Vector3f::UnitZ()) *
+                    Eigen::AngleAxisf(-0.005 * event.motion.yrel, Eigen::Vector3f::UnitY());
             }
+            else if ((event.type == SDL_KEYDOWN || event.type == SDL_KEYUP) && !event.key.repeat)
+            {
+                if (event.key.keysym.sym == SDLK_a)
+                {
+                    camera_rotate_dir += event.type == SDL_KEYDOWN ? 1 : -1;
+                }
+                else if (event.key.keysym.sym == SDLK_d)
+                {
+                    camera_rotate_dir -= event.type == SDL_KEYDOWN ? 1 : -1;
+                }
+            }
+        }
+
+        if (camera_rotate_dir != 0)
+        {
+            camera_pose =
+                camera_pose * Eigen::AngleAxisf(0.01 * camera_rotate_dir, Eigen::Vector3f::UnitY());
         }
     }
 

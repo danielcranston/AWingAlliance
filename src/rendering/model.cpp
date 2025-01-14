@@ -184,9 +184,9 @@ Mesh::Mesh(const std::string& model_uri,
     }
 
     diffuse_texname = parse_mesh_diffuse_texname(aimaterial);
-    if (diffuse_texname && texture_loader_fn)
+    if (texture_loader_fn)
     {
-        texture = texture_loader_fn.value()(diffuse_texname.value());
+        texture = texture_loader_fn.value()(diffuse_texname);
     }
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);

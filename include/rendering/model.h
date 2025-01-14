@@ -14,7 +14,8 @@
 namespace rendering
 {
 
-using TextureLoaderFn = std::function<std::shared_ptr<Texture>(const std::string&)>;
+using TextureLoaderFn =
+    std::function<std::shared_ptr<Texture>(std::optional<const std::string> uri)>;
 
 class Mesh
 {
@@ -64,8 +65,9 @@ class Mesh
  * Textures or not, this allows the user to choose (at the cost of some mental overhead)
  */
 constexpr auto DontLoadTexture = std::nullopt;
-constexpr auto AutoLoadTexture = [](const std::string& uri) -> std::shared_ptr<rendering::Texture> {
-    return std::make_shared<rendering::Texture>(uri);
+constexpr auto AutoLoadTexture =
+    [](std::optional<const std::string> uri) -> std::shared_ptr<rendering::Texture> {
+    return uri ? std::make_shared<rendering::Texture>(uri.value()) : nullptr;
 };
 
 class Model
