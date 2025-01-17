@@ -114,8 +114,11 @@ ShaderProgram::ShaderProgram(const std::string& uri,
 
     program_id = init_shader_program(vertex_shader, fragment_shader);
 
-    unsigned int uniform_block_index = glGetUniformBlockIndex(program_id, "Matrices");
+    unsigned int uniform_block_index = glGetUniformBlockIndex(program_id, "CameraMatrices");
     glUniformBlockBinding(program_id, uniform_block_index, 0);
+
+    uniform_block_index = glGetUniformBlockIndex(program_id, "ModelMatrices");
+    glUniformBlockBinding(program_id, uniform_block_index, 1);
 
     std::cout << "ShaderProgram(program_id=" << program_id << " " << vertex_shader.filename << " "
               << fragment_shader.filename << ") constructed" << std::endl;

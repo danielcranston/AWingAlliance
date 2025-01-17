@@ -72,6 +72,11 @@ int main(int argc, char* argv[])
         rendering::global::write_depth_buffer(true);
         rendering::global::cull_back_faces(true);
 
+        float time = SDL_GetTicks() / 1000.0f;
+        rendering::global::set_model_scale(Eigen::Vector3f::Ones() *
+                                           (0.1f * std::sin(2 * time) + 1.0f));
+
+        model_pose.translation().x() = 5.0f * std::sin(time);
         rendering::render(ship_model, shader_program, model_pose);
 
         // TODO: Move global to separate file first

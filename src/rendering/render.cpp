@@ -1,4 +1,5 @@
 #include "rendering/render.h"
+#include "rendering/global.h"
 #include <iostream>
 
 #include <GL/glew.h>
@@ -11,7 +12,7 @@ void render_mesh(const Mesh& mesh,
                  const ShaderProgram& shader_program,
                  const Eigen::Isometry3f& pose)
 {
-    shader_program.set_uniform("model_pose", pose.matrix());
+    rendering::global::set_model_pose(pose.matrix());
 
     if (mesh.texture)
     {

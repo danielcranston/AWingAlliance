@@ -21,6 +21,8 @@ void use_program(const ShaderProgram& shader_program);
 
 void set_camera_perspective(const Eigen::Matrix4f& mat);
 void set_camera_pose(const Eigen::Matrix4f& mat);
+void set_model_pose(const Eigen::Matrix4f& mat);
+void set_model_scale(const Eigen::Vector3f& scale);
 
 }  // namespace rendering::global
 

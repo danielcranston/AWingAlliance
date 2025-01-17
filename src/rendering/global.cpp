@@ -7,43 +7,69 @@ namespace rendering::global
 {
 namespace
 {
-// https://learnopengl.com/Advanced-OpenGL/Advanced-GLSL
-struct UniformBufferObject
-{
-    UniformBufferObject()
-    {
-        // Create buffer, bind it to Uniform Buffer 0
-        glGenBuffers(1, &ubo);
-        glBindBuffer(GL_UNIFORM_BUFFER, ubo);
-        glBufferData(GL_UNIFORM_BUFFER, 2 * 16 * sizeof(float), NULL, GL_STATIC_DRAW);
-        glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-        glBindBufferRange(GL_UNIFORM_BUFFER, 0, ubo, 0, 2 * 16 * sizeof(float));
-
-        // Buffer some data into it
-        glBindBuffer(GL_UNIFORM_BUFFER, ubo);
-
-        Eigen::Matrix4f persp = Eigen::Matrix4f::Identity();
-        Eigen::Matrix4f camera = Eigen::Matrix4f::Identity();
-
-        glBufferSubData(GL_UNIFORM_BUFFER, 0, 16 * sizeof(float), persp.data());
-        glBufferSubData(GL_UNIFORM_BUFFER, 16 * sizeof(float), 16 * sizeof(float), camera.data());
-        glBindBuffer(GL_UNIFORM_BUFFER, 0);
-    }
-
-    unsigned int ubo;
-};
+struct UniformBufferObjectCameraMatrices;
+struct UniformBufferObjectModelMatrices;
 
 /**
  * @brief Hidden global state
  */
-static std::unique_ptr<UniformBufferObject> UNIFORM_BUFFER_OBJECT = nullptr;
+
+static std::unique_ptr<UniformBufferObjectCameraMatrices> UBO_CAMERAMATRICES = nullptr;
+static std::unique_ptr<UniformBufferObjectModelMatrices> UBO_MODELMATRICES = nullptr;
 
 static bool TEST_DEPTH_BUFFER = false;
 static bool WRITE_DEPTH_BUFFER = false;
 static bool CULL_BACK_FACES = false;
 
 static unsigned int CURRENT_SHADER_PROGRAM = 9999;
+static unsigned int CURRENT_UNIFORM_BUFFER = 9999;
+
+/* End hidden global state */
+
+// https://learnopengl.com/Advanced-OpenGL/Advanced-GLSL
+unsigned int init_uniform_buffer_object(unsigned int binding_point, unsigned int buffer_size)
+{
+    unsigned int ubo;
+    glGenBuffers(1, &ubo);
+    glBindBuffer(GL_UNIFORM_BUFFER, ubo);
+    glBufferData(GL_UNIFORM_BUFFER, buffer_size, NULL, GL_STATIC_DRAW);
+
+    glBindBufferBase(GL_UNIFORM_BUFFER, binding_point, ubo);
+
+    return ubo;
+}
+
+struct UniformBufferObjectCameraMatrices
+{
+    UniformBufferObjectCameraMatrices()
+    {
+        ubo = init_uniform_buffer_object(0, 2 * 16 * sizeof(float));
+
+        const Eigen::Matrix4f identity = Eigen::Matrix4f::Identity();
+
+        glBufferSubData(GL_UNIFORM_BUFFER, 0, 16 * sizeof(float), identity.data());
+        glBufferSubData(GL_UNIFORM_BUFFER, 16 * sizeof(float), 16 * sizeof(float), identity.data());
+        glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    }
+
+    unsigned int ubo;
+};
+
+struct UniformBufferObjectModelMatrices
+{
+    UniformBufferObjectModelMatrices()
+    {
+        ubo = init_uniform_buffer_object(1, 2 * 16 * sizeof(float));
+
+        const Eigen::Matrix4f identity = Eigen::Matrix4f::Identity();
+
+        glBufferSubData(GL_UNIFORM_BUFFER, 0, 16 * sizeof(float), identity.data());
+        glBufferSubData(GL_UNIFORM_BUFFER, 16 * sizeof(float), 16 * sizeof(float), identity.data());
+        glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    }
+
+    unsigned int ubo;
+};
 
 }  // namespace
 
@@ -92,26 +118,60 @@ void use_program(const ShaderProgram& shader_program)
 
 void set_camera_perspective(const Eigen::Matrix4f& mat)
 {
-    glBindBuffer(GL_UNIFORM_BUFFER, UNIFORM_BUFFER_OBJECT->ubo);
+    if (CURRENT_UNIFORM_BUFFER != UBO_CAMERAMATRICES->ubo)
+    {
+        CURRENT_UNIFORM_BUFFER = UBO_CAMERAMATRICES->ubo;
+        glBindBuffer(GL_UNIFORM_BUFFER, UBO_CAMERAMATRICES->ubo);
+    }
+
     glBufferSubData(GL_UNIFORM_BUFFER, 0, 16 * sizeof(float), mat.data());
 }
 
 void set_camera_pose(const Eigen::Matrix4f& mat)
 {
-    glBindBuffer(GL_UNIFORM_BUFFER, UNIFORM_BUFFER_OBJECT->ubo);
+    if (CURRENT_UNIFORM_BUFFER != UBO_CAMERAMATRICES->ubo)
+    {
+        CURRENT_UNIFORM_BUFFER = UBO_CAMERAMATRICES->ubo;
+        glBindBuffer(GL_UNIFORM_BUFFER, UBO_CAMERAMATRICES->ubo);
+    }
+
     glBufferSubData(GL_UNIFORM_BUFFER, 16 * sizeof(float), 16 * sizeof(float), mat.data());
 }
 
-namespace impl
+void set_model_pose(const Eigen::Matrix4f& mat)
+{
+    if (CURRENT_UNIFORM_BUFFER != UBO_MODELMATRICES->ubo)
+    {
+        CURRENT_UNIFORM_BUFFER = UBO_MODELMATRICES->ubo;
+        glBindBuffer(GL_UNIFORM_BUFFER, UBO_MODELMATRICES->ubo);
+    }
+
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, 16 * sizeof(float), mat.data());
+}
+
+void set_model_scale(const Eigen::Vector3f& scale)
+{
+    if (CURRENT_UNIFORM_BUFFER != UBO_MODELMATRICES->ubo)
+    {
+        CURRENT_UNIFORM_BUFFER = UBO_MODELMATRICES->ubo;
+        glBindBuffer(GL_UNIFORM_BUFFER, UBO_MODELMATRICES->ubo);
+    }
+
+    Eigen::Matrix4f mat = scale.homogeneous().asDiagonal().toDenseMatrix();
+    glBufferSubData(GL_UNIFORM_BUFFER, 16 * sizeof(float), 16 * sizeof(float), mat.data());
+}
+
+}  // namespace rendering::global
+
+namespace rendering::global::impl
 {
 void init()
 {
-    UNIFORM_BUFFER_OBJECT = std::make_unique<UniformBufferObject>();
+    UBO_CAMERAMATRICES = std::make_unique<UniformBufferObjectCameraMatrices>();
+    UBO_MODELMATRICES = std::make_unique<UniformBufferObjectModelMatrices>();
 
     write_depth_buffer(true);
     test_depth_buffer(true);
     cull_back_faces(true);
 }
-}  // namespace impl
-
-}  // namespace rendering::global
+}  // namespace rendering::global::impl
