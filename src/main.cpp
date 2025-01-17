@@ -4,6 +4,7 @@
 #include "rendering/render.h"
 #include "rendering/shader_program.h"
 #include "rendering/context_manager.h"
+#include "rendering/global.h"
 
 #include <GL/glew.h>
 
@@ -72,6 +73,11 @@ int main(int argc, char* argv[])
         rendering::global::cull_back_faces(true);
 
         rendering::render(ship_model, shader_program, model_pose);
+
+        // TODO: Move global to separate file first
+
+        // rendering::global::cull_back_faces(false);
+        // rendering::global::write_depth_buffer(false);
 
         SDL_GL_SwapWindow(context_manager.window);
 

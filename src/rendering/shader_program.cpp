@@ -8,7 +8,7 @@
 #include <GL/glew.h>
 
 #include "data_handling.h"
-#include "rendering/context_manager.h"
+#include "rendering/global.h"
 
 namespace rendering
 {
