@@ -70,7 +70,7 @@ constexpr auto AutoLoadTexture =
     return uri ? std::make_shared<rendering::Texture>(uri.value()) : nullptr;
 };
 
-class Model
+struct Model
 {
   public:
     Model(const std::string& uri,
@@ -84,13 +84,10 @@ class Model
 
     ~Model();
 
-    const std::vector<Mesh>& get_meshes() const;
+    std::vector<Mesh> meshes;
 
     std::string uri;
     Eigen::AlignedBox3f bounding_box;
     std::vector<std::string> texture_names;
-
-  private:
-    std::vector<Mesh> meshes;
 };
 }  // namespace rendering

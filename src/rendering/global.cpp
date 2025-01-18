@@ -1,11 +1,10 @@
 #include "rendering/global.h"
+#include "rendering/model.h"
 
 #include <GL/glew.h>
 #include <memory>
 
 namespace rendering::global
-{
-namespace
 {
 struct UniformBufferObjectCameraMatrices;
 struct UniformBufferObjectModelMatrices;
@@ -16,6 +15,8 @@ struct UniformBufferObjectModelMatrices;
 
 static std::unique_ptr<UniformBufferObjectCameraMatrices> UBO_CAMERAMATRICES = nullptr;
 static std::unique_ptr<UniformBufferObjectModelMatrices> UBO_MODELMATRICES = nullptr;
+std::unique_ptr<Mesh> QUAD_MESH = nullptr;
+std::unique_ptr<Mesh> CUBE_MESH = nullptr;
 
 static bool TEST_DEPTH_BUFFER = false;
 static bool WRITE_DEPTH_BUFFER = false;
@@ -26,6 +27,8 @@ static unsigned int CURRENT_UNIFORM_BUFFER = 9999;
 
 /* End hidden global state */
 
+namespace
+{
 // https://learnopengl.com/Advanced-OpenGL/Advanced-GLSL
 unsigned int init_uniform_buffer_object(unsigned int binding_point, unsigned int buffer_size)
 {
@@ -38,6 +41,7 @@ unsigned int init_uniform_buffer_object(unsigned int binding_point, unsigned int
 
     return ubo;
 }
+}  // namespace
 
 struct UniformBufferObjectCameraMatrices
 {
@@ -70,8 +74,6 @@ struct UniformBufferObjectModelMatrices
 
     unsigned int ubo;
 };
-
-}  // namespace
 
 void clear_frame(const bool color_buffer, const bool depth_buffer)
 {
@@ -169,6 +171,9 @@ void init()
 {
     UBO_CAMERAMATRICES = std::make_unique<UniformBufferObjectCameraMatrices>();
     UBO_MODELMATRICES = std::make_unique<UniformBufferObjectModelMatrices>();
+
+    QUAD_MESH = std::make_unique<Mesh>(std::move(Model("quad.obj").meshes[0]));
+    CUBE_MESH = std::make_unique<Mesh>(std::move(Model("cube.obj").meshes[0]));
 
     write_depth_buffer(true);
     test_depth_buffer(true);

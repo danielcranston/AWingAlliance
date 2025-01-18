@@ -16,11 +16,6 @@ Eigen::Isometry3f make_pose(const Eigen::Vector3f& pos,
     return pose;
 }
 
-Eigen::Matrix4f scale_matrix(const Eigen::Vector3f& scale)
-{
-    return scale.homogeneous().asDiagonal().toDenseMatrix();
-}
-
 // https://stackoverflow.com/questions/14971712/eigen-perspective-projection-matrix
 Eigen::Matrix4f
 perspective(const float fov_y, const float aspect, const float z_near, const float z_far)
@@ -83,6 +78,7 @@ int main(int argc, char* argv[])
 
         // rendering::global::cull_back_faces(false);
         // rendering::global::write_depth_buffer(false);
+        rendering::render_billboard(shader_program, model_pose, Eigen::Vector3f::Ones() * 5.0f);
 
         SDL_GL_SwapWindow(context_manager.window);
 

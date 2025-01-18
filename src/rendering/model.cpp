@@ -249,9 +249,4 @@ Model::~Model()
     // std::cout << "Model Destructor" << std::endl;
 }
 
-const std::vector<Mesh>& Model::get_meshes() const
-{
-    return meshes;
-}
-
 }  // namespace rendering

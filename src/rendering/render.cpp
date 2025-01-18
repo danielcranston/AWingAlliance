@@ -6,6 +6,12 @@
 
 namespace rendering
 {
+namespace global
+{
+extern std::unique_ptr<Mesh> QUAD_MESH;
+extern std::unique_ptr<Mesh> CUBE_MESH;
+}  // namespace global
+
 namespace
 {
 void render_mesh(const Mesh& mesh,
@@ -36,23 +42,18 @@ void render(const Model& model, const ShaderProgram& shader_program, const Eigen
 {
     shader_program.use();
 
-    for (const auto& mesh : model.get_meshes())
+    for (const auto& mesh : model.meshes)
     {
         render_mesh(mesh, shader_program, pose);
     }
 }
 
-// void render_billboard(const ShaderProgram& shader_program,
-//                       const Eigen::Isometry3f& pose,
-//                       const Eigen::Vector3f& scale)
-// {
-//     shader_program.use();
-//     shader_spark.set_uniform("model_scale", billboard_component.size);
-//     shader_spark.setUniform1f("start_time", billboard_component.birth_time);
-//     rendering::draw_colored(shader_spark,
-//                             quad_mesh,
-//                             motion_state.pose(),
-//                             Eigen::Vector3f(0.0f, 0.0f, 1.0f),
-//                             GL_TRIANGLES);
-// }
+void render_billboard(const ShaderProgram& shader_program,
+                      const Eigen::Isometry3f& pose,
+                      const Eigen::Vector3f& scale)
+
+{
+    rendering::global::set_model_scale(scale);
+    render_mesh(*global::QUAD_MESH, shader_program, pose);
+}
 }  // namespace rendering
