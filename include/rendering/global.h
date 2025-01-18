@@ -17,6 +17,7 @@ void clear_frame(const bool color_buffer, const bool depth_buffer);
 void write_depth_buffer(const bool enable);
 void test_depth_buffer(const bool enable);
 void cull_back_faces(const bool enable);
+void use_alpha(const bool enable);
 void use_program(const ShaderProgram& shader_program);
 
 void set_camera_perspective(const Eigen::Matrix4f& mat);

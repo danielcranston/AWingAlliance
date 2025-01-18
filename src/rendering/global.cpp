@@ -15,12 +15,18 @@ struct UniformBufferObjectModelMatrices;
 
 static std::unique_ptr<UniformBufferObjectCameraMatrices> UBO_CAMERAMATRICES = nullptr;
 static std::unique_ptr<UniformBufferObjectModelMatrices> UBO_MODELMATRICES = nullptr;
+
+std::unique_ptr<ShaderProgram> MODEL_SHADER;
+std::unique_ptr<ShaderProgram> SKYBOX_SHADER;
+std::unique_ptr<ShaderProgram> SPARK_SHADER;
+
 std::unique_ptr<Mesh> QUAD_MESH = nullptr;
 std::unique_ptr<Mesh> CUBE_MESH = nullptr;
 
 static bool TEST_DEPTH_BUFFER = false;
 static bool WRITE_DEPTH_BUFFER = false;
 static bool CULL_BACK_FACES = false;
+static bool USE_ALPHA = true;
 
 static unsigned int CURRENT_SHADER_PROGRAM = 9999;
 static unsigned int CURRENT_UNIFORM_BUFFER = 9999;
@@ -109,6 +115,15 @@ void cull_back_faces(const bool enable)
     }
 }
 
+void use_alpha(const bool enable)
+{
+    if (USE_ALPHA != enable)
+    {
+        USE_ALPHA = enable;
+        enable ? glEnable(GL_BLEND) : glDisable(GL_BLEND);
+    }
+}
+
 void use_program(const ShaderProgram& shader_program)
 {
     if (shader_program.program_id != CURRENT_SHADER_PROGRAM)
@@ -175,8 +190,13 @@ void init()
     QUAD_MESH = std::make_unique<Mesh>(std::move(Model("quad.obj").meshes[0]));
     CUBE_MESH = std::make_unique<Mesh>(std::move(Model("cube.obj").meshes[0]));
 
+    MODEL_SHADER = std::make_unique<ShaderProgram>("model", "model.vert", "model.frag");
+    SKYBOX_SHADER = std::make_unique<ShaderProgram>("skybox", "sky.vert", "sky.frag");
+    SPARK_SHADER = std::make_unique<ShaderProgram>("spark", "model.vert", "spark.frag");
+
     write_depth_buffer(true);
     test_depth_buffer(true);
     cull_back_faces(true);
+    use_alpha(false);
 }
 }  // namespace rendering::global::impl

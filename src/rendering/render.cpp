@@ -10,6 +10,10 @@ namespace global
 {
 extern std::unique_ptr<Mesh> QUAD_MESH;
 extern std::unique_ptr<Mesh> CUBE_MESH;
+
+extern std::unique_ptr<ShaderProgram> MODEL_SHADER;
+extern std::unique_ptr<ShaderProgram> SKYBOX_SHADER;
+extern std::unique_ptr<ShaderProgram> SPARK_SHADER;
 }  // namespace global
 
 namespace
@@ -38,22 +42,41 @@ void render_mesh(const Mesh& mesh,
 }
 }  // namespace
 
-void render(const Model& model, const ShaderProgram& shader_program, const Eigen::Isometry3f& pose)
+void render_model(const Model& model, const Eigen::Isometry3f& pose)
 {
-    shader_program.use();
+    global::use_program(*global::MODEL_SHADER);
 
     for (const auto& mesh : model.meshes)
     {
-        render_mesh(mesh, shader_program, pose);
+        render_mesh(mesh, *global::MODEL_SHADER, pose);
     }
 }
 
-void render_billboard(const ShaderProgram& shader_program,
-                      const Eigen::Isometry3f& pose,
-                      const Eigen::Vector3f& scale)
-
+void render_skybox(const Texture& texture)
 {
+    global::use_program(*global::SKYBOX_SHADER);
+
+    rendering::global::write_depth_buffer(false);
+    rendering::global::cull_back_faces(false);
+
+    glBindTexture(GL_TEXTURE_CUBE_MAP, texture.texture_id);
+    glBindVertexArray(global::CUBE_MESH->vao);
+    glDrawElements(GL_TRIANGLES, global::CUBE_MESH->num_indices, GL_UNSIGNED_INT, (const void*)0);
+
+    rendering::global::write_depth_buffer(true);
+    rendering::global::cull_back_faces(true);
+}
+
+void render_spark(const Eigen::Isometry3f& pose, const Eigen::Vector3f& scale)
+{
+    global::use_alpha(true);
+    global::cull_back_faces(false);
+    global::use_program(*global::SPARK_SHADER);
+
     rendering::global::set_model_scale(scale);
-    render_mesh(*global::QUAD_MESH, shader_program, pose);
+    render_mesh(*global::QUAD_MESH, *global::SPARK_SHADER, pose);
+
+    global::cull_back_faces(true);
+    global::use_alpha(false);
 }
 }  // namespace rendering

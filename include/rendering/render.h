@@ -24,9 +24,7 @@ struct RenderOverrides
 {
 };
 
-void render(const Model& model, const ShaderProgram& shader_program, const Eigen::Isometry3f& pose);
+void render_model(const Model& model, const Eigen::Isometry3f& pose);
 void render_skybox(const rendering::Texture& texture);
-void render_billboard(const ShaderProgram& shader_program,
-                      const Eigen::Isometry3f& pose,
-                      const Eigen::Vector3f& scale);
+void render_spark(const Eigen::Isometry3f& pose, const Eigen::Vector3f& scale);
 }  // namespace rendering

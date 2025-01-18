@@ -8,7 +8,6 @@
 #include <GL/glew.h>
 
 #include "data_handling.h"
-#include "rendering/global.h"
 
 namespace rendering
 {
@@ -129,11 +128,6 @@ ShaderProgram::~ShaderProgram()
     std::cout << "ShaderProgram(program_id=" << program_id << ") being cleaned up" << std::endl;
     glUseProgram(0);
     glDeleteProgram(program_id);
-}
-
-void ShaderProgram::use() const
-{
-    rendering::global::use_program(*this);
 }
 
 void ShaderProgram::set_uniform(const std::string& name, const int value) const

@@ -19,8 +19,6 @@ struct ShaderProgram
     ShaderProgram& operator=(ShaderProgram&) = delete;
     ShaderProgram& operator=(const ShaderProgram&) = delete;
 
-    void use() const;
-
     void set_uniform(const std::string& name, const int value) const;
     void set_uniform(const std::string& name, const float value) const;
     void set_uniform(const std::string& name, const float f1, const float f2) const;

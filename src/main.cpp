@@ -36,15 +36,10 @@ int main(int argc, char* argv[])
 
     auto context_manager = rendering::ContextManager("Main Window", 1200, 900);
 
-    auto shader_program = rendering::ShaderProgram("model", "model.vert", "model.frag");
-    auto skybox_program = rendering::ShaderProgram("skybox", "sky.vert", "sky.frag");
-    auto spark_program = rendering::ShaderProgram("spark", "model.vert", "spark.frag");
-
     auto ship_model = rendering::Model("awing.obj", rendering::AutoLoadTexture);
-    auto skybox_model = rendering::Model("cube.obj", [](const auto uri) {
-        return std::make_shared<rendering::Texture>("skybox/lightblue/512",
-                                                    rendering::Texture::Type::CUBEMAP);
-    });
+
+    auto sky_texture =
+        rendering::Texture("skybox/lightblue/512", rendering::Texture::Type::CUBEMAP);
 
     rendering::global::set_camera_perspective(perspective(M_PI / 180.0f * 45.0,  //
                                                           1200.0 / 900.0,
@@ -61,24 +56,20 @@ int main(int argc, char* argv[])
 
         rendering::global::set_camera_pose(camera_pose.matrix());
 
-        rendering::global::write_depth_buffer(false);
-        rendering::global::cull_back_faces(false);
-        rendering::render(skybox_model, skybox_program, model_pose);
-        rendering::global::write_depth_buffer(true);
-        rendering::global::cull_back_faces(true);
+        rendering::render_skybox(sky_texture);
 
         float time = SDL_GetTicks() / 1000.0f;
         rendering::global::set_model_scale(Eigen::Vector3f::Ones() *
                                            (0.1f * std::sin(2 * time) + 1.0f));
 
         model_pose.translation().x() = 5.0f * std::sin(time);
-        rendering::render(ship_model, shader_program, model_pose);
+        rendering::render_model(ship_model, model_pose);
 
         // TODO: Move global to separate file first
 
         // rendering::global::cull_back_faces(false);
         // rendering::global::write_depth_buffer(false);
-        rendering::render_billboard(shader_program, model_pose, Eigen::Vector3f::Ones() * 5.0f);
+        rendering::render_spark(model_pose, Eigen::Vector3f::Ones() * 5.0f);
 
         SDL_GL_SwapWindow(context_manager.window);
 
