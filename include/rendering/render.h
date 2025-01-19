@@ -15,13 +15,16 @@ Use cases:
   - Draw model (color)
   - Draw skybox (textured)
   - Draw sprite (hyperspace)
-  - Draw sprite (spark, transparent, to FBO)
-  - Draw spline (color)
+  - Draw spline (color, line strip)
 
 */
 
-void render_model(const Model& model, const Eigen::Isometry3f& pose);
+void render_model(const Model& model,
+                  const Eigen::Isometry3f& pose,
+                  const Eigen::Vector3f& scale = Eigen::Vector3f::Ones());
 void render_skybox(const rendering::Texture& texture);
-void render_spark(const Eigen::Isometry3f& pose, const Eigen::Vector3f& scale);
+void render_spark(const Eigen::Isometry3f& pose,
+                  const Eigen::Vector3f& scale,
+                  const float start_time);
 void render_screen_transition();
 }  // namespace rendering

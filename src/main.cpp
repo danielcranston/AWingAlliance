@@ -49,6 +49,7 @@ int main(int argc, char* argv[])
     auto T_model_spark = make_pose({ 0.0f, 0.0f, 5.0f });
     auto camera_pose = make_pose({ 0.0f, 0.0f, -50.0f });
     int camera_rotate_dir = 0;
+    auto spark_scale = Eigen::Vector3f::Ones() * 15.0f;
 
     bool should_shutdown = false;
     while (!should_shutdown)
@@ -67,8 +68,10 @@ int main(int argc, char* argv[])
         rendering::render_model(ship_model, model_pose);
 
         rendering::global::set_effect_current_time(time);
-        rendering::global::set_effect_start_time(std::floor(time / 1.0f) * 1.0f);
-        rendering::render_spark(model_pose * T_model_spark, Eigen::Vector3f::Ones() * 15.0f);
+
+        float start_time = std::floor(time / 1.0f) * 1.0f;
+
+        rendering::render_spark(model_pose * T_model_spark, spark_scale, start_time);
         rendering::render_screen_transition();
 
         SDL_GL_SwapWindow(context_manager.window);

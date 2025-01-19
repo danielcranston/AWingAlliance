@@ -4,7 +4,6 @@
 
 #include <GL/glew.h>
 #include <SDL2/SDL.h>
-#include <Eigen/Dense>
 
 namespace rendering
 {
