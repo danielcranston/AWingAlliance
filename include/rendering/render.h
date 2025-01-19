@@ -20,11 +20,8 @@ Use cases:
 
 */
 
-struct RenderOverrides
-{
-};
-
 void render_model(const Model& model, const Eigen::Isometry3f& pose);
 void render_skybox(const rendering::Texture& texture);
 void render_spark(const Eigen::Isometry3f& pose, const Eigen::Vector3f& scale);
+void render_screen_transition();
 }  // namespace rendering

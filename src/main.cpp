@@ -66,9 +66,10 @@ int main(int argc, char* argv[])
         model_pose.translation().x() = 5.0f * std::sin(time);
         rendering::render_model(ship_model, model_pose);
 
-        rendering::global::set_effect_current_time(std::fmod(time, 1.0f));
-        rendering::global::set_effect_start_time(0.0f);
+        rendering::global::set_effect_current_time(time);
+        rendering::global::set_effect_start_time(std::floor(time / 1.0f) * 1.0f);
         rendering::render_spark(model_pose * T_model_spark, Eigen::Vector3f::Ones() * 15.0f);
+        rendering::render_screen_transition();
 
         SDL_GL_SwapWindow(context_manager.window);
 

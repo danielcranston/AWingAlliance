@@ -22,6 +22,7 @@ static std::unique_ptr<UniformBufferObjectTimeData> UBO_TIMEDATA = nullptr;
 std::unique_ptr<ShaderProgram> MODEL_SHADER;
 std::unique_ptr<ShaderProgram> SKYBOX_SHADER;
 std::unique_ptr<ShaderProgram> SPARK_SHADER;
+std::unique_ptr<ShaderProgram> SCREENSPACE_SHADER;
 
 std::unique_ptr<Mesh> QUAD_MESH = nullptr;
 std::unique_ptr<Mesh> CUBE_MESH = nullptr;
@@ -230,6 +231,8 @@ void init()
     MODEL_SHADER = std::make_unique<ShaderProgram>("model", "model.vert", "model.frag");
     SKYBOX_SHADER = std::make_unique<ShaderProgram>("skybox", "sky.vert", "sky.frag");
     SPARK_SHADER = std::make_unique<ShaderProgram>("spark", "model.vert", "spark.frag");
+    SCREENSPACE_SHADER =
+        std::make_unique<ShaderProgram>("screenspace", "screenspace.vert", "screenspace.frag");
 
     write_depth_buffer(true);
     test_depth_buffer(true);
