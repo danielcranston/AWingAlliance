@@ -24,6 +24,8 @@ void set_camera_perspective(const Eigen::Matrix4f& mat);
 void set_camera_pose(const Eigen::Matrix4f& mat);
 void set_model_pose(const Eigen::Matrix4f& mat);
 void set_model_scale(const Eigen::Vector3f& scale);
+void set_effect_current_time(const float time);
+void set_effect_start_time(const float time);
 
 }  // namespace rendering::global
 

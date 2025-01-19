@@ -46,6 +46,7 @@ int main(int argc, char* argv[])
                                                           1,
                                                           8192.0));
     auto model_pose = Eigen::Isometry3f::Identity();
+    auto T_model_spark = make_pose({ 0.0f, 0.0f, 5.0f });
     auto camera_pose = make_pose({ 0.0f, 0.0f, -50.0f });
     int camera_rotate_dir = 0;
 
@@ -65,11 +66,9 @@ int main(int argc, char* argv[])
         model_pose.translation().x() = 5.0f * std::sin(time);
         rendering::render_model(ship_model, model_pose);
 
-        // TODO: Move global to separate file first
-
-        // rendering::global::cull_back_faces(false);
-        // rendering::global::write_depth_buffer(false);
-        rendering::render_spark(model_pose, Eigen::Vector3f::Ones() * 5.0f);
+        rendering::global::set_effect_current_time(std::fmod(time, 1.0f));
+        rendering::global::set_effect_start_time(0.0f);
+        rendering::render_spark(model_pose * T_model_spark, Eigen::Vector3f::Ones() * 15.0f);
 
         SDL_GL_SwapWindow(context_manager.window);
 

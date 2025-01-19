@@ -1,5 +1,6 @@
 #include "rendering/global.h"
 #include "rendering/model.h"
+#include "rendering/texture.h"
 
 #include <GL/glew.h>
 #include <memory>
@@ -8,6 +9,7 @@ namespace rendering::global
 {
 struct UniformBufferObjectCameraMatrices;
 struct UniformBufferObjectModelMatrices;
+struct UniformBufferObjectTimeData;
 
 /**
  * @brief Hidden global state
@@ -15,6 +17,7 @@ struct UniformBufferObjectModelMatrices;
 
 static std::unique_ptr<UniformBufferObjectCameraMatrices> UBO_CAMERAMATRICES = nullptr;
 static std::unique_ptr<UniformBufferObjectModelMatrices> UBO_MODELMATRICES = nullptr;
+static std::unique_ptr<UniformBufferObjectTimeData> UBO_TIMEDATA = nullptr;
 
 std::unique_ptr<ShaderProgram> MODEL_SHADER;
 std::unique_ptr<ShaderProgram> SKYBOX_SHADER;
@@ -75,6 +78,17 @@ struct UniformBufferObjectModelMatrices
 
         glBufferSubData(GL_UNIFORM_BUFFER, 0, 16 * sizeof(float), identity.data());
         glBufferSubData(GL_UNIFORM_BUFFER, 16 * sizeof(float), 16 * sizeof(float), identity.data());
+        glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    }
+
+    unsigned int ubo;
+};
+
+struct UniformBufferObjectTimeData
+{
+    UniformBufferObjectTimeData()
+    {
+        ubo = init_uniform_buffer_object(2, 2 * sizeof(float));
         glBindBuffer(GL_UNIFORM_BUFFER, 0);
     }
 
@@ -178,6 +192,28 @@ void set_model_scale(const Eigen::Vector3f& scale)
     glBufferSubData(GL_UNIFORM_BUFFER, 16 * sizeof(float), 16 * sizeof(float), mat.data());
 }
 
+void set_effect_current_time(const float time)
+{
+    if (CURRENT_UNIFORM_BUFFER != UBO_TIMEDATA->ubo)
+    {
+        CURRENT_UNIFORM_BUFFER = UBO_TIMEDATA->ubo;
+        glBindBuffer(GL_UNIFORM_BUFFER, UBO_TIMEDATA->ubo);
+    }
+
+    glBufferSubData(GL_UNIFORM_BUFFER, 0 * sizeof(float), 1 * sizeof(float), &time);
+}
+
+void set_effect_start_time(const float start_time)
+{
+    if (CURRENT_UNIFORM_BUFFER != UBO_TIMEDATA->ubo)
+    {
+        CURRENT_UNIFORM_BUFFER = UBO_TIMEDATA->ubo;
+        glBindBuffer(GL_UNIFORM_BUFFER, UBO_TIMEDATA->ubo);
+    }
+
+    glBufferSubData(GL_UNIFORM_BUFFER, 1 * sizeof(float), 1 * sizeof(float), &start_time);
+}
+
 }  // namespace rendering::global
 
 namespace rendering::global::impl
@@ -186,6 +222,7 @@ void init()
 {
     UBO_CAMERAMATRICES = std::make_unique<UniformBufferObjectCameraMatrices>();
     UBO_MODELMATRICES = std::make_unique<UniformBufferObjectModelMatrices>();
+    UBO_TIMEDATA = std::make_unique<UniformBufferObjectTimeData>();
 
     QUAD_MESH = std::make_unique<Mesh>(std::move(Model("quad.obj").meshes[0]));
     CUBE_MESH = std::make_unique<Mesh>(std::move(Model("cube.obj").meshes[0]));
