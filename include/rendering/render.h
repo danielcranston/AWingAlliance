@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <optional>
 
 #include "rendering/model.h"
 #include "rendering/shader_program.h"
@@ -19,12 +20,19 @@ Use cases:
 
 */
 
+struct RenderOptions
+{
+    std::optional<Eigen::Vector3f> scale;
+    std::optional<Eigen::Vector3f> color;
+    std::optional<float> alpha;
+};
+
 void render_model(const Model& model,
                   const Eigen::Isometry3f& pose,
-                  const Eigen::Vector3f& scale = Eigen::Vector3f::Ones());
+                  const std::optional<RenderOptions>& options = std::nullopt);
 void render_skybox(const rendering::Texture& texture);
 void render_spark(const Eigen::Isometry3f& pose,
                   const Eigen::Vector3f& scale,
                   const float start_time);
-void render_screen_transition();
+void render_screen_transition(const float start_time);
 }  // namespace rendering

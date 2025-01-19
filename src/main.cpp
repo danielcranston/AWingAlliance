@@ -50,29 +50,36 @@ int main(int argc, char* argv[])
     auto camera_pose = make_pose({ 0.0f, 0.0f, -50.0f });
     int camera_rotate_dir = 0;
     auto spark_scale = Eigen::Vector3f::Ones() * 15.0f;
+    auto model_options = rendering::RenderOptions();
+    model_options.scale = Eigen::Vector3f::Ones();
+    model_options.color = Eigen::Vector3f(0.0f, 0.0f, 0.0f);
 
     bool should_shutdown = false;
     while (!should_shutdown)
     {
+        // Update
+
+        float time = SDL_GetTicks() / 1000.0f;
+        float effect_start_time = std::floor(time / 1.0f) * 1.0f;
+
+        model_pose.translation().x() = 5.0f * std::sin(time);
+        model_options.scale->z() = 0.5 * std::sin(2 * time) + 1.0f;
+        model_options.alpha = model_options.scale->z();
+
+        // Render
+
         rendering::global::clear_frame(true, true);
 
         rendering::global::set_camera_pose(camera_pose.matrix());
 
         rendering::render_skybox(sky_texture);
 
-        float time = SDL_GetTicks() / 1000.0f;
-        rendering::global::set_model_scale(Eigen::Vector3f::Ones() *
-                                           (0.1f * std::sin(2 * time) + 1.0f));
-
-        model_pose.translation().x() = 5.0f * std::sin(time);
-        rendering::render_model(ship_model, model_pose);
+        rendering::render_model(ship_model, model_pose, model_options);
 
         rendering::global::set_effect_current_time(time);
 
-        float start_time = std::floor(time / 1.0f) * 1.0f;
-
-        rendering::render_spark(model_pose * T_model_spark, spark_scale, start_time);
-        rendering::render_screen_transition();
+        rendering::render_spark(model_pose * T_model_spark, spark_scale, effect_start_time);
+        rendering::render_screen_transition(effect_start_time);
 
         SDL_GL_SwapWindow(context_manager.window);
 

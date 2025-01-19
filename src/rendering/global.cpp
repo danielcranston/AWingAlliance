@@ -73,12 +73,16 @@ struct UniformBufferObjectModelMatrices
 {
     UniformBufferObjectModelMatrices()
     {
-        ubo = init_uniform_buffer_object(1, 2 * 16 * sizeof(float));
+        ubo = init_uniform_buffer_object(1, (32 + 4 + 1) * sizeof(float));
 
         const Eigen::Matrix4f identity = Eigen::Matrix4f::Identity();
+        const Eigen::Vector4f rgba = Eigen::Vector4f::Ones();
+        const bool use_texture = false;
 
         glBufferSubData(GL_UNIFORM_BUFFER, 0, 16 * sizeof(float), identity.data());
         glBufferSubData(GL_UNIFORM_BUFFER, 16 * sizeof(float), 16 * sizeof(float), identity.data());
+        glBufferSubData(GL_UNIFORM_BUFFER, 32 * sizeof(float), 4 * sizeof(float), rgba.data());
+        glBufferSubData(GL_UNIFORM_BUFFER, 36 * sizeof(float), sizeof(bool), &use_texture);
         glBindBuffer(GL_UNIFORM_BUFFER, 0);
     }
 
@@ -191,6 +195,39 @@ void set_model_scale(const Eigen::Vector3f& scale)
 
     Eigen::Matrix4f mat = scale.homogeneous().asDiagonal().toDenseMatrix();
     glBufferSubData(GL_UNIFORM_BUFFER, 16 * sizeof(float), 16 * sizeof(float), mat.data());
+}
+
+void set_model_color(const Eigen::Vector3f& color)
+{
+    if (CURRENT_UNIFORM_BUFFER != UBO_MODELMATRICES->ubo)
+    {
+        CURRENT_UNIFORM_BUFFER = UBO_MODELMATRICES->ubo;
+        glBindBuffer(GL_UNIFORM_BUFFER, UBO_MODELMATRICES->ubo);
+    }
+
+    glBufferSubData(GL_UNIFORM_BUFFER, 32 * sizeof(float), 3 * sizeof(float), color.data());
+}
+
+void set_model_alpha(const float alpha)
+{
+    if (CURRENT_UNIFORM_BUFFER != UBO_MODELMATRICES->ubo)
+    {
+        CURRENT_UNIFORM_BUFFER = UBO_MODELMATRICES->ubo;
+        glBindBuffer(GL_UNIFORM_BUFFER, UBO_MODELMATRICES->ubo);
+    }
+
+    glBufferSubData(GL_UNIFORM_BUFFER, 35 * sizeof(float), sizeof(float), &alpha);
+}
+
+void use_texture(const bool data)
+{
+    if (CURRENT_UNIFORM_BUFFER != UBO_MODELMATRICES->ubo)
+    {
+        CURRENT_UNIFORM_BUFFER = UBO_MODELMATRICES->ubo;
+        glBindBuffer(GL_UNIFORM_BUFFER, UBO_MODELMATRICES->ubo);
+    }
+
+    glBufferSubData(GL_UNIFORM_BUFFER, 36 * sizeof(float), sizeof(bool), &data);
 }
 
 void set_effect_current_time(const float time)

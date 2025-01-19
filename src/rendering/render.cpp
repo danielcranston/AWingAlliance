@@ -23,23 +23,29 @@ namespace
 void render_mesh(const Mesh& mesh,
                  const ShaderProgram& shader_program,
                  const Eigen::Isometry3f& pose = Eigen::Isometry3f::Identity(),
-                 const Eigen::Vector3f& scale = Eigen::Vector3f::Ones())
+                 const std::optional<RenderOptions>& options = std::nullopt)
 {
     global::use_program(shader_program);
     global::set_model_pose(pose.matrix());
-    global::set_model_scale(scale);
+
+    if (options)
+    {
+        global::set_model_scale(options->scale ? options->scale.value() : Eigen::Vector3f::Ones());
+        global::set_model_color((options->color && !mesh.texture) ? options->color.value() :
+                                                                    Eigen::Vector3f::Ones());
+        global::set_model_alpha(options->alpha ? options->alpha.value() : 1.0f);
+    }
 
     if (mesh.texture)
     {
-        shader_program.set_uniform("use_color", 0);
-
+        global::use_texture(true);
         glBindTexture(mesh.texture->type == Texture::Type::TEXTURE ? GL_TEXTURE_2D :
                                                                      GL_TEXTURE_CUBE_MAP,
                       mesh.texture->texture_id);
     }
     else
     {
-        shader_program.set_uniform("use_color", 1);
+        global::use_texture(false);
     }
 
     glBindVertexArray(mesh.vao);
@@ -47,12 +53,16 @@ void render_mesh(const Mesh& mesh,
 }
 }  // namespace
 
-void render_model(const Model& model, const Eigen::Isometry3f& pose, const Eigen::Vector3f& scale)
+void render_model(const Model& model,
+                  const Eigen::Isometry3f& pose,
+                  const std::optional<RenderOptions>& options)
 {
+    global::use_alpha(true);
     for (const auto& mesh : model.meshes)
     {
-        render_mesh(mesh, *global::MODEL_SHADER, pose, scale);
+        render_mesh(mesh, *global::MODEL_SHADER, pose, options);
     }
+    global::use_alpha(false);
 }
 
 void render_skybox(const Texture& texture)
@@ -76,22 +86,28 @@ void render_spark(const Eigen::Isometry3f& pose,
 
     global::set_effect_start_time(start_time);
 
-    render_mesh(*global::QUAD_MESH, *global::SPARK_SHADER, pose, scale);
+    auto options = RenderOptions();
+    options.scale = scale;
+    render_mesh(*global::QUAD_MESH, *global::SPARK_SHADER, pose, options);
 
     global::cull_back_faces(true);
     global::use_alpha(false);
 }
 
-void render_screen_transition()
+void render_screen_transition(const float start_time)
 {
     global::use_alpha(true);
     global::test_depth_buffer(false);
 
+    global::set_effect_start_time(start_time);
+
+    auto options = RenderOptions();
+    options.scale = 2 * Eigen::Vector3f::Ones();
     render_mesh(*global::QUAD_MESH,
                 *global::SCREENSPACE_SHADER,
                 Eigen::Isometry3f(Eigen::AngleAxisf(-M_PI / 2, Eigen::Vector3f::UnitZ()) *
                                   Eigen::AngleAxisf(M_PI / 2, Eigen::Vector3f::UnitY())),
-                2 * Eigen::Vector3f::Ones());
+                options);
 
     global::test_depth_buffer(true);
     global::use_alpha(false);
