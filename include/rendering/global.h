@@ -30,6 +30,10 @@ void use_texture(const bool data);
 void set_effect_current_time(const float time);
 void set_effect_start_time(const float time);
 
+void register_custom_shader(const std::string& uri,
+                            const std::string& vertex_filename,
+                            const std::string& fragment_filename);
+
 }  // namespace rendering::global
 
 namespace rendering::global::impl

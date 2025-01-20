@@ -1,4 +1,6 @@
 #include "rendering/global.h"
+#include <map>
+
 #include "rendering/model.h"
 #include "rendering/texture.h"
 
@@ -23,6 +25,8 @@ std::unique_ptr<ShaderProgram> MODEL_SHADER;
 std::unique_ptr<ShaderProgram> SKYBOX_SHADER;
 std::unique_ptr<ShaderProgram> SPARK_SHADER;
 std::unique_ptr<ShaderProgram> SCREENSPACE_SHADER;
+
+std::map<std::string, std::unique_ptr<ShaderProgram>> CUSTOM_SHADERS;
 
 std::unique_ptr<Mesh> QUAD_MESH = nullptr;
 std::unique_ptr<Mesh> CUBE_MESH = nullptr;
@@ -250,6 +254,14 @@ void set_effect_start_time(const float start_time)
     }
 
     glBufferSubData(GL_UNIFORM_BUFFER, 1 * sizeof(float), 1 * sizeof(float), &start_time);
+}
+
+void register_custom_shader(const std::string& uri,
+                            const std::string& vertex_filename,
+                            const std::string& fragment_filename)
+{
+    CUSTOM_SHADERS.insert(std::make_pair(
+        uri, std::make_unique<ShaderProgram>(uri, vertex_filename, fragment_filename)));
 }
 
 }  // namespace rendering::global

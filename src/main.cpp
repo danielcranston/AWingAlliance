@@ -41,6 +41,11 @@ int main(int argc, char* argv[])
     auto sky_texture =
         rendering::Texture("skybox/lightblue/512", rendering::Texture::Type::CUBEMAP);
 
+    rendering::global::register_custom_shader(
+        "hyperspace_tunnel", "screenspace.vert", "hyperspace_tunnel.frag");
+    rendering::global::register_custom_shader(
+        "hyperspace_jump", "screenspace.vert", "hyperspace_jump.frag");
+
     rendering::global::set_camera_perspective(perspective(M_PI / 180.0f * 45.0,  //
                                                           1200.0 / 900.0,
                                                           1,
@@ -49,10 +54,10 @@ int main(int argc, char* argv[])
     auto T_model_spark = make_pose({ 0.0f, 0.0f, 5.0f });
     auto camera_pose = make_pose({ 0.0f, 0.0f, -50.0f });
     int camera_rotate_dir = 0;
-    auto spark_scale = Eigen::Vector3f::Ones() * 15.0f;
     auto model_options = rendering::RenderOptions();
     model_options.scale = Eigen::Vector3f::Ones();
     model_options.color = Eigen::Vector3f(0.0f, 0.0f, 0.0f);
+    auto effect_options = rendering::RenderOptions();
 
     bool should_shutdown = false;
     while (!should_shutdown)
@@ -78,8 +83,27 @@ int main(int argc, char* argv[])
 
         rendering::global::set_effect_current_time(time);
 
-        rendering::render_spark(model_pose * T_model_spark, spark_scale, effect_start_time);
-        rendering::render_screen_transition(effect_start_time);
+        switch (static_cast<int>(effect_start_time) % 6)
+        {
+            case 0:
+                effect_options.scale = 15 * Eigen::Vector3f::Ones();
+                effect_options.custom_shader_uri = std::nullopt;
+                rendering::render_spark(
+                    model_pose * T_model_spark, effect_start_time, effect_options);
+                break;
+            case 1:
+                effect_options.scale = 2 * Eigen::Vector3f::Ones();
+                rendering::render_screen_transition(effect_start_time, effect_options);
+                break;
+            case 2:
+                effect_options.custom_shader_uri = "hyperspace_tunnel";
+                rendering::render_screen_transition(effect_start_time, effect_options);
+                break;
+            default:
+                effect_options.custom_shader_uri = "hyperspace_jump";
+                rendering::render_screen_transition(effect_start_time, effect_options);
+                break;
+        }
 
         SDL_GL_SwapWindow(context_manager.window);
 
