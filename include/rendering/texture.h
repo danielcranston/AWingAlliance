@@ -12,7 +12,8 @@ class Texture
     enum class Type
     {
         TEXTURE,
-        CUBEMAP
+        CUBEMAP,
+        TEXTURE_ARRAY
     };
 
     Texture(const std::string& uri, const Type = Type::TEXTURE);
@@ -42,6 +43,7 @@ class Texture
     int width;
     int height;
     int comp;
+    int num_layers;  // Only relevant for Type::TEXTURE_ARRAY
     unsigned int texture_id = 0;
 
   private:

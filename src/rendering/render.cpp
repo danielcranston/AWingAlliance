@@ -26,12 +26,12 @@ namespace
 void render_mesh(const Mesh& mesh,
                  const ShaderProgram& shader_program,
                  const Eigen::Isometry3f& pose = Eigen::Isometry3f::Identity(),
-                 const std::optional<RenderOptions>& options = std::nullopt)
+                 const std::optional<RenderOptions>& options = std::nullopt,
+                 const Texture* texture_override = nullptr)
 {
     global::set_model_pose(pose.matrix());
 
     const ShaderProgram* program = &shader_program;
-
     if (options)
     {
         global::set_model_scale(options->scale ? options->scale.value() : Eigen::Vector3f::Ones());
@@ -43,12 +43,32 @@ void render_mesh(const Mesh& mesh,
                       &shader_program;
     }
 
-    if (mesh.texture)
+    const Texture* texture = mesh.texture ? mesh.texture.get() : nullptr;
+    if (texture_override)
+    {
+        texture = texture_override;
+    }
+
+    if (texture)
     {
         global::use_texture(true);
-        glBindTexture(mesh.texture->type == Texture::Type::TEXTURE ? GL_TEXTURE_2D :
-                                                                     GL_TEXTURE_CUBE_MAP,
-                      mesh.texture->texture_id);
+        if (texture->type == Texture::Type::TEXTURE)
+        {
+            glBindTexture(GL_TEXTURE_2D, texture->texture_id);
+        }
+        else if (texture->type == Texture::Type::TEXTURE)
+        {
+            glBindTexture(GL_TEXTURE_CUBE_MAP, texture->texture_id);
+        }
+        else if (texture->type == Texture::Type::TEXTURE_ARRAY)
+        {
+            // TODO: Rename TimeDataUniforms -> EffectDataUniforms, set layers here
+            glBindTexture(GL_TEXTURE_2D_ARRAY, texture->texture_id);
+        }
+        else
+        {
+            throw std::runtime_error("Unexpected Texture::Type");
+        }
     }
     else
     {
@@ -60,6 +80,19 @@ void render_mesh(const Mesh& mesh,
     glDrawElements(GL_TRIANGLES, mesh.num_indices, GL_UNSIGNED_INT, (const void*)0);
 }
 }  // namespace
+
+void render_quad(const Texture& texture,
+                 const Eigen::Isometry3f& pose,
+                 const std::optional<RenderOptions>& options)
+{
+    global::cull_back_faces(false);
+    global::use_alpha(true);
+
+    render_mesh(*global::QUAD_MESH, *global::MODEL_SHADER, pose, options, &texture);
+
+    global::use_alpha(false);
+    global::cull_back_faces(true);
+}
 
 void render_model(const Model& model,
                   const Eigen::Isometry3f& pose,

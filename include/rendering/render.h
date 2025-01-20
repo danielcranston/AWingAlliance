@@ -28,6 +28,9 @@ struct RenderOptions
     std::optional<std::string> custom_shader_uri;
 };
 
+void render_quad(const Texture& texture,
+                 const Eigen::Isometry3f& pose,
+                 const std::optional<RenderOptions>& options = std::nullopt);
 void render_model(const Model& model,
                   const Eigen::Isometry3f& pose,
                   const std::optional<RenderOptions>& options = std::nullopt);

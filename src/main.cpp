@@ -40,11 +40,14 @@ int main(int argc, char* argv[])
 
     auto sky_texture =
         rendering::Texture("skybox/lightblue/512", rendering::Texture::Type::CUBEMAP);
+    auto sprite_texture_array = rendering::Texture("sprites/storm_trooper_walking_se",
+                                                   rendering::Texture::Type::TEXTURE_ARRAY);
 
     rendering::global::register_custom_shader(
         "hyperspace_tunnel", "screenspace.vert", "hyperspace_tunnel.frag");
     rendering::global::register_custom_shader(
         "hyperspace_jump", "screenspace.vert", "hyperspace_jump.frag");
+    rendering::global::register_custom_shader("sprite", "model.vert", "sprite.frag");
 
     rendering::global::set_camera_perspective(perspective(M_PI / 180.0f * 45.0,  //
                                                           1200.0 / 900.0,
@@ -83,7 +86,7 @@ int main(int argc, char* argv[])
 
         rendering::global::set_effect_current_time(time);
 
-        switch (static_cast<int>(effect_start_time) % 6)
+        switch (static_cast<int>(effect_start_time) % 8)
         {
             case 0:
                 effect_options.scale = 15 * Eigen::Vector3f::Ones();
@@ -99,9 +102,15 @@ int main(int argc, char* argv[])
                 effect_options.custom_shader_uri = "hyperspace_tunnel";
                 rendering::render_screen_transition(effect_start_time, effect_options);
                 break;
-            default:
+            case 3:
                 effect_options.custom_shader_uri = "hyperspace_jump";
                 rendering::render_screen_transition(effect_start_time, effect_options);
+                break;
+            default:
+                effect_options.scale = 10 * Eigen::Vector3f::Ones();
+                effect_options.custom_shader_uri = "sprite";
+                rendering::render_quad(
+                    sprite_texture_array, model_pose * T_model_spark, effect_options);
                 break;
         }
 

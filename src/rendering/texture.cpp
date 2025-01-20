@@ -1,6 +1,9 @@
 #include <string>
 #include <iostream>
 #include <array>
+#include <list>
+#include <filesystem>
+#include <set>
 
 #include <GL/glew.h>
 #include "rendering/texture.h"
@@ -124,6 +127,45 @@ unsigned int init_cubemap_texture(const std::array<LoadedTextureData, 6>& data_v
     return texture_id;
 }
 
+unsigned int init_texture_array(const std::list<LoadedTextureData>& data_vec)
+{
+    // https://www.khronos.org/opengl/wiki/Array_Texture
+    unsigned int texture_id;
+    glGenTextures(1, &texture_id);
+    glBindTexture(GL_TEXTURE_2D_ARRAY, texture_id);
+    glTexStorage3D(GL_TEXTURE_2D_ARRAY,
+                   1,
+                   data_vec.begin()->comp == 3 ? GL_RGB8 : GL_RGBA8,
+                   data_vec.begin()->width,
+                   data_vec.begin()->height,
+                   data_vec.size());
+
+    for (auto it = data_vec.begin(); it != data_vec.end(); ++it)
+    {
+        // https://registry.khronos.org/OpenGL-Refpages/gl4/html/glTexSubImage3D.xhtml
+        glTexSubImage3D(GL_TEXTURE_2D_ARRAY,
+                        0,
+                        0,
+                        0,
+                        std::distance(data_vec.begin(), it),
+                        it->width,
+                        it->height,
+                        1,
+                        it->comp == 3 ? GL_RGB : GL_RGBA,
+                        GL_UNSIGNED_BYTE,
+                        it->data);
+    }
+
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+
+    return texture_id;
+}
+
 }  // namespace
 
 Texture::Texture(const std::string& uri, const Texture::Type type) : uri(uri), type(type)
@@ -144,6 +186,34 @@ Texture::Texture(const std::string& uri, const Texture::Type type) : uri(uri), t
 
         std::tie(width, height, comp) = texture_data_vec[0].width_height_comp();
         texture_id = init_cubemap_texture(texture_data_vec);
+    }
+    else if (type == Texture::Type::TEXTURE_ARRAY)
+    {
+        std::set<std::string> sorted_uris;
+        for (const auto& entry :
+             std::filesystem::directory_iterator(data_handling::TEXTURES_PATH + uri))
+        {
+            if (entry.is_regular_file())
+            {
+                sorted_uris.insert(
+                    std::filesystem::relative(entry.path(), data_handling::TEXTURES_PATH));
+            }
+        }
+
+        if (sorted_uris.size() == 0)
+        {
+            throw std::runtime_error("Bad texture uri path: " + uri);
+        }
+
+        std::list<LoadedTextureData> texture_data_vec;
+        for (const auto& img_uri : sorted_uris)
+        {
+            texture_data_vec.emplace_back(img_uri);
+        }
+
+        std::tie(width, height, comp) = texture_data_vec.front().width_height_comp();
+        num_layers = texture_data_vec.size();
+        texture_id = init_texture_array(texture_data_vec);
     }
     else
     {
