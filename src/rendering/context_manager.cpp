@@ -70,7 +70,7 @@ ContextManager::ContextManager(const std::string& window_name,
 
     init_glew(screen_w, screen_h);
 
-    global::impl::init();
+    global::impl::init(screen_w, screen_h);
 }
 
 ContextManager::~ContextManager()

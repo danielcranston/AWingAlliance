@@ -11,7 +11,7 @@ namespace rendering::global
 {
 struct UniformBufferObjectCameraMatrices;
 struct UniformBufferObjectModelMatrices;
-struct UniformBufferObjectTimeData;
+struct UniformBufferObjectEffectData;
 
 /**
  * @brief Hidden global state
@@ -19,7 +19,7 @@ struct UniformBufferObjectTimeData;
 
 static std::unique_ptr<UniformBufferObjectCameraMatrices> UBO_CAMERAMATRICES = nullptr;
 static std::unique_ptr<UniformBufferObjectModelMatrices> UBO_MODELMATRICES = nullptr;
-static std::unique_ptr<UniformBufferObjectTimeData> UBO_TIMEDATA = nullptr;
+static std::unique_ptr<UniformBufferObjectEffectData> UBO_EFFECTDATA = nullptr;
 
 std::unique_ptr<ShaderProgram> MODEL_SHADER;
 std::unique_ptr<ShaderProgram> SKYBOX_SHADER;
@@ -93,11 +93,11 @@ struct UniformBufferObjectModelMatrices
     unsigned int ubo;
 };
 
-struct UniformBufferObjectTimeData
+struct UniformBufferObjectEffectData
 {
-    UniformBufferObjectTimeData()
+    UniformBufferObjectEffectData()
     {
-        ubo = init_uniform_buffer_object(2, 2 * sizeof(float));
+        ubo = init_uniform_buffer_object(2, 2 * sizeof(float) + 3 * sizeof(int));
         glBindBuffer(GL_UNIFORM_BUFFER, 0);
     }
 
@@ -236,10 +236,10 @@ void use_texture(const bool data)
 
 void set_effect_current_time(const float time)
 {
-    if (CURRENT_UNIFORM_BUFFER != UBO_TIMEDATA->ubo)
+    if (CURRENT_UNIFORM_BUFFER != UBO_EFFECTDATA->ubo)
     {
-        CURRENT_UNIFORM_BUFFER = UBO_TIMEDATA->ubo;
-        glBindBuffer(GL_UNIFORM_BUFFER, UBO_TIMEDATA->ubo);
+        CURRENT_UNIFORM_BUFFER = UBO_EFFECTDATA->ubo;
+        glBindBuffer(GL_UNIFORM_BUFFER, UBO_EFFECTDATA->ubo);
     }
 
     glBufferSubData(GL_UNIFORM_BUFFER, 0 * sizeof(float), 1 * sizeof(float), &time);
@@ -247,13 +247,38 @@ void set_effect_current_time(const float time)
 
 void set_effect_start_time(const float start_time)
 {
-    if (CURRENT_UNIFORM_BUFFER != UBO_TIMEDATA->ubo)
+    if (CURRENT_UNIFORM_BUFFER != UBO_EFFECTDATA->ubo)
     {
-        CURRENT_UNIFORM_BUFFER = UBO_TIMEDATA->ubo;
-        glBindBuffer(GL_UNIFORM_BUFFER, UBO_TIMEDATA->ubo);
+        CURRENT_UNIFORM_BUFFER = UBO_EFFECTDATA->ubo;
+        glBindBuffer(GL_UNIFORM_BUFFER, UBO_EFFECTDATA->ubo);
     }
 
     glBufferSubData(GL_UNIFORM_BUFFER, 1 * sizeof(float), 1 * sizeof(float), &start_time);
+}
+
+void set_effect_resolution(const int weight, const int height)
+{
+    if (CURRENT_UNIFORM_BUFFER != UBO_EFFECTDATA->ubo)
+    {
+        CURRENT_UNIFORM_BUFFER = UBO_EFFECTDATA->ubo;
+        glBindBuffer(GL_UNIFORM_BUFFER, UBO_EFFECTDATA->ubo);
+    }
+
+    int resolution[2] = { weight, height };
+
+    glBufferSubData(GL_UNIFORM_BUFFER, 2 * sizeof(float), 2 * sizeof(int), &resolution);
+}
+
+void set_effect_num_layers(const int num_layers)
+{
+    if (CURRENT_UNIFORM_BUFFER != UBO_EFFECTDATA->ubo)
+    {
+        CURRENT_UNIFORM_BUFFER = UBO_EFFECTDATA->ubo;
+        glBindBuffer(GL_UNIFORM_BUFFER, UBO_EFFECTDATA->ubo);
+    }
+
+    glBufferSubData(
+        GL_UNIFORM_BUFFER, 2 * sizeof(float) + 2 * sizeof(int), 1 * sizeof(int), &num_layers);
 }
 
 void register_custom_shader(const std::string& uri,
@@ -268,11 +293,11 @@ void register_custom_shader(const std::string& uri,
 
 namespace rendering::global::impl
 {
-void init()
+void init(const int width, const int height)
 {
     UBO_CAMERAMATRICES = std::make_unique<UniformBufferObjectCameraMatrices>();
     UBO_MODELMATRICES = std::make_unique<UniformBufferObjectModelMatrices>();
-    UBO_TIMEDATA = std::make_unique<UniformBufferObjectTimeData>();
+    UBO_EFFECTDATA = std::make_unique<UniformBufferObjectEffectData>();
 
     QUAD_MESH = std::make_unique<Mesh>(std::move(Model("quad.obj").meshes[0]));
     CUBE_MESH = std::make_unique<Mesh>(std::move(Model("cube.obj").meshes[0]));
@@ -282,6 +307,8 @@ void init()
     SPARK_SHADER = std::make_unique<ShaderProgram>("spark", "model.vert", "spark.frag");
     SCREENSPACE_SHADER =
         std::make_unique<ShaderProgram>("screenspace", "screenspace.vert", "screenspace.frag");
+
+    set_effect_resolution(width, height);
 
     write_depth_buffer(true);
     test_depth_buffer(true);

@@ -62,7 +62,7 @@ void render_mesh(const Mesh& mesh,
         }
         else if (texture->type == Texture::Type::TEXTURE_ARRAY)
         {
-            // TODO: Rename TimeDataUniforms -> EffectDataUniforms, set layers here
+            global::set_effect_num_layers(texture->num_layers);
             glBindTexture(GL_TEXTURE_2D_ARRAY, texture->texture_id);
         }
         else

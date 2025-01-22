@@ -29,6 +29,8 @@ void set_model_alpha(const float alpha);
 void use_texture(const bool data);
 void set_effect_current_time(const float time);
 void set_effect_start_time(const float time);
+void set_effect_resolution(const int weight, const int height);
+void set_effect_num_layers(const int num_layers);
 
 void register_custom_shader(const std::string& uri,
                             const std::string& vertex_filename,
@@ -38,5 +40,5 @@ void register_custom_shader(const std::string& uri,
 
 namespace rendering::global::impl
 {
-void init();  // Not intended to be called by user code
+void init(const int screen_w, const int screen_h);  // Not intended to be called by user code
 }
