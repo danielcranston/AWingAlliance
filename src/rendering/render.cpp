@@ -15,7 +15,6 @@ extern std::unique_ptr<Mesh> CUBE_MESH;
 
 extern std::unique_ptr<ShaderProgram> MODEL_SHADER;
 extern std::unique_ptr<ShaderProgram> SKYBOX_SHADER;
-extern std::unique_ptr<ShaderProgram> SPARK_SHADER;
 extern std::unique_ptr<ShaderProgram> SCREENSPACE_SHADER;
 
 extern std::map<std::string, std::unique_ptr<ShaderProgram>> CUSTOM_SHADERS;
@@ -81,14 +80,14 @@ void render_mesh(const Mesh& mesh,
 }
 }  // namespace
 
-void render_quad(const Texture& texture,
-                 const Eigen::Isometry3f& pose,
+void render_quad(const Eigen::Isometry3f& pose,
+                 const Texture* texture,
                  const std::optional<RenderOptions>& options)
 {
     global::cull_back_faces(false);
     global::use_alpha(true);
 
-    render_mesh(*global::QUAD_MESH, *global::MODEL_SHADER, pose, options, &texture);
+    render_mesh(*global::QUAD_MESH, *global::MODEL_SHADER, pose, options, texture);
 
     global::use_alpha(false);
     global::cull_back_faces(true);
@@ -116,21 +115,6 @@ void render_skybox(const Texture& texture)
 
     global::write_depth_buffer(true);
     global::cull_back_faces(true);
-}
-
-void render_spark(const Eigen::Isometry3f& pose,
-                  const float start_time,
-                  const std::optional<RenderOptions>& options)
-{
-    global::use_alpha(true);
-    global::cull_back_faces(false);
-
-    global::set_effect_start_time(start_time);
-
-    render_mesh(*global::QUAD_MESH, *global::SPARK_SHADER, pose, options);
-
-    global::cull_back_faces(true);
-    global::use_alpha(false);
 }
 
 void render_screen_transition(const float start_time, const std::optional<RenderOptions>& options)

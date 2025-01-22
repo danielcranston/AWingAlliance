@@ -23,7 +23,6 @@ static std::unique_ptr<UniformBufferObjectEffectData> UBO_EFFECTDATA = nullptr;
 
 std::unique_ptr<ShaderProgram> MODEL_SHADER;
 std::unique_ptr<ShaderProgram> SKYBOX_SHADER;
-std::unique_ptr<ShaderProgram> SPARK_SHADER;
 std::unique_ptr<ShaderProgram> SCREENSPACE_SHADER;
 
 std::map<std::string, std::unique_ptr<ShaderProgram>> CUSTOM_SHADERS;
@@ -304,7 +303,6 @@ void init(const int width, const int height)
 
     MODEL_SHADER = std::make_unique<ShaderProgram>("model", "model.vert", "model.frag");
     SKYBOX_SHADER = std::make_unique<ShaderProgram>("skybox", "sky.vert", "sky.frag");
-    SPARK_SHADER = std::make_unique<ShaderProgram>("spark", "model.vert", "spark.frag");
     SCREENSPACE_SHADER =
         std::make_unique<ShaderProgram>("screenspace", "screenspace.vert", "screenspace.frag");
 

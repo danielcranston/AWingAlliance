@@ -48,6 +48,7 @@ int main(int argc, char* argv[])
     rendering::global::register_custom_shader(
         "hyperspace_jump", "screenspace.vert", "hyperspace_jump.frag");
     rendering::global::register_custom_shader("sprite", "model.vert", "sprite.frag");
+    rendering::global::register_custom_shader("spark", "model.vert", "spark.frag");
 
     rendering::global::set_camera_perspective(perspective(M_PI / 180.0f * 45.0,  //
                                                           1200.0 / 900.0,
@@ -90,11 +91,12 @@ int main(int argc, char* argv[])
         {
             case 0:
                 effect_options.scale = 15 * Eigen::Vector3f::Ones();
-                effect_options.custom_shader_uri = std::nullopt;
-                rendering::render_spark(
-                    model_pose * T_model_spark, effect_start_time, effect_options);
+                effect_options.custom_shader_uri = "spark";
+                rendering::global::set_effect_start_time(effect_start_time);
+                rendering::render_quad(model_pose * T_model_spark, nullptr, effect_options);
                 break;
             case 1:
+                effect_options.custom_shader_uri = std::nullopt;
                 effect_options.scale = 2 * Eigen::Vector3f::Ones();
                 rendering::render_screen_transition(effect_start_time, effect_options);
                 break;
@@ -110,7 +112,7 @@ int main(int argc, char* argv[])
                 effect_options.scale = 10 * Eigen::Vector3f::Ones();
                 effect_options.custom_shader_uri = "sprite";
                 rendering::render_quad(
-                    sprite_texture_array, model_pose * T_model_spark, effect_options);
+                    model_pose * T_model_spark, &sprite_texture_array, effect_options);
                 break;
         }
 

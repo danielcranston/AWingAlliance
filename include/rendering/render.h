@@ -28,16 +28,13 @@ struct RenderOptions
     std::optional<std::string> custom_shader_uri;
 };
 
-void render_quad(const Texture& texture,
-                 const Eigen::Isometry3f& pose,
+void render_quad(const Eigen::Isometry3f& pose,
+                 const Texture* texture,
                  const std::optional<RenderOptions>& options = std::nullopt);
 void render_model(const Model& model,
                   const Eigen::Isometry3f& pose,
                   const std::optional<RenderOptions>& options = std::nullopt);
 void render_skybox(const rendering::Texture& texture);
-void render_spark(const Eigen::Isometry3f& pose,
-                  const float start_time,
-                  const std::optional<RenderOptions>& options = std::nullopt);
 void render_screen_transition(const float start_time,
                               const std::optional<RenderOptions>& options = std::nullopt);
 }  // namespace rendering
