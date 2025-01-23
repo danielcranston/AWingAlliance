@@ -50,7 +50,7 @@ void render_mesh(const Mesh& mesh,
 
     if (texture)
     {
-        global::use_texture(true);
+        global::set_model_use_texture(true);
         if (texture->type == Texture::Type::TEXTURE)
         {
             glBindTexture(GL_TEXTURE_2D, texture->texture_id);
@@ -71,7 +71,7 @@ void render_mesh(const Mesh& mesh,
     }
     else
     {
-        global::use_texture(false);
+        global::set_model_use_texture(false);
     }
 
     global::use_program(*program);
@@ -117,7 +117,7 @@ void render_skybox(const Texture& texture)
     global::cull_back_faces(true);
 }
 
-void render_screen_transition(const float start_time, const std::optional<RenderOptions>& options)
+void render_fullscreen(const float start_time, const std::optional<RenderOptions>& options)
 {
     global::use_alpha(true);
     global::test_depth_buffer(false);

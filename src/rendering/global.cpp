@@ -222,7 +222,7 @@ void set_model_alpha(const float alpha)
     glBufferSubData(GL_UNIFORM_BUFFER, 35 * sizeof(float), sizeof(float), &alpha);
 }
 
-void use_texture(const bool data)
+void set_model_use_texture(const bool data)
 {
     if (CURRENT_UNIFORM_BUFFER != UBO_MODELMATRICES->ubo)
     {

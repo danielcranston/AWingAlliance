@@ -98,15 +98,15 @@ int main(int argc, char* argv[])
             case 1:
                 effect_options.custom_shader_uri = std::nullopt;
                 effect_options.scale = 2 * Eigen::Vector3f::Ones();
-                rendering::render_screen_transition(effect_start_time, effect_options);
+                rendering::render_fullscreen(effect_start_time, effect_options);
                 break;
             case 2:
                 effect_options.custom_shader_uri = "hyperspace_tunnel";
-                rendering::render_screen_transition(effect_start_time, effect_options);
+                rendering::render_fullscreen(effect_start_time, effect_options);
                 break;
             case 3:
                 effect_options.custom_shader_uri = "hyperspace_jump";
-                rendering::render_screen_transition(effect_start_time, effect_options);
+                rendering::render_fullscreen(effect_start_time, effect_options);
                 break;
             default:
                 effect_options.scale = 10 * Eigen::Vector3f::Ones();

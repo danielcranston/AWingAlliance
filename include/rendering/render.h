@@ -35,6 +35,6 @@ void render_model(const Model& model,
                   const Eigen::Isometry3f& pose,
                   const std::optional<RenderOptions>& options = std::nullopt);
 void render_skybox(const rendering::Texture& texture);
-void render_screen_transition(const float start_time,
-                              const std::optional<RenderOptions>& options = std::nullopt);
+void render_fullscreen(const float start_time,
+                       const std::optional<RenderOptions>& options = std::nullopt);
 }  // namespace rendering
