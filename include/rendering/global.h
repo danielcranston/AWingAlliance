@@ -35,6 +35,7 @@ void set_effect_num_layers(const int num_layers);
 void register_custom_shader(const std::string& uri,
                             const std::string& vertex_filename,
                             const std::string& fragment_filename);
+void register_custom_shaders(const std::vector<std::array<std::string, 3>>& shader_specs);
 
 }  // namespace rendering::global
 

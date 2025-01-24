@@ -288,6 +288,14 @@ void register_custom_shader(const std::string& uri,
         uri, std::make_unique<ShaderProgram>(uri, vertex_filename, fragment_filename)));
 }
 
+void register_custom_shaders(const std::vector<std::array<std::string, 3>>& shader_specs)
+{
+    for (const auto& spec : shader_specs)
+    {
+        register_custom_shader(spec[0], spec[1], spec[2]);
+    }
+}
+
 }  // namespace rendering::global
 
 namespace rendering::global::impl

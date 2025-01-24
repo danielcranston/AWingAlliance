@@ -43,12 +43,11 @@ int main(int argc, char* argv[])
     auto sprite_texture_array = rendering::Texture("sprites/storm_trooper_walking_se",
                                                    rendering::Texture::Type::TEXTURE_ARRAY);
 
-    rendering::global::register_custom_shader(
-        "hyperspace_tunnel", "screenspace.vert", "hyperspace_tunnel.frag");
-    rendering::global::register_custom_shader(
-        "hyperspace_jump", "screenspace.vert", "hyperspace_jump.frag");
-    rendering::global::register_custom_shader("sprite", "model.vert", "sprite.frag");
-    rendering::global::register_custom_shader("spark", "model.vert", "spark.frag");
+    rendering::global::register_custom_shaders(
+        { { "hyperspace_tunnel", "screenspace.vert", "hyperspace_tunnel.frag" },
+          { "hyperspace_jump", "screenspace.vert", "hyperspace_jump.frag" },
+          { "sprite", "model.vert", "sprite.frag" },
+          { "spark", "model.vert", "spark.frag" } });
 
     rendering::global::set_camera_perspective(perspective(M_PI / 180.0f * 45.0,  //
                                                           1200.0 / 900.0,
@@ -60,7 +59,7 @@ int main(int argc, char* argv[])
     int camera_rotate_dir = 0;
     auto model_options = rendering::RenderOptions();
     model_options.scale = Eigen::Vector3f::Ones();
-    model_options.color = Eigen::Vector3f(0.0f, 0.0f, 0.0f);
+    model_options.color = Eigen::Vector3f(0.5f, 0.0f, 0.0f);
     auto effect_options = rendering::RenderOptions();
 
     bool should_shutdown = false;
@@ -92,8 +91,9 @@ int main(int argc, char* argv[])
             case 0:
                 effect_options.scale = 15 * Eigen::Vector3f::Ones();
                 effect_options.custom_shader_uri = "spark";
+                effect_options.custom_texture = nullptr;
                 rendering::global::set_effect_start_time(effect_start_time);
-                rendering::render_quad(model_pose * T_model_spark, nullptr, effect_options);
+                rendering::render_quad(model_pose * T_model_spark, effect_options);
                 break;
             case 1:
                 effect_options.custom_shader_uri = std::nullopt;
@@ -111,8 +111,8 @@ int main(int argc, char* argv[])
             default:
                 effect_options.scale = 10 * Eigen::Vector3f::Ones();
                 effect_options.custom_shader_uri = "sprite";
-                rendering::render_quad(
-                    model_pose * T_model_spark, &sprite_texture_array, effect_options);
+                effect_options.custom_texture = &sprite_texture_array;
+                rendering::render_quad(model_pose * T_model_spark, effect_options);
                 break;
         }
 
