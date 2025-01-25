@@ -126,11 +126,37 @@ ShaderProgram::ShaderProgram(const std::string& uri,
               << fragment_shader.filename << ") constructed" << std::endl;
 }
 
+ShaderProgram::ShaderProgram(ShaderProgram&& other)
+  : program_id(other.program_id), uri(std::move(other.uri))
+
+{
+    std::cout << "ShaderProgram(program_id=" << program_id << ") being moved" << std::endl;
+    other.is_owning = false;
+}
+
+ShaderProgram& ShaderProgram::operator=(ShaderProgram&& other)
+{
+    program_id = other.program_id;
+    uri = other.uri;
+
+    std::cout << "ShaderProgram(program_id=" << program_id << ") being moved" << std::endl;
+    other.is_owning = false;
+
+    return *this;
+}
+
 ShaderProgram::~ShaderProgram()
 {
-    std::cout << "ShaderProgram(program_id=" << program_id << ") being cleaned up" << std::endl;
-    glUseProgram(0);
-    glDeleteProgram(program_id);
+    if (is_owning)
+    {
+        std::cout << "ShaderProgram(program_id=" << program_id << ") being cleaned up" << std::endl;
+        glUseProgram(0);
+        glDeleteProgram(program_id);
+    }
+    else
+    {
+        std::cout << "  (Moved-from ShaderProgram does not free any resources)" << std::endl;
+    }
 }
 
 void ShaderProgram::set_uniform(const std::string& name, const int value) const
@@ -161,6 +187,8 @@ void ShaderProgram::set_uniform(const std::string& name, const Eigen::Matrix4f& 
 void ShaderProgram::set_uniform(const std::string& name,
                                 const Eigen::Matrix<float, 4, 3>& mat) const
 {
+    // Note: OpenGL nxm convention is backwards, see
+    // https://www.khronos.org/opengl/wiki/Data_Type_(GLSL)#Matrices
     glUniformMatrix3x4fv(glGetUniformLocation(program_id, name.c_str()), 1, GL_FALSE, mat.data());
 }
 
