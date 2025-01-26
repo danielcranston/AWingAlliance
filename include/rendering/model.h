@@ -45,6 +45,7 @@ class Mesh
     ~Mesh();
 
     std::string uri;
+    Eigen::AlignedBox3f aabb;
     int num_vertices;
     int num_indices;
     std::optional<std::string> diffuse_texname;  // Name of the texture defined in the model
@@ -87,7 +88,7 @@ struct Model
     std::vector<Mesh> meshes;
 
     std::string uri;
-    Eigen::AlignedBox3f bounding_box;
+    Eigen::AlignedBox3f aabb;
     std::vector<std::string> texture_names;
 };
 }  // namespace rendering

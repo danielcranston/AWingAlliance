@@ -27,12 +27,12 @@ class LoadedModelData
     {
         std::cout << "Loading \"" << uri << "\" ..." << std::endl;
 
-        scene = importer.ReadFile(std::string(data_handling::MODELS_PATH) + uri,
-                                  aiProcess_CalcTangentSpace | aiProcess_Triangulate |
-                                      aiProcess_FlipUVs | aiProcess_JoinIdenticalVertices |
-                                      aiProcess_SortByPType | aiProcess_OptimizeMeshes |
-                                      aiProcess_RemoveRedundantMaterials |
-                                      aiProcess_ImproveCacheLocality | aiProcess_OptimizeGraph);
+        scene = importer.ReadFile(
+            std::string(data_handling::MODELS_PATH) + uri,
+            aiProcess_CalcTangentSpace | aiProcess_Triangulate | aiProcess_FlipUVs |
+                aiProcess_JoinIdenticalVertices | aiProcess_SortByPType | aiProcess_OptimizeMeshes |
+                aiProcess_RemoveRedundantMaterials | aiProcess_ImproveCacheLocality |
+                aiProcess_OptimizeGraph | aiProcess_GenBoundingBoxes);
 
         if (!scene)
         {
@@ -143,6 +143,9 @@ Mesh::Mesh(const std::string& model_uri,
 {
     uri = model_uri + "_" + aimesh.mName.data;
 
+    aabb = { Eigen::Vector3f(aimesh.mAABB.mMin.x, aimesh.mAABB.mMin.y, aimesh.mAABB.mMin.z),
+             Eigen::Vector3f(aimesh.mAABB.mMax.x, aimesh.mAABB.mMax.y, aimesh.mAABB.mMax.z) };
+
     glGenVertexArrays(1, &vao);
     glGenBuffers(1, &vbo_vertices);
     glGenBuffers(1, &vbo_normals);
@@ -194,6 +197,7 @@ Mesh::Mesh(const std::string& model_uri,
 }
 Mesh::Mesh(Mesh&& other)
   : uri(other.uri),
+    aabb(other.aabb),
     num_vertices(other.num_vertices),
     num_indices(other.num_indices),
     diffuse_texname(other.diffuse_texname),
@@ -241,6 +245,8 @@ Model::Model(const std::string& uri, const std::optional<TextureLoaderFn> textur
         {
             texture_names.push_back(meshes.back().diffuse_texname.value());
         }
+
+        aabb = aabb.merged(meshes.back().aabb);
     }
 }
 
