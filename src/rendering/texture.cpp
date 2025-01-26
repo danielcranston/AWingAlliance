@@ -1,12 +1,14 @@
-#include <string>
-#include <iostream>
+#include "rendering/texture.h"
+
 #include <array>
-#include <list>
 #include <filesystem>
+#include <iostream>
+#include <list>
 #include <set>
+#include <string>
 
 #include <GL/glew.h>
-#include "rendering/texture.h"
+
 #include "data_handling.h"
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -41,10 +43,7 @@ struct LoadedTextureData
         }
     }
 
-    ~LoadedTextureData()
-    {
-        stbi_image_free(data);
-    }
+    ~LoadedTextureData() { stbi_image_free(data); }
 
     std::tuple<int, int, int> width_height_comp() const
     {
@@ -225,13 +224,13 @@ Texture::Texture(const std::string& uri, const Texture::Type type) : uri(uri), t
               << " height=" << height << " comp=" << comp << ") constructed" << std::endl;
 }
 
-Texture::Texture(Texture&& other)
-  : uri(std::move(other.uri)),
-    type(other.type),
-    width(other.width),
-    height(other.height),
-    comp(other.comp),
-    texture_id(other.texture_id)
+Texture::Texture(Texture&& other) :
+  uri(std::move(other.uri)),
+  type(other.type),
+  width(other.width),
+  height(other.height),
+  comp(other.comp),
+  texture_id(other.texture_id)
 {
     std::cout << "Texture \"" << uri << "\" (texID " << texture_id << ") being moved" << std::endl;
     other.is_owning = false;

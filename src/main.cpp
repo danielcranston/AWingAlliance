@@ -1,12 +1,13 @@
 #include <iostream>
-#include "rendering/model.h"
-#include "rendering/texture.h"
-#include "rendering/render.h"
-#include "rendering/shader_program.h"
-#include "rendering/context_manager.h"
-#include "rendering/global.h"
 
 #include <GL/glew.h>
+
+#include "rendering/context_manager.h"
+#include "rendering/global.h"
+#include "rendering/model.h"
+#include "rendering/render.h"
+#include "rendering/shader_program.h"
+#include "rendering/texture.h"
 
 Eigen::Isometry3f make_pose(const Eigen::Vector3f& pos,
                             const Eigen::Quaternionf& quat = Eigen::Quaternionf::Identity())

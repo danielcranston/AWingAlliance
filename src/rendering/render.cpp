@@ -1,10 +1,12 @@
 #include "rendering/render.h"
-#include "rendering/global.h"
-#include <iostream>
+
 #include <cmath>
+#include <iostream>
 #include <map>
 
 #include <GL/glew.h>
+
+#include "rendering/global.h"
 
 namespace rendering
 {

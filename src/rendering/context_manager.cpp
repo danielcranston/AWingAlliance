@@ -1,10 +1,11 @@
+#include "rendering/context_manager.h"
+
+#include <iostream>
+#include <memory>
+#include <sstream>
 #include <stdexcept>
 #include <string>
-#include <iostream>
-#include <sstream>
-#include <memory>
 
-#include "rendering/context_manager.h"
 #include "rendering/global.h"
 
 namespace rendering
@@ -51,8 +52,8 @@ void init_glew(const int screen_w, const int screen_h)
 
 ContextManager::ContextManager(const std::string& window_name,
                                const int screen_w,
-                               const int screen_h)
-  : screen_w(screen_w), screen_h(screen_h)
+                               const int screen_h) :
+  screen_w(screen_w), screen_h(screen_h)
 {
     init_sdl();
     window = SDL_CreateWindow(window_name.c_str(),

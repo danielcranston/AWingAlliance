@@ -1,9 +1,9 @@
 #include "rendering/shader_program.h"
 
 #include <fstream>
+#include <iostream>
 #include <string>
 #include <vector>
-#include <iostream>
 
 #include <GL/glew.h>
 
@@ -40,8 +40,8 @@ void print_info_log(const unsigned int obj, const char* fn, const bool is_progra
  */
 struct LoadedShaderObject
 {
-    LoadedShaderObject(const std::string& filename, const unsigned int shader_object_type)
-      : filename(filename)
+    LoadedShaderObject(const std::string& filename, const unsigned int shader_object_type) :
+      filename(filename)
     {
         std::cout << "Loading \"" << filename << "\" ..." << std::endl;
 
@@ -64,10 +64,7 @@ struct LoadedShaderObject
         }
     }
 
-    ~LoadedShaderObject()
-    {
-        glDeleteShader(shader);
-    }
+    ~LoadedShaderObject() { glDeleteShader(shader); }
 
     std::string filename;
     unsigned int shader;
@@ -105,8 +102,8 @@ unsigned int init_shader_program(const LoadedShaderObject& vertex_shader,
 
 ShaderProgram::ShaderProgram(const std::string& uri,
                              const std::string& vertex_filename,
-                             const std::string& fragment_filename)
-  : uri(uri)
+                             const std::string& fragment_filename) :
+  uri(uri)
 {
     const auto vertex_shader = LoadedShaderObject(vertex_filename, GL_VERTEX_SHADER);
     const auto fragment_shader = LoadedShaderObject(fragment_filename, GL_FRAGMENT_SHADER);
@@ -126,8 +123,8 @@ ShaderProgram::ShaderProgram(const std::string& uri,
               << fragment_shader.filename << ") constructed" << std::endl;
 }
 
-ShaderProgram::ShaderProgram(ShaderProgram&& other)
-  : program_id(other.program_id), uri(std::move(other.uri))
+ShaderProgram::ShaderProgram(ShaderProgram&& other) :
+  program_id(other.program_id), uri(std::move(other.uri))
 
 {
     std::cout << "ShaderProgram(program_id=" << program_id << ") being moved" << std::endl;

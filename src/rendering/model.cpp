@@ -1,17 +1,17 @@
-#include <string>
-#include <iostream>
-#include <vector>
-#include <algorithm>
-#include <tuple>
+#include "rendering/model.h"
 
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
+#include <algorithm>
+#include <iostream>
+#include <string>
+#include <tuple>
+#include <vector>
 
 #include <GL/glew.h>
+#include <assimp/Importer.hpp>
+#include <assimp/postprocess.h>
+#include <assimp/scene.h>
 
 #include "data_handling.h"
-#include "rendering/model.h"
 
 namespace rendering
 {
@@ -195,17 +195,17 @@ Mesh::Mesh(const std::string& model_uri,
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 }
-Mesh::Mesh(Mesh&& other)
-  : uri(other.uri),
-    aabb(other.aabb),
-    num_vertices(other.num_vertices),
-    num_indices(other.num_indices),
-    diffuse_texname(other.diffuse_texname),
-    vao(other.vao),
-    vbo_vertices(other.vbo_vertices),
-    vbo_indices(other.vbo_indices),
-    vbo_normals(other.vbo_normals),
-    vbo_texture_coords(other.vbo_texture_coords)
+Mesh::Mesh(Mesh&& other) :
+  uri(other.uri),
+  aabb(other.aabb),
+  num_vertices(other.num_vertices),
+  num_indices(other.num_indices),
+  diffuse_texname(other.diffuse_texname),
+  vao(other.vao),
+  vbo_vertices(other.vbo_vertices),
+  vbo_indices(other.vbo_indices),
+  vbo_normals(other.vbo_normals),
+  vbo_texture_coords(other.vbo_texture_coords)
 {
     std::cout << "Mesh \"" << uri << "\" (vao id " << vao << ") being moved" << std::endl;
     other.is_owning = false;
@@ -228,8 +228,8 @@ Mesh::~Mesh()
     }
 }
 
-Model::Model(const std::string& uri, const std::optional<TextureLoaderFn> texture_loader_fn)
-  : uri(uri)
+Model::Model(const std::string& uri, const std::optional<TextureLoaderFn> texture_loader_fn) :
+  uri(uri)
 {
     const auto model_data = LoadedModelData(uri);
 

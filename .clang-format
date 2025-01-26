@@ -1,0 +1,89 @@
+---
+BasedOnStyle: Google
+Standard: Auto
+UseTab: Never
+ColumnLimit: 100
+MaxEmptyLinesToKeep: 1
+
+# Indent length values
+IndentWidth: 4
+AccessModifierOffset: -2
+ContinuationIndentWidth: 4
+ConstructorInitializerIndentWidth: 2
+
+#Indent rules
+IndentCaseLabels: true
+IndentFunctionDeclarationAfterType: false
+NamespaceIndentation: None
+
+#Spacing rules
+SpaceAfterControlStatementKeyword: true
+SpaceAfterCStyleCast: false
+SpaceBeforeAssignmentOperators: true
+SpaceInEmptyParentheses: false
+SpacesBeforeTrailingComments: 2
+SpacesInAngles: false
+SpacesInCStyleCastParentheses: false
+SpacesInParentheses: false
+Cpp11BracedListStyle: false
+PointerBindsToType: true
+
+#Line break rules
+BreakConstructorInitializers: AfterColon
+AllowAllParametersOfDeclarationOnNextLine: false
+AllowShortFunctionsOnASingleLine: true
+AllowShortIfStatementsOnASingleLine: false
+AllowShortLoopsOnASingleLine: false
+AlwaysBreakBeforeMultilineStrings: false
+AlwaysBreakTemplateDeclarations: true
+BreakBeforeBinaryOperators: false
+BreakBeforeTernaryOperators: false
+BreakConstructorInitializersBeforeComma: false
+ConstructorInitializerAllOnOneLineOrOnePerLine: true
+
+BinPackArguments: false
+BinPackParameters: false
+ExperimentalAutoDetectBinPacking: false
+
+PenaltyBreakBeforeFirstCallParameter: 19
+PenaltyBreakComment: 60
+PenaltyBreakFirstLessLess: 1000
+PenaltyBreakString: 1
+PenaltyExcessCharacter: 1000
+PenaltyReturnTypeOnItsOwnLine: 90
+
+# Brace wrapping rules
+BreakBeforeBraces: Custom
+BraceWrapping:
+    AfterClass: "true"
+    AfterControlStatement: "true"
+    AfterEnum: "true"
+    AfterFunction: "true"
+    AfterNamespace: "true"
+    AfterStruct: "true"
+    AfterUnion: "true"
+    BeforeCatch: "true"
+    BeforeElse: "true"
+    # BeforeLambdaBody : 'true'
+    IndentBraces: "false"
+    SplitEmptyFunction: "false"
+    SplitEmptyRecord: "false"
+    SplitEmptyNamespace: "false"
+
+# Include sorting rules
+IncludeBlocks: Regroup
+SortIncludes: true
+IncludeCategories:
+    - Regex: "^<[a-z_]+>"
+      Priority: 1
+    - Regex: '^<(.*\.(h|hpp)|[[:alnum:]\/_]*)>'
+      Priority: 2
+    - Regex: '^".*\.(h|hpp)"'
+      Priority: 3
+
+#Misc rules
+AlignEscapedNewlinesLeft: false
+AlignTrailingComments: true
+AlignAfterOpenBracket: Align
+DerivePointerBinding: false
+FixNamespaceComments: true

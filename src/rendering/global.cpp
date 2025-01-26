@@ -1,11 +1,12 @@
 #include "rendering/global.h"
+
 #include <map>
+#include <memory>
+
+#include <GL/glew.h>
 
 #include "rendering/model.h"
 #include "rendering/texture.h"
-
-#include <GL/glew.h>
-#include <memory>
 
 namespace rendering::global
 {
