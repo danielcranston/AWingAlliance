@@ -1,23 +1,27 @@
 #pragma once
 
+#include <memory>
 #include <string>
 
-#include <GL/glew.h>
-#include <SDL2/SDL.h>
+class SDL_Window;
+typedef void* SDL_GLContext;
 
 namespace rendering
 {
 class ContextManager
 {
   public:
-    ContextManager(const std::string& window_name, const int screen_w, const int screen_h);
+    ContextManager(const std::string& window_name,
+                   const int screen_w,
+                   const int screen_h,
+                   const bool headless = false);
     ~ContextManager();
 
     int screen_w;
     int screen_h;
 
     SDL_Window* window;
-    SDL_GLContext context;
+    std::unique_ptr<SDL_GLContext> context;
 
   private:
     ContextManager(ContextManager&) = delete;

@@ -1,15 +1,15 @@
 #pragma once
 
-#include <vector>
-#include <string>
 #include <optional>
+#include <string>
+#include <vector>
 
 #include <Eigen/Geometry>
-// TODO: Consider forward declaring LoadedModelData as a means of avoiding assimp in public headers
-#include <assimp/mesh.h>
-#include <assimp/material.h>
 
 #include "rendering/texture.h"
+
+class aiMesh;
+class aiMaterial;
 
 namespace rendering
 {

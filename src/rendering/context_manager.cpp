@@ -6,16 +6,26 @@
 #include <stdexcept>
 #include <string>
 
+#include <GL/glew.h>
+#include <SDL2/SDL.h>
+
 #include "rendering/global.h"
 
 namespace rendering
 {
 namespace
 {
-void init_sdl()
+void init_sdl(const bool headless)
 {
+    if (headless)
+    {
+        SDL_SetHint(SDL_HINT_VIDEODRIVER, "offscreen");
+    }
+
     if (SDL_Init(SDL_INIT_EVERYTHING | SDL_VIDEO_OPENGL) != 0)
+    {
         throw std::runtime_error(std::string("SDL_Init failed: ") + SDL_GetError());
+    }
 
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
@@ -34,14 +44,19 @@ void init_sdl()
 void init_glew(const int screen_w, const int screen_h)
 {
     unsigned int glew_status = glewInit();
-    if (glew_status != GLEW_OK)
+    if (glew_status != GLEW_OK && glew_status != 4)
     {
-        std::stringstream ss;
-        ss << "Error initializing GLEW: " << glewGetErrorString(glew_status);
-        throw std::runtime_error(ss.str());
+        if (glew_status != 4)  // Unknown error "4" if headless. TODO: Figure out why
+        {
+            std::stringstream ss;
+            ss << "Error initializing GLEW: " << glewGetErrorString(glew_status) << ": "
+               << glew_status << std::endl;
+            throw std::runtime_error(ss.str());
+        }
     }
 
-    std::cout << "GLEW Initialized: " << glewGetErrorString(glew_status) << std::endl;
+    std::cout << "GLEW Initialized: " << glewGetErrorString(glew_status) << ": " << glew_status
+              << std::endl;
 
     glViewport(0, 0, screen_w, screen_h);
     glClearColor(0.1, 0.1, 0.1, 1);
@@ -52,10 +67,11 @@ void init_glew(const int screen_w, const int screen_h)
 
 ContextManager::ContextManager(const std::string& window_name,
                                const int screen_w,
-                               const int screen_h) :
+                               const int screen_h,
+                               const bool headless) :
   screen_w(screen_w), screen_h(screen_h)
 {
-    init_sdl();
+    init_sdl(headless);
     window = SDL_CreateWindow(window_name.c_str(),
                               SDL_WINDOWPOS_CENTERED,
                               SDL_WINDOWPOS_CENTERED,
@@ -63,7 +79,7 @@ ContextManager::ContextManager(const std::string& window_name,
                               screen_h,
                               SDL_WINDOW_OPENGL);
 
-    context = SDL_GL_CreateContext(window);
+    context = std::make_unique<SDL_GLContext>(SDL_GL_CreateContext(window));
     if (!window)
     {
         throw std::runtime_error(std::string("Error creating SDL window: ") + SDL_GetError());
@@ -76,7 +92,7 @@ ContextManager::ContextManager(const std::string& window_name,
 
 ContextManager::~ContextManager()
 {
-    SDL_GL_DeleteContext(context);
+    SDL_GL_DeleteContext(*context);
     SDL_DestroyWindow(window);
     SDL_Quit();
 }

@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include <GL/glew.h>
+#include <SDL2/SDL.h>
 
 #include "rendering/context_manager.h"
 #include "rendering/global.h"
