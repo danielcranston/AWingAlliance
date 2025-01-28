@@ -29,6 +29,7 @@ void set_effect_current_time(const float time);
 void set_effect_start_time(const float time);
 void set_effect_resolution(const int weight, const int height);
 void set_effect_num_layers(const int num_layers);
+void set_effect_fps(const int fps);
 
 void register_custom_shader(const std::string& uri,
                             const std::string& vertex_filename,

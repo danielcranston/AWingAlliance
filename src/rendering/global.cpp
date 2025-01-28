@@ -97,7 +97,7 @@ struct UniformBufferObjectEffectData
 {
     UniformBufferObjectEffectData()
     {
-        ubo = init_uniform_buffer_object(2, 2 * sizeof(float) + 3 * sizeof(int));
+        ubo = init_uniform_buffer_object(2, 2 * sizeof(float) + 4 * sizeof(int));
         glBindBuffer(GL_UNIFORM_BUFFER, 0);
     }
 
@@ -281,6 +281,17 @@ void set_effect_num_layers(const int num_layers)
         GL_UNIFORM_BUFFER, 2 * sizeof(float) + 2 * sizeof(int), 1 * sizeof(int), &num_layers);
 }
 
+void set_effect_fps(const int fps)
+{
+    if (CURRENT_UNIFORM_BUFFER != UBO_EFFECTDATA->ubo)
+    {
+        CURRENT_UNIFORM_BUFFER = UBO_EFFECTDATA->ubo;
+        glBindBuffer(GL_UNIFORM_BUFFER, UBO_EFFECTDATA->ubo);
+    }
+
+    glBufferSubData(GL_UNIFORM_BUFFER, 2 * sizeof(float) + 3 * sizeof(int), 1 * sizeof(int), &fps);
+}
+
 void register_custom_shader(const std::string& uri,
                             const std::string& vertex_filename,
                             const std::string& fragment_filename)
@@ -307,8 +318,8 @@ void init(const int width, const int height)
     UBO_MODELMATRICES = std::make_unique<UniformBufferObjectModelMatrices>();
     UBO_EFFECTDATA = std::make_unique<UniformBufferObjectEffectData>();
 
-    QUAD_MESH = std::make_unique<Mesh>(std::move(Model("quad.obj").meshes[0]));
-    CUBE_MESH = std::make_unique<Mesh>(std::move(Model("cube.obj").meshes[0]));
+    QUAD_MESH = std::make_unique<Mesh>(std::move(Model("primitives/quad.obj").meshes[0]));
+    CUBE_MESH = std::make_unique<Mesh>(std::move(Model("primitives/cube.obj").meshes[0]));
 
     MODEL_SHADER = std::make_unique<ShaderProgram>("model", "model.vert", "model.frag");
     SKYBOX_SHADER = std::make_unique<ShaderProgram>("skybox", "sky.vert", "sky.frag");

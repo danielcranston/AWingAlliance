@@ -60,7 +60,7 @@ int main(int argc, char* argv[])
     int camera_rotate_dir = 0;
     auto model_options = rendering::RenderOptions();
     model_options.scale = Eigen::Vector3f::Ones();
-    model_options.color = Eigen::Vector3f(0.5f, 0.0f, 0.0f);
+    model_options.color = Eigen::Vector3f(0.0f, 0.0f, 0.0f);
     auto effect_options = rendering::RenderOptions();
 
     bool should_shutdown = false;
@@ -113,6 +113,7 @@ int main(int argc, char* argv[])
                 effect_options.scale = 10 * Eigen::Vector3f::Ones();
                 effect_options.custom_shader_uri = "sprite";
                 effect_options.custom_texture = &sprite_texture_array;
+                rendering::global::set_effect_fps(60);
                 rendering::render_quad(model_pose * T_model_spark, effect_options);
                 break;
         }
