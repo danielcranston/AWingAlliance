@@ -2,6 +2,9 @@
 
 #include <SDL2/SDL.h>
 
+#include "imgui/backends/imgui_impl_opengl3.h"
+#include "imgui/backends/imgui_impl_sdl2.h"
+#include "imgui/imgui.h"
 #include "rendering/context_manager.h"
 #include "rendering/global.h"
 #include "rendering/model.h"
@@ -58,9 +61,14 @@ int main(int argc, char* argv[])
     auto T_model_spark = make_pose({ 0.0f, 0.0f, 5.0f });
     auto camera_pose = make_pose({ 0.0f, 0.0f, -50.0f });
     int camera_rotate_dir = 0;
-    auto model_options = rendering::RenderOptions();
-    model_options.scale = Eigen::Vector3f::Ones();
-    model_options.color = Eigen::Vector3f(0.0f, 0.0f, 0.0f);
+
+    float model_scale = 1.0f;
+    float model_alpha = 1.0f;
+    ImVec4 model_color;
+    int model_draw_mode = 0;
+    int transition_mode = 0;
+    int effect_mode = 0;
+
     auto effect_options = rendering::RenderOptions();
 
     bool should_shutdown = false;
@@ -71,9 +79,7 @@ int main(int argc, char* argv[])
         float time = SDL_GetTicks() / 1000.0f;
         float effect_start_time = std::floor(time / 1.0f) * 1.0f;
 
-        model_pose.translation().x() = 5.0f * std::sin(time);
-        model_options.scale->z() = 0.5 * std::sin(2 * time) + 1.0f;
-        model_options.alpha = model_options.scale->z();
+        model_pose.translation().y() = 3.0f * std::sin(time);
 
         // Render
 
@@ -83,13 +89,44 @@ int main(int argc, char* argv[])
 
         rendering::render_skybox(sky_texture);
 
+        auto model_options = rendering::RenderOptions();
+        model_options.alpha = model_alpha;
+        model_options.scale = Eigen::Vector3f::Ones() * model_scale;
+        model_options.color = Eigen::Vector3f(model_color.x, model_color.y, model_color.z);
+        model_options.draw_mode = model_draw_mode == 0 ?
+                                      rendering::RenderOptions::DrawMode::TRIANGLES :
+                                      rendering::RenderOptions::DrawMode::LINE_STRIP;
         rendering::render_model(ship_model, model_pose, model_options);
 
         rendering::global::set_effect_current_time(time);
 
-        switch (static_cast<int>(effect_start_time) % 8)
+        switch (transition_mode)
+        {
+            case 1:
+                effect_start_time = std::floor(time / 2.0f) * 2.0f;
+                effect_options.custom_shader_uri = std::nullopt;
+                effect_options.scale = 2 * Eigen::Vector3f::Ones();
+                rendering::global::set_effect_start_time(effect_start_time);
+                rendering::render_fullscreen(effect_start_time, effect_options);
+                break;
+            case 2:
+                effect_options.custom_shader_uri = "hyperspace_jump";
+                effect_options.scale = 2 * Eigen::Vector3f::Ones();
+                rendering::render_fullscreen(effect_start_time, effect_options);
+                break;
+            case 3:
+                effect_options.custom_shader_uri = "hyperspace_tunnel";
+                effect_options.scale = 2 * Eigen::Vector3f::Ones();
+                rendering::render_fullscreen(effect_start_time, effect_options);
+                break;
+            default:
+                break;
+        }
+
+        switch (effect_mode)
         {
             case 0:
+
                 effect_options.scale = 15 * Eigen::Vector3f::Ones();
                 effect_options.custom_shader_uri = "spark";
                 effect_options.custom_texture = nullptr;
@@ -97,19 +134,6 @@ int main(int argc, char* argv[])
                 rendering::render_quad(model_pose * T_model_spark, effect_options);
                 break;
             case 1:
-                effect_options.custom_shader_uri = std::nullopt;
-                effect_options.scale = 2 * Eigen::Vector3f::Ones();
-                rendering::render_fullscreen(effect_start_time, effect_options);
-                break;
-            case 2:
-                effect_options.custom_shader_uri = "hyperspace_tunnel";
-                rendering::render_fullscreen(effect_start_time, effect_options);
-                break;
-            case 3:
-                effect_options.custom_shader_uri = "hyperspace_jump";
-                rendering::render_fullscreen(effect_start_time, effect_options);
-                break;
-            default:
                 effect_options.scale = 10 * Eigen::Vector3f::Ones();
                 effect_options.custom_shader_uri = "sprite";
                 effect_options.custom_texture = &sprite_texture_array;
@@ -118,11 +142,36 @@ int main(int argc, char* argv[])
                 break;
         }
 
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplSDL2_NewFrame();
+        ImGui::NewFrame();
+
+        ImGui::Begin("Rendering Demo");
+        ImGui::SeparatorText("Model");
+        ImGui::SliderFloat("Alpa", &model_alpha, 0.0f, 1.0f);
+        ImGui::SliderFloat("Scale", &model_scale, 0.5, 1.5f);
+        ImGui::ColorEdit3("ColorPicker", (float*)&model_color, ImGuiColorEditFlags_NoOptions);
+        ImGui::RadioButton("TRIANGLES", &model_draw_mode, 0);
+        ImGui::RadioButton("LINE_STRIP", &model_draw_mode, 1);
+        ImGui::SeparatorText("Effect");
+        ImGui::RadioButton("Spark", &effect_mode, 0);
+        ImGui::RadioButton("Animated sprite", &effect_mode, 1);
+        ImGui::SeparatorText("Transition");
+        ImGui::RadioButton("None", &transition_mode, 0);
+        ImGui::RadioButton("Wipe", &transition_mode, 1);
+        ImGui::RadioButton("Hyperspace jump", &transition_mode, 2);
+        ImGui::RadioButton("Hyperspace tunnel", &transition_mode, 3);
+        ImGui::End();
+
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
         SDL_GL_SwapWindow(context_manager.window);
 
         SDL_Event event;
         while (SDL_PollEvent(&event))
         {
+            ImGui_ImplSDL2_ProcessEvent(&event);
             if (event.type == SDL_QUIT ||
                 (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE))
             {

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <vector>
 #include <optional>
+#include <vector>
 
 #include "rendering/model.h"
 #include "rendering/shader_program.h"

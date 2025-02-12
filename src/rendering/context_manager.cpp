@@ -9,6 +9,9 @@
 #include <GL/glew.h>
 #include <SDL2/SDL.h>
 
+#include "imgui/backends/imgui_impl_opengl3.h"
+#include "imgui/backends/imgui_impl_sdl2.h"
+#include "imgui/imgui.h"
 #include "rendering/global.h"
 
 namespace rendering
@@ -38,7 +41,7 @@ void init_sdl(const bool headless)
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
 
     SDL_ShowCursor(true);
-    SDL_SetRelativeMouseMode(SDL_TRUE);
+    // SDL_SetRelativeMouseMode(SDL_TRUE);
 }
 
 void init_glew(const int screen_w, const int screen_h)
@@ -63,6 +66,18 @@ void init_glew(const int screen_w, const int screen_h)
     glDisable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
+
+void init_imgui(SDL_Window* window, SDL_GLContext& context)
+{
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+    std::ignore = io;
+    ImGui::StyleColorsDark();
+
+    ImGui_ImplSDL2_InitForOpenGL(window, context);
+    ImGui_ImplOpenGL3_Init("#version 450");
+}
 }  // namespace
 
 ContextManager::ContextManager(const std::string& window_name,
@@ -86,6 +101,7 @@ ContextManager::ContextManager(const std::string& window_name,
     }
 
     init_glew(screen_w, screen_h);
+    init_imgui(window, *context);
 
     global::impl::init(screen_w, screen_h);
 }
