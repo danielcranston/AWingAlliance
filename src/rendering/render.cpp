@@ -55,7 +55,7 @@ void render_mesh(const Mesh& mesh,
         {
             glBindTexture(GL_TEXTURE_2D, texture->texture_id);
         }
-        else if (texture->type == Texture::Type::TEXTURE)
+        else if (texture->type == Texture::Type::CUBEMAP)
         {
             glBindTexture(GL_TEXTURE_CUBE_MAP, texture->texture_id);
         }
