@@ -18,6 +18,9 @@ extern std::unique_ptr<Mesh> CUBE_MESH;
 extern std::unique_ptr<ShaderProgram> MODEL_SHADER;
 extern std::unique_ptr<ShaderProgram> SKYBOX_SHADER;
 extern std::unique_ptr<ShaderProgram> SCREENSPACE_SHADER;
+extern std::unique_ptr<ShaderProgram> LINESTRIP_SHADER;
+
+extern void buffer_line_data(const Eigen::VectorXf& data);
 
 extern std::map<std::string, std::unique_ptr<ShaderProgram>> CUSTOM_SHADERS;
 }  // namespace global
@@ -104,6 +107,25 @@ void render_model(const Model& model,
         render_mesh(mesh, *global::MODEL_SHADER, pose, options);
     }
     global::use_alpha(false);
+}
+
+void render_line(const Eigen::Vector2f& start,
+                 const Eigen::Vector2f& finish,
+                 const RenderOptions& options)
+{
+    global::use_program(*global::LINESTRIP_SHADER);
+    global::cull_back_faces(false);
+    global::set_model_use_texture(false);
+    global::set_model_alpha(options.alpha ? options.alpha.value() : 1.0f);
+    global::set_model_color(options.color ? options.color.value() : Eigen::Vector3f::Ones());
+
+    Eigen::VectorXf data(start.size() + finish.size());
+    data << start, finish;
+    std::cout << data.size() << std::endl;
+    std::cout << data << std::endl;
+    global::buffer_line_data(data);
+    // glBindVertexArray(0);
+    glDrawArrays(GL_LINE_STRIP, 0, 2);
 }
 
 void render_skybox(const Texture& texture)

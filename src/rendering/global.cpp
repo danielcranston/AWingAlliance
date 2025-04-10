@@ -13,6 +13,7 @@ namespace rendering::global
 struct UniformBufferObjectCameraMatrices;
 struct UniformBufferObjectModelMatrices;
 struct UniformBufferObjectEffectData;
+struct UniformBufferObjectLineStripData;
 
 /**
  * @brief Hidden global state
@@ -21,10 +22,12 @@ struct UniformBufferObjectEffectData;
 static std::unique_ptr<UniformBufferObjectCameraMatrices> UBO_CAMERAMATRICES = nullptr;
 static std::unique_ptr<UniformBufferObjectModelMatrices> UBO_MODELMATRICES = nullptr;
 static std::unique_ptr<UniformBufferObjectEffectData> UBO_EFFECTDATA = nullptr;
+static std::unique_ptr<UniformBufferObjectLineStripData> UBO_LINESTRIPDATA = nullptr;
 
 std::unique_ptr<ShaderProgram> MODEL_SHADER;
 std::unique_ptr<ShaderProgram> SKYBOX_SHADER;
 std::unique_ptr<ShaderProgram> SCREENSPACE_SHADER;
+std::unique_ptr<ShaderProgram> LINESTRIP_SHADER;
 
 std::map<std::string, std::unique_ptr<ShaderProgram>> CUSTOM_SHADERS;
 
@@ -103,6 +106,33 @@ struct UniformBufferObjectEffectData
 
     unsigned int ubo;
 };
+
+struct UniformBufferObjectLineStripData
+{
+    static constexpr int MAX_LINE_STRIP = 64;
+    UniformBufferObjectLineStripData()
+    {
+        ubo = init_uniform_buffer_object(3, sizeof(int) + MAX_LINE_STRIP * 2 * sizeof(float));
+
+        Eigen::VectorXf data = Eigen::VectorXf::Constant(MAX_LINE_STRIP * 2, -0.5f);
+
+        glBufferSubData(GL_UNIFORM_BUFFER, 0, data.size() * sizeof(float), data.data());
+        glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    }
+
+    unsigned int ubo;
+};
+
+void buffer_line_data(const Eigen::VectorXf& data)
+{
+    if (CURRENT_UNIFORM_BUFFER != UBO_LINESTRIPDATA->ubo)
+    {
+        CURRENT_UNIFORM_BUFFER = UBO_LINESTRIPDATA->ubo;
+        glBindBuffer(GL_UNIFORM_BUFFER, UBO_LINESTRIPDATA->ubo);
+    }
+
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, data.size() * sizeof(float), data.data());
+}
 
 void clear_frame(const bool color_buffer, const bool depth_buffer)
 {
@@ -317,6 +347,7 @@ void init(const int width, const int height)
     UBO_CAMERAMATRICES = std::make_unique<UniformBufferObjectCameraMatrices>();
     UBO_MODELMATRICES = std::make_unique<UniformBufferObjectModelMatrices>();
     UBO_EFFECTDATA = std::make_unique<UniformBufferObjectEffectData>();
+    UBO_LINESTRIPDATA = std::make_unique<UniformBufferObjectLineStripData>();
 
     QUAD_MESH = std::make_unique<Mesh>(std::move(Model("primitives/quad.obj").meshes[0]));
     CUBE_MESH = std::make_unique<Mesh>(std::move(Model("primitives/cube.obj").meshes[0]));
@@ -325,6 +356,8 @@ void init(const int width, const int height)
     SKYBOX_SHADER = std::make_unique<ShaderProgram>("skybox", "sky.vert", "sky.frag");
     SCREENSPACE_SHADER =
         std::make_unique<ShaderProgram>("screenspace", "screenspace.vert", "screenspace.frag");
+    LINESTRIP_SHADER =
+        std::make_unique<ShaderProgram>("linestrip", "linestrip.vert", "linestrip.frag");
 
     set_effect_resolution(width, height);
 

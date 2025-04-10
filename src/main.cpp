@@ -51,7 +51,8 @@ int main(int argc, char* argv[])
         { { "hyperspace_tunnel", "screenspace.vert", "hyperspace_tunnel.frag" },
           { "hyperspace_jump", "screenspace.vert", "hyperspace_jump.frag" },
           { "sprite", "model.vert", "sprite.frag" },
-          { "spark", "model.vert", "spark.frag" } });
+          { "spark", "model.vert", "spark.frag" },
+          { "wipe_transition", "screenspace.vert", "wipe_transition.frag" } });
 
     rendering::global::set_camera_perspective(perspective(M_PI / 180.0f * 45.0,  //
                                                           1200.0 / 900.0,
@@ -98,11 +99,17 @@ int main(int argc, char* argv[])
                                       rendering::RenderOptions::DrawMode::LINE_STRIP;
         rendering::render_model(ship_model, model_pose, model_options);
 
+        model_options.color = Eigen::Vector3f(1.0f, 0.0f, 0.0f);
+        rendering::render_line(Eigen::Vector2f(std::sin(time), std::cos(time)),
+                               Eigen::Vector2f(-0.5f, 0.5f),
+                               model_options);
+
         rendering::global::set_effect_current_time(time);
 
         switch (transition_mode)
         {
             case 1:
+                effect_options.custom_shader_uri = "wipe_transition";
                 effect_start_time = std::floor(time / 2.0f) * 2.0f;
                 effect_options.custom_shader_uri = std::nullopt;
                 effect_options.scale = 2 * Eigen::Vector3f::Ones();

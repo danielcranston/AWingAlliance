@@ -37,6 +37,9 @@ struct RenderOptions
 
 void render_quad(const Eigen::Isometry3f& pose,
                  const std::optional<RenderOptions>& options = std::nullopt);
+void render_line(const Eigen::Vector2f& start,
+                 const Eigen::Vector2f& finish,
+                 const RenderOptions& options);
 void render_model(const Model& model,
                   const Eigen::Isometry3f& pose,
                   const std::optional<RenderOptions>& options = std::nullopt);
